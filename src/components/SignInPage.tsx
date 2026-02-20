@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState, useMemo } from 'react';
-import { useForm } from 'react-hook-form';
-import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { signIn } from 'next-auth/react';
+import { useState, useMemo } from "react";
+import { useForm } from "react-hook-form";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { signIn } from "next-auth/react";
 
 type FormData = {
   email: string;
@@ -15,17 +15,17 @@ type FormData = {
 export default function SignInPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
 
   const successMessage = useMemo(() => {
-    return searchParams.get('verified') === 'true'
-      ? 'Email verified successfully! You can now sign in.'
-      : '';
+    return searchParams.get("verified") === "true"
+      ? "Email verified successfully! You can now sign in."
+      : "";
   }, [searchParams]);
 
   const urlError = useMemo(() => {
-    const error = searchParams.get('error');
-    return error ? 'Authentication failed. Please try again.' : '';
+    const error = searchParams.get("error");
+    return error ? "Authentication failed. Please try again." : "";
   }, [searchParams]);
 
   const {
@@ -33,14 +33,14 @@ export default function SignInPage() {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
-    mode: 'onBlur',
+    mode: "onBlur",
   });
 
   const onSubmit = async (data: FormData) => {
-    setErrorMessage('');
+    setErrorMessage("");
 
     try {
-      const result = await signIn('credentials', {
+      const result = await signIn("credentials", {
         redirect: false,
         email: data.email,
         password: data.password,
@@ -49,41 +49,45 @@ export default function SignInPage() {
       if (result?.error) {
         setErrorMessage(result.error);
       } else if (result?.ok) {
-        router.push('/dashboard');
+        router.push("/dashboard");
       }
     } catch (error) {
-      setErrorMessage('An error occurred. Please try again.');
+      setErrorMessage("An error occurred. Please try again.");
     }
   };
 
   const handleSocialLogin = (provider: string) => {
-    if (provider === 'Google') {
-      signIn('google', { callbackUrl: '/dashboard' });
+    if (provider === "Google") {
+      signIn("google", { callbackUrl: "/dashboard" });
     }
     // Facebook implementation pending
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-surface-100">
+    <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-surface-100 dark:bg-slate-950 transition-colors duration-300">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-primary-100 mb-2">Al-Diyar</h1>
-          <p className="text-text-muted">Welcome back! Sign in to continue</p>
+          <h1 className="text-3xl font-bold text-primary-100 dark:text-white mb-2">
+            Al-Diyar
+          </h1>
+          <p className="text-text-muted dark:text-slate-400">
+            Welcome back! Sign in to continue
+          </p>
         </div>
 
-        <div className="bg-light rounded-2xl p-8 shadow-[var(--shadow-soft)] border border-surface-300">
+        <div className="bg-light dark:bg-slate-900 rounded-2xl p-8 shadow-soft dark:shadow-premium border border-surface-300 dark:border-slate-800 transition-all duration-300">
           {/* Success Message */}
           {successMessage && (
-            <div className="mb-4 p-4 bg-green-100 border border-green-300 rounded-xl">
-              <p className="text-sm text-green-700">{successMessage}</p>
+            <div className="mb-4 p-4 bg-green-100/10 border border-green-500/20 rounded-xl">
+              <p className="text-sm text-green-500">{successMessage}</p>
             </div>
           )}
 
           {/* Error Message */}
           {(errorMessage || urlError) && (
-            <div className="mb-4 p-4 bg-danger-100 border border-danger-300 rounded-xl">
-              <p className="text-sm text-danger-300">
+            <div className="mb-4 p-4 bg-danger-100/10 border border-danger-500/20 rounded-xl">
+              <p className="text-sm text-danger-500">
                 {errorMessage || urlError}
               </p>
             </div>
@@ -95,29 +99,29 @@ export default function SignInPage() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-text-main mb-2"
+                className="block text-sm font-medium text-text-main dark:text-slate-200 mb-2"
               >
                 Email Address
               </label>
               <input
                 type="email"
                 id="email"
-                {...register('email', {
-                  required: 'Email is required',
+                {...register("email", {
+                  required: "Email is required",
                   pattern: {
                     value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: 'Invalid email address',
+                    message: "Invalid email address",
                   },
                 })}
-                className={`w-full px-4 py-3 bg-surface-tonal-100 border rounded-xl text-text-main placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-transparent transition-all duration-300 ${
+                className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-transparent transition-all duration-300 ${
                   errors.email
-                    ? 'border-danger-300'
-                    : 'border-surface-tonal-300'
+                    ? "border-danger-300 dark:border-danger-500"
+                    : "border-surface-tonal-300 dark:border-slate-700"
                 }`}
                 placeholder="you@example.com"
               />
               {errors.email && (
-                <p className="mt-1 text-sm text-danger-300">
+                <p className="mt-1 text-sm text-danger-300 dark:text-danger-400">
                   {errors.email.message}
                 </p>
               )}
@@ -127,29 +131,29 @@ export default function SignInPage() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-text-main mb-2"
+                className="block text-sm font-medium text-text-main dark:text-slate-200 mb-2"
               >
                 Password
               </label>
               <input
                 type="password"
                 id="password"
-                {...register('password', {
-                  required: 'Password is required',
+                {...register("password", {
+                  required: "Password is required",
                   minLength: {
                     value: 6,
-                    message: 'Password must be at least 6 characters',
+                    message: "Password must be at least 6 characters",
                   },
                 })}
-                className={`w-full px-4 py-3 bg-surface-tonal-100 border rounded-xl text-text-main placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-transparent transition-all duration-300 ${
+                className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-transparent transition-all duration-300 ${
                   errors.password
-                    ? 'border-danger-300'
-                    : 'border-surface-tonal-300'
+                    ? "border-danger-300 dark:border-danger-500"
+                    : "border-surface-tonal-300 dark:border-slate-700"
                 }`}
                 placeholder="Enter your password"
               />
               {errors.password && (
-                <p className="mt-1 text-sm text-danger-300">
+                <p className="mt-1 text-sm text-danger-300 dark:text-danger-400">
                   {errors.password.message}
                 </p>
               )}
@@ -161,16 +165,19 @@ export default function SignInPage() {
                 <input
                   type="checkbox"
                   id="rememberMe"
-                  {...register('rememberMe')}
-                  className="w-4 h-4 text-primary-100 bg-surface-tonal-100 border-surface-tonal-300 rounded focus:ring-primary-100 focus:ring-2"
+                  {...register("rememberMe")}
+                  className="w-4 h-4 text-primary-100 dark:text-primary-light bg-surface-tonal-100 dark:bg-slate-800 border-surface-tonal-300 dark:border-slate-700 rounded focus:ring-primary-100 focus:ring-2"
                 />
-                <label htmlFor="rememberMe" className="text-sm text-text-muted">
+                <label
+                  htmlFor="rememberMe"
+                  className="text-sm text-text-muted dark:text-slate-400"
+                >
                   Remember me
                 </label>
               </div>
               <Link
                 href="/auth/forgot-password"
-                className="text-sm text-primary-100 hover:underline font-medium"
+                className="text-sm text-primary-100 dark:text-primary-light hover:underline font-medium"
               >
                 Forgot password?
               </Link>
@@ -180,19 +187,19 @@ export default function SignInPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3 px-4 bg-primary-100 text-light font-semibold rounded-xl shadow-[var(--shadow-glow)] hover:bg-primary-200 focus:outline-none focus:ring-2 focus:ring-primary-100 focus:ring-offset-2 transition-all duration-300 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3 px-4 bg-primary-100 dark:bg-white text-light dark:text-slate-900 font-semibold rounded-xl shadow-glow dark:shadow-premium hover:bg-primary-200 dark:hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-100 focus:ring-offset-2 transition-all duration-300 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? 'Signing In...' : 'Sign In'}
+              {isSubmitting ? "Signing In..." : "Sign In"}
             </button>
           </form>
 
           {/* Divider */}
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-surface-tonal-300"></div>
+              <div className="w-full border-t border-surface-tonal-300 dark:border-slate-800"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-light text-text-muted">
+              <span className="px-4 bg-light dark:bg-slate-900 text-text-muted dark:text-slate-400 transition-colors duration-300">
                 Or continue with
               </span>
             </div>
@@ -202,8 +209,8 @@ export default function SignInPage() {
           <div className="space-y-3">
             <button
               type="button"
-              onClick={() => handleSocialLogin('Google')}
-              className="w-full py-3 px-4 bg-surface-tonal-100 text-text-main font-medium rounded-xl border border-surface-tonal-300 hover:bg-surface-tonal-200 focus:outline-none focus:ring-2 focus:ring-primary-100 transition-all duration-300 flex items-center justify-center gap-3"
+              onClick={() => handleSocialLogin("Google")}
+              className="w-full py-3 px-4 bg-surface-tonal-100 dark:bg-slate-800 text-text-main dark:text-white font-medium rounded-xl border border-surface-tonal-300 dark:border-slate-700 hover:bg-surface-tonal-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-100 transition-all duration-300 flex items-center justify-center gap-3"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path
@@ -228,8 +235,8 @@ export default function SignInPage() {
 
             <button
               type="button"
-              onClick={() => handleSocialLogin('Facebook')}
-              className="w-full py-3 px-4 bg-surface-tonal-100 text-text-main font-medium rounded-xl border border-surface-tonal-300 hover:bg-surface-tonal-200 focus:outline-none focus:ring-2 focus:ring-primary-100 transition-all duration-300 flex items-center justify-center gap-3"
+              onClick={() => handleSocialLogin("Facebook")}
+              className="w-full py-3 px-4 bg-surface-tonal-100 dark:bg-slate-800 text-text-main dark:text-white font-medium rounded-xl border border-surface-tonal-300 dark:border-slate-700 hover:bg-surface-tonal-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-100 transition-all duration-300 flex items-center justify-center gap-3"
             >
               <svg className="w-5 h-5" fill="#1877F2" viewBox="0 0 24 24">
                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
@@ -239,11 +246,11 @@ export default function SignInPage() {
           </div>
 
           {/* Sign Up */}
-          <p className="mt-6 text-center text-sm text-text-muted">
-            Don&apos;t have an account?{' '}
+          <p className="mt-6 text-center text-sm text-text-muted dark:text-slate-400">
+            Don&apos;t have an account?{" "}
             <Link
               href="/auth/signup"
-              className="text-primary-100 hover:underline font-semibold"
+              className="text-primary-100 dark:text-primary-light hover:underline font-semibold"
             >
               Sign Up
             </Link>
@@ -251,11 +258,11 @@ export default function SignInPage() {
         </div>
 
         {/* Additional Info for Agents */}
-        <div className="mt-6 p-4 bg-surface-tonal-100 rounded-xl border border-surface-tonal-300">
-          <p className="text-sm text-text-muted text-center">
-            <span className="font-medium text-text-main">
+        <div className="mt-6 p-4 bg-surface-tonal-100 dark:bg-slate-800 rounded-xl border border-surface-tonal-300 dark:border-slate-700">
+          <p className="text-sm text-text-muted dark:text-slate-400 text-center">
+            <span className="font-medium text-text-main dark:text-white">
               Are you an Agent?
-            </span>{' '}
+            </span>{" "}
             Sign up to list properties and connect with buyers
           </p>
         </div>
