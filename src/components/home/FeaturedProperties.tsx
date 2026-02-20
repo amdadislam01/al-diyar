@@ -41,30 +41,33 @@ const properties = [
 
 const FeaturedProperties = () => {
   return (
-    <section className="py-32 bg-slate-50 dark:bg-slate-950/50">
+    <section className="py-24 bg-white dark:bg-slate-950 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-16">
-          <div className="max-w-xl">
-            <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-6 leading-tight">
-              Featured <span className="text-gradient">Collection.</span>
+        <div className="flex justify-between items-center mb-12">
+          <div>
+            <h2 className="text-4xl font-bold text-slate-900 dark:text-white mb-2">
+              Popular Listings
             </h2>
-            <p className="text-lg text-slate-600 dark:text-slate-400 font-medium leading-relaxed">
-              Explore our curated selection of properties. Each listing is
-              hand-picked for its exceptional design and prime location.
+            <p className="text-slate-500 dark:text-slate-400 text-sm">
+              Popular properties for rent and sale available at homespage
             </p>
           </div>
-          <button className="group flex items-center gap-3 px-8 py-4 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-bold text-sm shadow-premium hover:shadow-xl transition-all">
-            View All Properties
-            <span className="material-icons-round text-accent group-hover:translate-x-1 transition-transform">
-              arrow_forward
-            </span>
+          <button className="flex items-center gap-2 px-6 py-2.5 rounded-full border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-900 transition-all uppercase tracking-widest">
+            Explore All
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {properties.map((property) => (
             <PropertyCard key={property.id} {...property} />
           ))}
+        </div>
+
+        {/* Pagination Dots - matching image */}
+        <div className="mt-12 flex items-center justify-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-slate-200 dark:bg-slate-800"></div>
+          <div className="w-8 h-2 rounded-full bg-slate-900 dark:bg-white"></div>
+          <div className="w-2 h-2 rounded-full bg-slate-200 dark:bg-slate-800"></div>
         </div>
       </div>
     </section>
