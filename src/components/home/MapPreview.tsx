@@ -14,7 +14,7 @@ const MapPreview = () => {
 
       {/* Interactive Hub Visuals */}
       <div className="relative z-10 h-full w-full max-w-7xl mx-auto px-4 flex flex-col items-center justify-center text-center">
-        <div className="space-y-6 max-w-2xl px-8 py-12 glass rounded-[3rem] shadow-glass border border-white/10 backdrop-blur-2xl">
+        <div className="space-y-6 max-w-2xl px-8 py-12 glass dark:bg-slate-900/60 rounded-[3rem] shadow-glass border border-white/10 dark:border-white/5 backdrop-blur-2xl">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/20 border border-accent/30 text-accent text-[10px] font-black uppercase tracking-widest mb-2">
             <span className="material-icons-round text-sm">explore</span>
             Interactive Geography

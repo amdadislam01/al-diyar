@@ -1,14 +1,20 @@
 @import "tailwindcss";
 
 @theme {
-  /* Premium Palette */
-  --color-primary: #1e40af; /* Deep Blue */
-  --color-accent: #3b82f6; /* Electric Blue */
+  /* Premium Palette - Based on deep blue theme */
+  --color-primary: #1e40af; /* Deep Blue - User specified no change */
+  --color-primary-light: #3b82f6;
+  --color-primary-dark: #1e3a8a;
 
-  --color-background-light: #f8fafc;
-  --color-background-dark: #020617; /* Slate 950 - Premium Dark */
+  --color-accent: #f97316; /* Orange - From the image for CTAs */
+  --color-accent-hover: #ea580c;
+
+  --color-background-light: #ffffff;
+  --color-background-soft: #f8fafc;
+  --color-background-dark: #020617;
+
   --color-surface: #ffffff;
-  --color-surface-dark: #0f172a; /* Slate 900 */
+  --color-surface-dark: #0f172a;
 
   /* Semantic Colors */
   --color-success: #10b981;
@@ -26,12 +32,39 @@
   --color-slate-700: #334155;
   --color-slate-800: #1e293b;
   --color-slate-900: #0f172a;
+  --color-slate-950: #020617;
 
   /* Shadows */
   --shadow-premium: 0 10px 30px -5px rgba(2, 6, 23, 0.05);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.05);
   --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+  --shadow-soft:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.3);
 
-  --font-display: "Inter", system-ui, sans-serif;
+  --font-display: "Epilogue", var(--font-epilogue), system-ui, sans-serif;
+
+  /* Custom palette for auth/dashboard components */
+  --color-surface-100: #f1f5f9;
+  --color-surface-300: #e2e8f0;
+  --color-surface-tonal-100: #f8fafc;
+  --color-surface-tonal-300: #f1f5f9;
+  --color-text-main: #0f172a;
+  --color-text-muted: #64748b;
+  --color-light: #ffffff;
+}
+
+.dark {
+  --color-surface-100: #020617;
+  --color-surface-300: #1e293b;
+  --color-surface-tonal-100: #0f172a;
+  --color-surface-tonal-300: #1e293b;
+  --color-text-main: #f1f5f9;
+  --color-text-muted: #94a3b8;
+  --color-light: #0f172a;
+  --shadow-soft:
+    0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.18);
+  --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.1);
 }
 
 @layer utilities {
@@ -111,11 +144,26 @@
       transform: scale(1.1);
     }
   }
+
+  .animate-marquee {
+    animation: marquee 30s linear infinite;
+  }
+
+  @keyframes marquee {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
 }
+
+@variant dark (&:where(.dark, .dark *));
 
 @layer base {
   body {
-    @apply bg-background-light dark:bg-background-dark font-display text-slate-800 dark:text-slate-200 antialiased;
+    @apply bg-background-light dark:bg-background-dark font-display text-slate-800 dark:text-slate-200 antialiased transition-colors duration-300;
   }
 
   ::selection {
