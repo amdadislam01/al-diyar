@@ -43,17 +43,18 @@ const FeaturedProperties = () => {
   return (
     <section className="py-24 bg-white dark:bg-slate-950 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center mb-12">
-          <div>
-            <h2 className="text-4xl font-bold text-slate-900 dark:text-white mb-2">
-              Popular Listings
+        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+          <div className="max-w-xl">
+            <h2 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white mb-6 tracking-tighter">
+              Popular <span className="text-gradient">Listings</span>
             </h2>
-            <p className="text-slate-500 dark:text-slate-400 text-sm">
-              Popular properties for rent and sale available at homespage
+            <p className="text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
+              Discover our handpicked selection of properties that define modern
+              luxury living. From urban penthouses to serene coastal villas.
             </p>
           </div>
-          <button className="flex items-center gap-2 px-6 py-2.5 rounded-full border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-900 transition-all uppercase tracking-widest">
-            Explore All
+          <button className="text-xs font-black text-slate-900 dark:text-white border-2 border-slate-900 dark:border-white px-8 py-3 rounded-xl uppercase tracking-widest hover:bg-slate-900 hover:text-white dark:hover:bg-white dark:hover:text-slate-900 transition-all duration-300">
+            Explore All Listings
           </button>
         </div>
 
@@ -64,10 +65,10 @@ const FeaturedProperties = () => {
         </div>
 
         {/* Pagination Dots - matching image */}
-        <div className="mt-12 flex items-center justify-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-slate-200 dark:bg-slate-800"></div>
-          <div className="w-8 h-2 rounded-full bg-slate-900 dark:bg-white"></div>
-          <div className="w-2 h-2 rounded-full bg-slate-200 dark:bg-slate-800"></div>
+        <div className="mt-16 flex items-center justify-center gap-3">
+          <div className="w-2 h-2 rounded-full bg-slate-200 dark:bg-slate-800 transition-all duration-300"></div>
+          <div className="w-12 h-2 rounded-full bg-slate-900 dark:bg-white transition-all duration-300 shadow-glow"></div>
+          <div className="w-2 h-2 rounded-full bg-slate-200 dark:bg-slate-800 transition-all duration-300"></div>
         </div>
       </div>
     </section>
