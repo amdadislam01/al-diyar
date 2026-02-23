@@ -16,9 +16,9 @@ interface Inquiry {
 
 const InquiryTable: React.FC<{ inquiries: Inquiry[] }> = ({ inquiries }) => {
   return (
-    <div className="bg-white rounded-xl shadow-soft border border-neutral-subtle overflow-x-auto">
+    <div className="bg-white dark:bg-slate-900 rounded-xl shadow-soft dark:shadow-premium border border-neutral-subtle dark:border-slate-800 overflow-x-auto transition-colors">
       <table className="w-full text-sm text-left">
-        <thead className="text-xs text-text-muted uppercase bg-gray-50 border-b border-neutral-subtle">
+        <thead className="text-xs text-text-muted dark:text-slate-400 uppercase bg-gray-50 dark:bg-slate-800/50 border-b border-neutral-subtle dark:border-slate-800 transition-colors">
           <tr>
             <th className="px-6 py-4 font-medium" scope="col">
               Property
@@ -41,15 +41,14 @@ const InquiryTable: React.FC<{ inquiries: Inquiry[] }> = ({ inquiries }) => {
           {inquiries.map((inquiry, index) => (
             <tr
               key={index}
-              className={`bg-white ${
-                index !== inquiries.length - 1
-                  ? "border-b border-neutral-subtle"
+              className={`bg-white dark:bg-slate-900 ${index !== inquiries.length - 1
+                  ? "border-b border-neutral-subtle dark:border-slate-800"
                   : ""
-              } hover:bg-gray-50 transition-colors`}
+                } hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors`}
             >
-              <td className="px-6 py-4 font-medium text-primary">
+              <td className="px-6 py-4 font-medium text-primary dark:text-blue-400">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-lg bg-gray-200 overflow-hidden shrink-0">
+                  <div className="h-10 w-10 rounded-lg bg-gray-200 dark:bg-slate-700 overflow-hidden shrink-0 transition-colors">
                     <Image
                       alt={inquiry.property.name}
                       width={500}
@@ -58,20 +57,20 @@ const InquiryTable: React.FC<{ inquiries: Inquiry[] }> = ({ inquiries }) => {
                       src={inquiry.property.imageUrl}
                     />
                   </div>
-                  <span>{inquiry.property.name}</span>
+                  <span className="text-text-main dark:text-white transition-colors">{inquiry.property.name}</span>
                 </div>
               </td>
-              <td className="px-6 py-4 text-text-muted">{inquiry.agent}</td>
-              <td className="px-6 py-4 text-text-muted">{inquiry.date}</td>
+              <td className="px-6 py-4 text-text-muted dark:text-slate-400">{inquiry.agent}</td>
+              <td className="px-6 py-4 text-text-muted dark:text-slate-400">{inquiry.date}</td>
               <td className="px-6 py-4">
                 <span
-                  className={`${inquiry.statusBg} ${inquiry.statusColor} text-xs font-medium px-2.5 py-0.5 rounded border ${inquiry.statusBorder}`}
+                  className={`${inquiry.statusBg} ${inquiry.statusColor} dark:opacity-90 dark:bg-opacity-20 text-xs font-medium px-2.5 py-0.5 rounded border ${inquiry.statusBorder} dark:border-opacity-30 transition-all`}
                 >
                   {inquiry.status}
                 </span>
               </td>
               <td className="px-6 py-4 text-right">
-                <button className="text-primary hover:text-primary/70 font-medium">
+                <button className="text-primary dark:text-blue-400 hover:text-primary/70 dark:hover:text-blue-300 font-medium transition-colors">
                   {inquiry.status === "Responded" ? "Reply" : "View"}
                 </button>
               </td>

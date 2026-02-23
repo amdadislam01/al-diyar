@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import OTPVerification from '@/components/OTPVerification';
+import { ThemeToggle } from '@/components/layout/ThemeToggle';
 
 type FormData = {
     name: string;
@@ -83,16 +84,19 @@ export default function SignUpPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-surface-100">
+        <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-surface-100 dark:bg-background-dark transition-colors duration-500 relative">
+            <div className="absolute top-8 right-8">
+                <ThemeToggle />
+            </div>
             <div className="w-full max-w-5xl">
                 {/* Logo */}
                 <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-primary-100 mb-2">Al-Diyar</h1>
-                    <p className="text-text-muted">Create your account to get started</p>
+                    <h1 className="text-3xl font-bold text-primary dark:text-blue-400 mb-2">Al-Diyar</h1>
+                    <p className="text-text-muted dark:text-slate-400 transition-colors">Create your account to get started</p>
                 </div>
 
                 {/* Card */}
-                <div className="bg-light rounded-2xl p-8 lg:p-10 shadow-[var(--shadow-soft)] border border-surface-300">
+                <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 lg:p-10 shadow-soft dark:shadow-premium border border-surface-300 dark:border-slate-800 transition-colors">
                     {/* Account Type  */}
                     <div className="mb-8">
                         <div className="grid grid-cols-2 gap-3 ">
@@ -100,8 +104,8 @@ export default function SignUpPage() {
                                 type="button"
                                 onClick={() => setrole('user')}
                                 className={`py-3 px-4 rounded-xl font-medium transition-all duration-300 cursor-pointer ${role === 'user'
-                                    ? 'bg-primary-100 text-light shadow-[var(--shadow-glow)]'
-                                    : 'bg-surface-tonal-100 text-text-main hover:bg-surface-tonal-200'
+                                    ? 'bg-primary dark:bg-blue-600 text-white shadow-glow dark:shadow-premium'
+                                    : 'bg-surface-tonal-100 dark:bg-slate-800 text-text-main dark:text-slate-200 hover:bg-surface-tonal-200 dark:hover:bg-slate-700'
                                     }`}
                             >
                                 User
@@ -110,8 +114,8 @@ export default function SignUpPage() {
                                 type="button"
                                 onClick={() => setrole('agent')}
                                 className={`py-3 px-4 rounded-xl font-medium transition-all duration-300 cursor-pointer ${role === 'agent'
-                                    ? 'bg-primary-100 text-light shadow-[var(--shadow-glow)]'
-                                    : 'bg-surface-tonal-100 text-text-main hover:bg-surface-tonal-200'
+                                    ? 'bg-primary dark:bg-blue-600 text-white shadow-glow dark:shadow-premium'
+                                    : 'bg-surface-tonal-100 dark:bg-slate-800 text-text-main dark:text-slate-200 hover:bg-surface-tonal-200 dark:hover:bg-slate-700'
                                     }`}
                             >
                                 Agent
@@ -123,7 +127,7 @@ export default function SignUpPage() {
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                         {/* Personal Information */}
                         <div>
-                            <h3 className="text-lg font-semibold text-text-main mb-4">
+                            <h3 className="text-lg font-semibold text-text-main dark:text-white mb-4">
                                 Personal Information
                             </h3>
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -131,7 +135,7 @@ export default function SignUpPage() {
                                 <div>
                                     <label
                                         htmlFor="name"
-                                        className="block text-sm font-medium text-text-main mb-2"
+                                        className="block text-sm font-medium text-text-main dark:text-slate-200 mb-2"
                                     >
                                         Full Name *
                                     </label>
@@ -145,7 +149,7 @@ export default function SignUpPage() {
                                                 message: 'Name must be at least 2 characters',
                                             },
                                         })}
-                                        className={`w-full px-4 py-3 bg-surface-tonal-100 border rounded-xl text-text-main placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-transparent transition-all duration-300 ${errors.name ? 'border-danger-300' : 'border-surface-tonal-300'
+                                        className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.name ? 'border-danger-300' : 'border-surface-tonal-300 dark:border-slate-700'
                                             }`}
                                         placeholder="Enter your full name"
                                     />
@@ -160,7 +164,7 @@ export default function SignUpPage() {
                                 <div>
                                     <label
                                         htmlFor="email"
-                                        className="block text-sm font-medium text-text-main mb-2"
+                                        className="block text-sm font-medium text-text-main dark:text-slate-200 mb-2"
                                     >
                                         Email Address *
                                     </label>
@@ -174,7 +178,7 @@ export default function SignUpPage() {
                                                 message: 'Invalid email address',
                                             },
                                         })}
-                                        className={`w-full px-4 py-3 bg-surface-tonal-100 border rounded-xl text-text-main placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-transparent transition-all duration-300 ${errors.email ? 'border-danger-300' : 'border-surface-tonal-300'
+                                        className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.email ? 'border-danger-300' : 'border-surface-tonal-300 dark:border-slate-700'
                                             }`}
                                         placeholder="you@example.com"
                                     />
@@ -189,7 +193,7 @@ export default function SignUpPage() {
                                 <div>
                                     <label
                                         htmlFor="phone"
-                                        className="block text-sm font-medium text-text-main mb-2"
+                                        className="block text-sm font-medium text-text-main dark:text-slate-200 mb-2"
                                     >
                                         Phone Number *
                                     </label>
@@ -203,7 +207,7 @@ export default function SignUpPage() {
                                                 message: 'Invalid Bangladesh phone number',
                                             },
                                         })}
-                                        className={`w-full px-4 py-3 bg-surface-tonal-100 border rounded-xl text-text-main placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-transparent transition-all duration-300 ${errors.phone ? 'border-danger-300' : 'border-surface-tonal-300'
+                                        className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.phone ? 'border-danger-300' : 'border-surface-tonal-300 dark:border-slate-700'
                                             }`}
                                         placeholder="+880 1XXX XXXXXX"
                                     />
@@ -218,7 +222,7 @@ export default function SignUpPage() {
                                 <div>
                                     <label
                                         htmlFor="password"
-                                        className="block text-sm font-medium text-text-main mb-2"
+                                        className="block text-sm font-medium text-text-main dark:text-slate-200 mb-2"
                                     >
                                         Password *
                                     </label>
@@ -236,7 +240,7 @@ export default function SignUpPage() {
                                                 message: 'Password must contain uppercase, lowercase, and number',
                                             },
                                         })}
-                                        className={`w-full px-4 py-3 bg-surface-tonal-100 border rounded-xl text-text-main placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-transparent transition-all duration-300 ${errors.password ? 'border-danger-300' : 'border-surface-tonal-300'
+                                        className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.password ? 'border-danger-300' : 'border-surface-tonal-300 dark:border-slate-700'
                                             }`}
                                         placeholder="Create a strong password"
                                     />
@@ -251,7 +255,7 @@ export default function SignUpPage() {
                                 <div className="lg:col-span-2">
                                     <label
                                         htmlFor="confirmPassword"
-                                        className="block text-sm font-medium text-text-main mb-2"
+                                        className="block text-sm font-medium text-text-main dark:text-slate-200 mb-2"
                                     >
                                         Confirm Password *
                                     </label>
@@ -263,7 +267,7 @@ export default function SignUpPage() {
                                             validate: (value) =>
                                                 value === password || 'Passwords do not match',
                                         })}
-                                        className={`w-full px-4 py-3 bg-surface-tonal-100 border rounded-xl text-text-main placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-transparent transition-all duration-300 ${errors.confirmPassword ? 'border-danger-300' : 'border-surface-tonal-300'
+                                        className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.confirmPassword ? 'border-danger-300' : 'border-surface-tonal-300 dark:border-slate-700'
                                             }`}
                                         placeholder="Confirm your password"
                                     />
@@ -279,7 +283,7 @@ export default function SignUpPage() {
                         {/* Agent-Specific Information - Only shown when Agent is selected */}
                         {role === 'agent' && (
                             <div className="pt-6 border-t border-surface-tonal-300">
-                                <h3 className="text-lg font-semibold text-text-main mb-4">
+                                <h3 className="text-lg font-semibold text-text-main dark:text-white mb-4">
                                     Business Information
                                 </h3>
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -287,7 +291,7 @@ export default function SignUpPage() {
                                     <div>
                                         <label
                                             htmlFor="companyName"
-                                            className="block text-sm font-medium text-text-main mb-2"
+                                            className="block text-sm font-medium text-text-main dark:text-slate-200 mb-2"
                                         >
                                             Company Name *
                                         </label>
@@ -301,7 +305,7 @@ export default function SignUpPage() {
                                                     message: 'Company name must be at least 2 characters',
                                                 },
                                             })}
-                                            className={`w-full px-4 py-3 bg-surface-tonal-100 border rounded-xl text-text-main placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-transparent transition-all duration-300 ${errors.companyName ? 'border-danger-300' : 'border-surface-tonal-300'
+                                            className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.companyName ? 'border-danger-300' : 'border-surface-tonal-300 dark:border-slate-700'
                                                 }`}
                                             placeholder="Your company or agency name"
                                         />
@@ -316,7 +320,7 @@ export default function SignUpPage() {
                                     <div>
                                         <label
                                             htmlFor="licenseNumber"
-                                            className="block text-sm font-medium text-text-main mb-2"
+                                            className="block text-sm font-medium text-text-main dark:text-slate-200 mb-2"
                                         >
                                             License Number *
                                         </label>
@@ -326,7 +330,7 @@ export default function SignUpPage() {
                                             {...register('licenseNumber', {
                                                 required: role === 'agent' ? 'License number is required for agents' : false,
                                             })}
-                                            className={`w-full px-4 py-3 bg-surface-tonal-100 border rounded-xl text-text-main placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-transparent transition-all duration-300 ${errors.licenseNumber ? 'border-danger-300' : 'border-surface-tonal-300'
+                                            className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.licenseNumber ? 'border-danger-300' : 'border-surface-tonal-300 dark:border-slate-700'
                                                 }`}
                                             placeholder="Real estate license number"
                                         />
@@ -341,7 +345,7 @@ export default function SignUpPage() {
                                     <div>
                                         <label
                                             htmlFor="businessAddress"
-                                            className="block text-sm font-medium text-text-main mb-2"
+                                            className="block text-sm font-medium text-text-main dark:text-slate-200 mb-2"
                                         >
                                             Business Address *
                                         </label>
@@ -351,7 +355,7 @@ export default function SignUpPage() {
                                             {...register('businessAddress', {
                                                 required: role === 'agent' ? 'Business address is required for agents' : false,
                                             })}
-                                            className={`w-full px-4 py-3 bg-surface-tonal-100 border rounded-xl text-text-main placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-transparent transition-all duration-300 ${errors.businessAddress ? 'border-danger-300' : 'border-surface-tonal-300'
+                                            className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.businessAddress ? 'border-danger-300' : 'border-surface-tonal-300 dark:border-slate-700'
                                                 }`}
                                             placeholder="Office or business location"
                                         />
@@ -366,7 +370,7 @@ export default function SignUpPage() {
                                     <div>
                                         <label
                                             htmlFor="website"
-                                            className="block text-sm font-medium text-text-main mb-2"
+                                            className="block text-sm font-medium text-text-main dark:text-slate-200 mb-2"
                                         >
                                             Website (Optional)
                                         </label>
@@ -379,7 +383,7 @@ export default function SignUpPage() {
                                                     message: 'Please enter a valid URL (http:// or https://)',
                                                 },
                                             })}
-                                            className={`w-full px-4 py-3 bg-surface-tonal-100 border rounded-xl text-text-main placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-transparent transition-all duration-300 ${errors.website ? 'border-danger-300' : 'border-surface-tonal-300'
+                                            className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.website ? 'border-danger-300' : 'border-surface-tonal-300 dark:border-slate-700'
                                                 }`}
                                             placeholder="https://yourwebsite.com"
                                         />
@@ -401,21 +405,21 @@ export default function SignUpPage() {
                                 {...register('terms', {
                                     required: 'You must accept the terms and conditions',
                                 })}
-                                className="mt-1 w-4 h-4 text-primary-100 bg-surface-tonal-100 border-surface-tonal-300 rounded focus:ring-primary-100 focus:ring-2"
+                                className="mt-1 w-4 h-4 text-primary dark:text-blue-500 bg-surface-tonal-100 dark:bg-slate-800 border-surface-tonal-300 dark:border-slate-700 rounded focus:ring-primary focus:ring-2"
                             />
                             <div>
-                                <label htmlFor="terms" className="text-sm text-text-muted">
+                                <label htmlFor="terms" className="text-sm text-text-muted dark:text-slate-400">
                                     I agree to the{' '}
                                     <Link
                                         href="/terms"
-                                        className="text-primary-100 hover:underline font-medium"
+                                        className="text-primary dark:text-blue-400 hover:underline font-medium"
                                     >
                                         Terms of Service
                                     </Link>{' '}
                                     and{' '}
                                     <Link
                                         href="/privacy"
-                                        className="text-primary-100 hover:underline font-medium"
+                                        className="text-primary dark:text-blue-400 hover:underline font-medium"
                                     >
                                         Privacy Policy
                                     </Link>
@@ -439,7 +443,7 @@ export default function SignUpPage() {
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="w-full py-3 px-4 bg-primary-100 text-light font-semibold rounded-xl shadow-[var(--shadow-glow)] hover:bg-primary-200 focus:outline-none focus:ring-2 focus:ring-primary-100 focus:ring-offset-2 transition-all duration-300 hover:shadow-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full py-3 px-4 bg-primary dark:bg-white text-white dark:text-slate-900 font-semibold rounded-xl shadow-glow dark:shadow-premium hover:bg-primary/90 dark:hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-300 hover:shadow-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {isSubmitting ? 'Creating Account...' : 'Create Account'}
                         </button>
@@ -448,10 +452,10 @@ export default function SignUpPage() {
                     {/* Divider */}
                     <div className="relative my-6">
                         <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-surface-tonal-300"></div>
+                            <div className="w-full border-t border-surface-tonal-300 dark:border-slate-800"></div>
                         </div>
                         <div className="relative flex justify-center text-sm">
-                            <span className="px-4 bg-light text-text-muted">
+                            <span className="px-4 bg-white dark:bg-slate-900 text-text-muted dark:text-slate-400 transition-colors">
                                 Or continue with
                             </span>
                         </div>
@@ -462,7 +466,7 @@ export default function SignUpPage() {
                         <button
                             type="button"
                             onClick={() => handleSocialLogin('Google')}
-                            className="w-full py-3 px-4 bg-surface-tonal-100 text-text-main font-medium rounded-xl border border-surface-tonal-300 hover:bg-surface-tonal-200 focus:outline-none focus:ring-2 focus:ring-primary-100 transition-all duration-300 flex items-center justify-center gap-3"
+                            className="w-full py-3 px-4 bg-surface-tonal-100 dark:bg-slate-800 text-text-main dark:text-white font-medium rounded-xl border border-surface-tonal-300 dark:border-slate-700 hover:bg-surface-tonal-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-300 flex items-center justify-center gap-3"
                         >
                             <svg className="w-5 h-5" viewBox="0 0 24 24">
                                 <path
@@ -488,7 +492,7 @@ export default function SignUpPage() {
                         <button
                             type="button"
                             onClick={() => handleSocialLogin('Facebook')}
-                            className="w-full py-3 px-4 bg-surface-tonal-100 text-text-main font-medium rounded-xl border border-surface-tonal-300 hover:bg-surface-tonal-200 focus:outline-none focus:ring-2 focus:ring-primary-100 transition-all duration-300 flex items-center justify-center gap-3"
+                            className="w-full py-3 px-4 bg-surface-tonal-100 dark:bg-slate-800 text-text-main dark:text-white font-medium rounded-xl border border-surface-tonal-300 dark:border-slate-700 hover:bg-surface-tonal-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-300 flex items-center justify-center gap-3"
                         >
                             <svg className="w-5 h-5" fill="#1877F2" viewBox="0 0 24 24">
                                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
@@ -498,11 +502,11 @@ export default function SignUpPage() {
                     </div>
 
                     {/* Sign In */}
-                    <p className="mt-6 text-center text-sm text-text-muted">
+                    <p className="mt-6 text-center text-sm text-text-muted dark:text-slate-400 transition-colors">
                         Already have an account?{' '}
                         <Link
                             href="/auth/signin"
-                            className="text-primary-100 hover:underline font-semibold"
+                            className="text-primary dark:text-blue-400 hover:underline font-semibold"
                         >
                             Sign In
                         </Link>

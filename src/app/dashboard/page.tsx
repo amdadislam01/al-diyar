@@ -2,6 +2,7 @@ import StatCard from "@/components/dashboard/StatCard";
 import MeetingItem from "@/components/dashboard/MeetingItem";
 import PropertyCard from "@/components/dashboard/PropertyCard";
 import InquiryTable from "@/components/dashboard/InquiryTable";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 export default function Dashboard() {
   const inquiries = [
@@ -38,14 +39,15 @@ export default function Dashboard() {
       {/* Header Section */}
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-primary">
+          <h1 className="text-2xl font-bold text-primary dark:text-blue-400">
             Welcome back, Ahmed
           </h1>
-          <p className="text-text-muted text-sm mt-1">
+          <p className="text-text-muted dark:text-slate-400 text-sm mt-1">
             Here's what's happening with your property search today.
           </p>
         </div>
         <div className="flex items-center gap-4">
+          <ThemeToggle />
           <div className="relative hidden md:block">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3">
               <span className="material-icons-outlined text-text-muted">
@@ -53,14 +55,14 @@ export default function Dashboard() {
               </span>
             </span>
             <input
-              className="w-64 pl-10 pr-4 py-2.5 rounded-lg border-0 bg-white shadow-sm ring-1 ring-inset ring-neutral-subtle placeholder:text-text-muted focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 text-text-main"
+              className="w-64 pl-10 pr-4 py-2.5 rounded-lg border-0 bg-white dark:bg-slate-900 shadow-sm ring-1 ring-inset ring-neutral-subtle dark:ring-slate-800 placeholder:text-text-muted focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 text-text-main dark:text-white transition-colors"
               placeholder="Search properties, locations..."
               type="text"
             />
           </div>
-          <button className="relative p-2.5 bg-white rounded-lg shadow-sm border border-neutral-subtle text-text-muted hover:text-primary transition-colors">
+          <button className="relative p-2.5 bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-neutral-subtle dark:border-slate-800 text-text-muted hover:text-primary transition-colors">
             <span className="material-icons-outlined">notifications</span>
-            <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
+            <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-slate-900"></span>
           </button>
         </div>
       </header>
@@ -104,15 +106,15 @@ export default function Dashboard() {
         {/* Your Schedule */}
         <div className="lg:col-span-1 space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-primary">Your Schedule</h2>
+            <h2 className="text-lg font-bold text-primary dark:text-blue-400">Your Schedule</h2>
             <a
-              className="text-sm font-medium text-primary hover:underline"
+              className="text-sm font-medium text-primary dark:text-blue-400 hover:underline"
               href="#"
             >
               View Calendar
             </a>
           </div>
-          <div className="bg-white rounded-xl shadow-soft border border-neutral-subtle overflow-hidden">
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-soft border border-neutral-subtle dark:border-slate-800 overflow-hidden transition-colors">
             <MeetingItem
               date={{ day: "24", month: "Oct" }}
               status="CONFIRMED"
@@ -139,7 +141,7 @@ export default function Dashboard() {
               type="ONLINE"
             />
             <a
-              className="block p-4 text-center text-sm font-medium text-primary bg-gray-50 hover:bg-gray-100 transition-colors"
+              className="block p-4 text-center text-sm font-medium text-primary dark:text-blue-400 bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
               href="#"
             >
               View Full Calendar
@@ -150,7 +152,7 @@ export default function Dashboard() {
         {/* Recommended Properties */}
         <div className="lg:col-span-2 space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-primary">
+            <h2 className="text-lg font-bold text-primary dark:text-blue-400">
               Recommended for You
             </h2>
             <div className="flex gap-2">
@@ -208,13 +210,12 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Recent Inquiries */}
       <div className="space-y-4">
-        <h2 className="text-lg font-bold text-primary">Recent Inquiries</h2>
+        <h2 className="text-lg font-bold text-primary dark:text-blue-400">Recent Inquiries</h2>
         <InquiryTable inquiries={inquiries} />
       </div>
 
-      <footer className="mt-12 p-6 border-t border-neutral-subtle text-center text-xs text-text-muted">
+      <footer className="mt-12 p-6 border-t border-neutral-subtle dark:border-slate-800 text-center text-xs text-text-muted transition-colors">
         <p>© 2023 Al-Diyar Real Estate. All rights reserved.</p>
       </footer>
     </div>

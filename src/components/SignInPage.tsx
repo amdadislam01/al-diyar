@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
+import { ThemeToggle } from "./layout/ThemeToggle";
 
 type FormData = {
   email: string;
@@ -64,14 +65,17 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-surface-100 dark:bg-slate-950 transition-colors duration-300">
+    <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-surface-100 dark:bg-background-dark transition-colors duration-500 relative">
+      <div className="absolute top-8 right-8">
+        <ThemeToggle />
+      </div>
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-primary-100 dark:text-white mb-2">
+          <h1 className="text-3xl font-bold text-primary dark:text-blue-400 mb-2">
             Al-Diyar
           </h1>
-          <p className="text-text-muted dark:text-slate-400">
+          <p className="text-text-muted dark:text-slate-400 transition-colors">
             Welcome back! Sign in to continue
           </p>
         </div>
@@ -113,11 +117,10 @@ export default function SignInPage() {
                     message: "Invalid email address",
                   },
                 })}
-                className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-transparent transition-all duration-300 ${
-                  errors.email
-                    ? "border-danger-300 dark:border-danger-500"
-                    : "border-surface-tonal-300 dark:border-slate-700"
-                }`}
+                className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-transparent transition-all duration-300 ${errors.email
+                  ? "border-danger-300 dark:border-danger-500"
+                  : "border-surface-tonal-300 dark:border-slate-700"
+                  }`}
                 placeholder="you@example.com"
               />
               {errors.email && (
@@ -145,11 +148,10 @@ export default function SignInPage() {
                     message: "Password must be at least 6 characters",
                   },
                 })}
-                className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-transparent transition-all duration-300 ${
-                  errors.password
-                    ? "border-danger-300 dark:border-danger-500"
-                    : "border-surface-tonal-300 dark:border-slate-700"
-                }`}
+                className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-transparent transition-all duration-300 ${errors.password
+                  ? "border-danger-300 dark:border-danger-500"
+                  : "border-surface-tonal-300 dark:border-slate-700"
+                  }`}
                 placeholder="Enter your password"
               />
               {errors.password && (
@@ -187,7 +189,7 @@ export default function SignInPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3 px-4 bg-primary-100 dark:bg-white text-light dark:text-slate-900 font-semibold rounded-xl shadow-glow dark:shadow-premium hover:bg-primary-200 dark:hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-100 focus:ring-offset-2 transition-all duration-300 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3 px-4 bg-primary-100 dark:bg-white text-white bg-primary dark:text-slate-900 font-semibold rounded-xl shadow-glow dark:shadow-premium hover:bg-primary-200 dark:hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-100 focus:ring-offset-2 transition-all duration-300 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               {isSubmitting ? "Signing In..." : "Sign In"}
             </button>
