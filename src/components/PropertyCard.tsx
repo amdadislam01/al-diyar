@@ -18,59 +18,86 @@ const PropertyCard = ({
   baths,
   sqft,
   image,
+  type,
 }: PropertyProps) => {
   return (
-    <div className="group flex flex-col bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-card hover:shadow-xl transition-all duration-500 border border-slate-100 dark:border-slate-800">
+    <div className="group flex flex-col bg-white dark:bg-slate-900 rounded-[2.5rem] overflow-hidden shadow-premium hover:shadow-2xl transition-all duration-700 border border-slate-100 dark:border-white/5">
       {/* Image Container */}
       <div className="relative aspect-4/3 overflow-hidden">
         <img
           src={image}
           alt={title}
-          className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out"
+          className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-[1.5s] ease-out"
         />
-        <button className="absolute top-4 right-4 w-9 h-9 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-full flex items-center justify-center text-slate-400 dark:text-slate-500 hover:text-red-500 transition-all shadow-sm">
-          <span className="material-icons-round text-lg">favorite_border</span>
+
+        {/* Status Badge */}
+        <div className="absolute top-5 left-5">
+          <span className="px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white text-[10px] font-black uppercase tracking-widest">
+            {type}
+          </span>
+        </div>
+
+        {/* Favorite Button */}
+        <button className="absolute top-5 right-5 w-10 h-10 bg-white/20 backdrop-blur-md border border-white/30 rounded-full flex items-center justify-center text-white hover:text-accent hover:bg-white transition-all shadow-xl group/fav">
+          <span className="material-icons-round text-xl group-hover/fav:scale-110 transition-transform">
+            favorite_border
+          </span>
         </button>
+
+        {/* Price Glass Tag */}
+        <div className="absolute bottom-5 left-5 right-5">
+          <div className="inline-flex px-5 py-2 rounded-2xl bg-slate-950/40 backdrop-blur-xl border border-white/10 text-white shadow-2xl">
+            <span className="text-lg font-black tracking-tight">{price}</span>
+          </div>
+        </div>
       </div>
 
       {/* Content */}
-      <div className="p-6">
-        <div className="mb-4">
-          <span className="text-xl font-bold text-primary dark:text-primary-light">
-            {price}
-          </span>
-          <h3 className="text-lg font-bold text-slate-800 dark:text-white mt-1 line-clamp-1">
+      <div className="p-8">
+        <div className="mb-6">
+          <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2 line-clamp-1 group-hover:text-primary dark:group-hover:text-primary-light transition-colors">
             {title}
           </h3>
-          <p className="flex items-center gap-1 text-slate-400 dark:text-slate-500 text-xs mt-1">
-            <span className="material-icons-round text-sm">place</span>
+          <p className="flex items-center gap-1.5 text-slate-400 dark:text-slate-500 text-xs font-medium">
+            <span className="material-icons-round text-sm text-primary">
+              place
+            </span>
             {location}
           </p>
         </div>
 
-        <div className="flex items-center gap-6 pt-4 border-t border-slate-50 dark:border-slate-800">
-          <div className="flex items-center gap-2">
-            <span className="material-icons-round text-slate-300 dark:text-slate-600 text-lg">
-              bed
-            </span>
-            <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-              {beds} Beds
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="material-icons-round text-slate-300 dark:text-slate-600 text-lg">
-              bathtub
-            </span>
-            <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-              {baths} Baths
+        <div className="grid grid-cols-3 gap-4 pt-6 border-t border-slate-50 dark:border-white/5">
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-1.5 text-slate-900 dark:text-white">
+              <span className="material-icons-round text-primary text-base">
+                bed
+              </span>
+              <span className="text-xs font-black">{beds}</span>
+            </div>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+              Beds
             </span>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="material-icons-round text-slate-300 dark:text-slate-600 text-lg">
-              square_foot
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-1.5 text-slate-900 dark:text-white">
+              <span className="material-icons-round text-primary text-base">
+                bathtub
+              </span>
+              <span className="text-xs font-black">{baths}</span>
+            </div>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+              Baths
             </span>
-            <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-              {sqft} sqft
+          </div>
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-1.5 text-slate-900 dark:text-white">
+              <span className="material-icons-round text-primary text-base">
+                square_foot
+              </span>
+              <span className="text-xs font-black">{sqft}</span>
+            </div>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+              Sqft
             </span>
           </div>
         </div>
