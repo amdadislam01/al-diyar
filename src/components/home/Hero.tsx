@@ -14,13 +14,23 @@ const Hero = () => {
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 flex flex-col md:flex-row items-center justify-between gap-12">
         {/* Left Content */}
         <div className="md:w-1/2 text-left">
-          <h1 className="text-6xl md:text-8xl font-bold text-white leading-tight mb-8">
-            Buy, Rent, & <br /> Sell{" "}
-            <span className="text-white">Property</span>
+          <h1 className="text-5xl md:text-7xl font-extrabold text-white  mb-6">
+            Discover Your <br />
+            Perfect Living Space
           </h1>
-          <button className="bg-white text-slate-900 px-8 py-3 rounded-full font-bold text-sm tracking-wide hover:bg-slate-100 transition-all">
-            Try for Free
-          </button>
+          <p className="text-white/80 text-lg md:text-xl font-medium max-w-lg mb-10 leading-relaxed">
+            Leading real estate marketplace with verified listings and expert
+            agents. Whether you're buying, renting, or selling, we provide a
+            seamless experience tailored to your needs.
+          </p>
+          <div className="flex flex-wrap items-center gap-4">
+            <button className="bg-white text-slate-900 px-10 py-4 rounded-xl font-bold text-sm tracking-wide hover:bg-slate-100 transition-all shadow-lg">
+              Explore Properties
+            </button>
+            <button className="bg-transparent border-2 border-white/40 text-white px-10 py-4 rounded-xl font-bold text-sm tracking-wide hover:bg-white/10 transition-all">
+              Contact an Agent
+            </button>
+          </div>
         </div>
 
         {/* Right Content - Search Card */}
