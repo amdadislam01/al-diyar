@@ -10,6 +10,7 @@ type FormData = {
 
 export default function ForgotPasswordPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState("");
 
   const {
     register,
@@ -20,10 +21,24 @@ export default function ForgotPasswordPage() {
   });
 
   const onSubmit = async (data: FormData) => {
-    console.log("Password reset requested for:", data.email);
-    // API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsSubmitted(true);
+    setError("");
+    try {
+      const response = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Something went wrong.");
+      }
+
+      setIsSubmitted(true);
+    } catch (err: any) {
+      setError(err.message);
+    }
   };
 
   return (
@@ -51,6 +66,11 @@ export default function ForgotPasswordPage() {
 
               {/* Form */}
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                {error && (
+                  <div className="p-3 bg-danger-300 bg-opacity-10 border border-danger-300 rounded-lg text-danger-300 text-sm">
+                    {error}
+                  </div>
+                )}
                 {/* Email */}
                 <div>
                   <label
@@ -69,11 +89,10 @@ export default function ForgotPasswordPage() {
                         message: "Invalid email address",
                       },
                     })}
-                    className={`w-full px-4 py-3 bg-surface-tonal-100 border rounded-xl text-text-main placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-transparent transition-all duration-300 ${
-                      errors.email
-                        ? "border-danger-300"
-                        : "border-surface-tonal-300"
-                    }`}
+                    className={`w-full px-4 py-3 bg-surface-tonal-100 border rounded-xl text-text-main placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-transparent transition-all duration-300 ${errors.email
+                      ? "border-danger-300"
+                      : "border-surface-tonal-300"
+                      }`}
                     placeholder="you@example.com"
                   />
                   {errors.email && (
@@ -87,7 +106,7 @@ export default function ForgotPasswordPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-3 px-4 bg-primary-100 text-light font-semibold rounded-xl shadow-[var(--shadow-glow)] hover:bg-primary-200 focus:outline-none focus:ring-2 focus:ring-primary-100 focus:ring-offset-2 transition-all duration-300 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  className="w-full py-3 px-4 bg-primary text-light font-semibold rounded-xl shadow-[var(--shadow-glow)] hover:bg-primary-200 focus:outline-none focus:ring-2 focus:ring-primary-100 focus:ring-offset-2 transition-all duration-300 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                   {isSubmitting ? "Sending..." : "Send Reset"}
                 </button>
