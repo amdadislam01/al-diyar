@@ -14,6 +14,8 @@ export interface IUser extends Document {
     businessAddress?: string;
     website?: string;
     image?: string;
+    resetPasswordToken?: string;
+    resetPasswordExpires?: Date;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -97,6 +99,12 @@ const UserSchema: Schema = new Schema(
         image: {
             type: String,
             trim: true,
+        },
+        resetPasswordToken: {
+            type: String,
+        },
+        resetPasswordExpires: {
+            type: Date,
         },
     },
     {
