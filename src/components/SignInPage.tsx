@@ -50,7 +50,7 @@ export default function SignInPage() {
       if (result?.error) {
         setErrorMessage(result.error);
       } else if (result?.ok) {
-        router.push("/dashboard");
+        router.push("/");
       }
     } catch (error) {
       setErrorMessage("An error occurred. Please try again.");
@@ -59,7 +59,7 @@ export default function SignInPage() {
 
   const handleSocialLogin = (provider: string) => {
     if (provider === "Google") {
-      signIn("google", { callbackUrl: "/dashboard" });
+      signIn("google", { callbackUrl: "/" });
     }
     // Facebook implementation pending
   };
@@ -212,7 +212,7 @@ export default function SignInPage() {
             <button
               type="button"
               onClick={() => handleSocialLogin("Google")}
-              className="w-full py-3 px-4 bg-surface-tonal-100 dark:bg-slate-800 text-text-main dark:text-white font-medium rounded-xl border border-surface-tonal-300 dark:border-slate-700 hover:bg-surface-tonal-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-100 transition-all duration-300 flex items-center justify-center gap-3"
+              className="w-full py-3 px-4 bg-surface-tonal-100 dark:bg-slate-800 text-text-main dark:text-white font-medium rounded-xl border border-surface-tonal-300 dark:border-slate-700 hover:bg-surface-tonal-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-100 transition-all duration-300 flex items-center justify-center gap-3 cursor-pointer"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path
