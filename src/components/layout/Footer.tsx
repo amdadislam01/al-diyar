@@ -2,166 +2,149 @@ import Link from "next/link";
 
 const Footer = () => {
   return (
-    <footer className="bg-background-dark text-slate-400 py-24 border-t border-white/5">
+    <footer className="bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 pt-24 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-6 sm:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-16 lg:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-20">
           {/* Brand Info */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="space-y-6">
             <Link href="/" className="flex items-center gap-2 group w-fit">
-              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-premium group-hover:bg-accent transition-colors">
-                A
+              <div className="w-8 h-8 bg-slate-900 dark:bg-white rounded-full flex items-center justify-center text-white dark:text-slate-900 font-bold text-sm">
+                AD
               </div>
-              <span className="font-bold text-2xl tracking-tight text-white">
+              <span className="font-bold text-xl tracking-tight text-slate-900 dark:text-white">
                 Al-Diyar
               </span>
             </Link>
-            <p className="max-w-xs text-sm font-medium leading-relaxed opacity-80">
-              The premium marketplace for luxury real estate. Discover, tour,
-              and acquire extraordinary properties across the globe.
+            <p className="text-sm leading-relaxed opacity-80">
+              Modern Luxury Real Estate. <br />
+              Dhaka, Bangladesh <br />
+              +880 123 456 789 <br />
+              contact@aldiyar.com
             </p>
-            <div className="flex gap-4">
-              {["facebook", "camera_alt", "alternate_email", "public"].map(
-                (icon) => (
-                  <a
-                    key={icon}
-                    href="#"
-                    className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-accent hover:border-accent transition-all"
-                  >
-                    <span className="material-icons-round text-lg">{icon}</span>
-                  </a>
-                ),
-              )}
-            </div>
           </div>
 
-          {/* Links Sections */}
+          {/* Sell Property */}
           <div>
-            <h4 className="text-white font-black text-xs uppercase tracking-widest mb-8">
-              Platform
+            <h4 className="text-slate-900 dark:text-white font-bold text-sm mb-6 uppercase tracking-widest">
+              Sell Property
             </h4>
-            <ul className="space-y-4 text-sm font-semibold">
+            <ul className="space-y-4 text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
               <li>
                 <Link
-                  href="/buy"
-                  className="hover:text-accent transition-colors"
+                  href="/sell"
+                  className="hover:text-slate-900 dark:hover:text-white transition-colors"
                 >
-                  Marketplace
+                  How it works
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/rent"
-                  className="hover:text-accent transition-colors"
+                  href="/pricing"
+                  className="hover:text-slate-900 transition-colors"
                 >
-                  Rental Hub
+                  Pricing
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/reviews"
+                  className="hover:text-slate-900 transition-colors"
+                >
+                  Reviews
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/stories"
+                  className="hover:text-slate-900 transition-colors"
+                >
+                  Stories
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Buy Property */}
+          <div>
+            <h4 className="text-slate-900 dark:text-white font-bold text-sm mb-6 uppercase tracking-widest">
+              Buy Property
+            </h4>
+            <ul className="space-y-4 text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+              <li>
+                <Link
+                  href="/buy"
+                  className="hover:text-slate-900 dark:hover:text-white transition-colors"
+                >
+                  Featured listings
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/cities"
+                  className="hover:text-slate-900 transition-colors"
+                >
+                  Popular cities
                 </Link>
               </li>
               <li>
                 <Link
                   href="/agents"
-                  className="hover:text-accent transition-colors"
+                  className="hover:text-slate-900 transition-colors"
                 >
-                  Verified Agents
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/developments"
-                  className="hover:text-accent transition-colors"
-                >
-                  Developments
+                  Meet agents
                 </Link>
               </li>
             </ul>
           </div>
 
+          {/* Follow us */}
           <div>
-            <h4 className="text-white font-black text-xs uppercase tracking-widest mb-8">
-              Resources
+            <h4 className="text-slate-900 dark:text-white font-bold text-sm mb-6 uppercase tracking-widest">
+              Follow us
             </h4>
-            <ul className="space-y-4 text-sm font-semibold">
+            <ul className="space-y-4 text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
               <li>
                 <Link
-                  href="/about"
-                  className="hover:text-accent transition-colors"
+                  href="#"
+                  className="hover:text-slate-900 dark:hover:text-white transition-colors"
                 >
-                  Global Network
+                  Instagram
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/press"
-                  className="hover:text-accent transition-colors"
+                  href="#"
+                  className="hover:text-slate-900 transition-colors"
                 >
-                  Inside Al-Diyar
+                  Facebook
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/careers"
-                  className="hover:text-accent transition-colors"
+                  href="#"
+                  className="hover:text-slate-900 transition-colors"
                 >
-                  Careers
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/help"
-                  className="hover:text-accent transition-colors"
-                >
-                  Concierge
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-white font-black text-xs uppercase tracking-widest mb-8">
-              Governance
-            </h4>
-            <ul className="space-y-4 text-sm font-semibold">
-              <li>
-                <Link
-                  href="/privacy"
-                  className="hover:text-accent transition-colors"
-                >
-                  Privacy Charter
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/terms"
-                  className="hover:text-accent transition-colors"
-                >
-                  Terms of Use
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/compliance"
-                  className="hover:text-accent transition-colors"
-                >
-                  Compliance
+                  X / Twitter
                 </Link>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+        <div className="border-t border-slate-50 dark:border-slate-800 py-8 flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-[10px] font-bold uppercase tracking-widest opacity-60">
-            © 2026 Al-Diyar Global. An Elite Real Estate Ecosystem.
+            © 2026 Al-Diyar. All rights reserved.
           </p>
-          <div className="flex gap-8 text-[10px] font-bold uppercase tracking-widest">
-            <a href="#" className="hover:text-white transition-colors">
-              System Status
-            </a>
-            <a href="#" className="hover:text-white transition-colors">
-              Feedback
-            </a>
-            <a href="#" className="hover:text-white transition-colors">
-              Security
-            </a>
+          <div className="flex gap-4">
+            <span className="material-icons-round text-slate-400 dark:text-slate-600 text-lg hover:text-slate-600 dark:hover:text-slate-400 transition-colors cursor-pointer">
+              facebook
+            </span>
+            <span className="material-icons-round text-slate-400 dark:text-slate-600 text-lg hover:text-slate-600 dark:hover:text-slate-400 transition-colors cursor-pointer">
+              camera_alt
+            </span>
+            <span className="material-icons-round text-slate-400 dark:text-slate-600 text-lg hover:text-slate-600 dark:hover:text-slate-400 transition-colors cursor-pointer">
+              public
+            </span>
           </div>
         </div>
       </div>
