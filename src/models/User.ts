@@ -3,8 +3,8 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 export interface IUser extends Document {
     name: string;
     email: string;
-    phone: string;
-    password: string;
+    phone?: string;
+    password?: string;
     role: 'user' | 'agent';
     emailVerified: boolean;
     provider?: string;
@@ -39,7 +39,8 @@ const UserSchema: Schema = new Schema(
         phone: {
             type: String,
             required: [
-                function (this: IUser) {
+                function (this: any) {
+                    // Only required for credentials provider
                     return !this.provider || this.provider === 'credentials';
                 },
                 'Phone number is required',
@@ -57,7 +58,8 @@ const UserSchema: Schema = new Schema(
         password: {
             type: String,
             required: [
-                function (this: IUser) {
+                function (this: any) {
+                    // Only required for credentials provider
                     return !this.provider || this.provider === 'credentials';
                 },
                 'Password is required',

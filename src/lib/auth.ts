@@ -64,6 +64,10 @@ export const authOptions: NextAuthOptions = {
                 }
 
                 // Verify password
+                if (!user.password) {
+                    throw new Error('Invalid email or password');
+                }
+
                 const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
 
                 if (!isPasswordValid) {
@@ -102,37 +106,40 @@ export const authOptions: NextAuthOptions = {
 
                     await dbConnect();
 
-                    // Check if user exists
-                    const existingUser = await User.findOne({ email: userEmail.toLowerCase() } as Pick<IUser, 'email'>);
-
-                    if (existingUser) {
-                        if (existingUser.provider === 'credentials' && !existingUser.emailVerified) {
-                            existingUser.emailVerified = true;
-                            existingUser.provider = 'google';
-
-                            if (user.image) {
-                                existingUser.image = user.image;
-                            }
-                            await existingUser.save();
+                    // Atomically update or create user
+                    const updatedUser = await User.findOneAndUpdate(
+                        { email: userEmail.toLowerCase() },
+                        {
+                            $set: {
+                                name: user.name,
+                                emailVerified: true,
+                                provider: 'google',
+                                image: user.image || undefined,
+                            },
+                        },
+                        {
+                            upsert: true,
+                            new: true,
+                            setDefaultsOnInsert: true,
                         }
-                        return true;
-                    } else {
-                        console.log("Creating new user from Google profile");
-                        // Create new user from Google profile
-                        await User.create({
-                            name: user.name,
-                            email: userEmail.toLowerCase(),
-                            role: 'user',
-                            emailVerified: true,
-                            provider: 'google',
-                            image: user.image,
-                        } as Partial<IUser>);
-                        return true;
+                    );
+
+                    if (updatedUser) {
+                        console.log("✅ Google User Synced successfully:", updatedUser.email);
                     }
+                    return true;
                 }
                 return true;
             } catch (error) {
-                console.error("Google Sign-In Error:", error);
+                console.error("❌ Google Sign-In Callback Error:", error);
+                if (error instanceof Error) {
+                    console.error("Error Message:", error.message);
+                    console.error("Error Name:", error.name);
+                    // Log validation errors specifically if they exist
+                    if (error.name === 'ValidationError') {
+                        console.error("Validation Details:", JSON.stringify((error as any).errors, null, 2));
+                    }
+                }
                 return false;
             }
         },

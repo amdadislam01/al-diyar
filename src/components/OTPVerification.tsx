@@ -226,7 +226,7 @@ export default function OTPVerification({
         <button
           onClick={handleVerify}
           disabled={isVerifying || otp.join("").length !== 6}
-          className="w-full py-3 px-4 bg-primary-100 text-light font-semibold rounded-xl shadow-(--shadow-glow) hover:bg-primary-200 focus:outline-none focus:ring-2 focus:ring-primary-100 focus:ring-offset-2 transition-all duration-300 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed mb-3 cursor-pointer"
+          className="w-full py-3 px-4 bg-primary text-light dark:text-light font-semibold rounded-xl shadow-(--shadow-glow) hover:bg-primary-200 focus:outline-none focus:ring-2 focus:ring-primary-100 focus:ring-offset-2 transition-all duration-300 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed mb-3 cursor-pointer"
         >
           {isVerifying ? "Verifying..." : "Verify Email"}
         </button>
