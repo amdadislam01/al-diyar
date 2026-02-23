@@ -20,10 +20,10 @@ const StatCard: React.FC<StatCardProps> = ({
   iconColor,
 }) => {
   return (
-    <div className="bg-white p-6 rounded-xl shadow-soft border border-neutral-subtle flex items-start justify-between">
+    <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-soft dark:shadow-premium border border-neutral-subtle dark:border-slate-800 flex items-start justify-between transition-colors">
       <div>
-        <p className="text-sm font-medium text-text-muted">{label}</p>
-        <h3 className="text-3xl font-bold text-primary mt-2">{value}</h3>
+        <p className="text-sm font-medium text-text-muted dark:text-slate-400">{label}</p>
+        <h3 className="text-3xl font-bold text-primary dark:text-blue-400 mt-2">{value}</h3>
         {trend && (
           <p
             className={`text-xs font-medium mt-1 flex items-center ${trendColor}`}
