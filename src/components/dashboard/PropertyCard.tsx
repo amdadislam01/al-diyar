@@ -27,7 +27,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   badgeBg = "bg-primary",
 }) => {
   return (
-    <div className="bg-white rounded-xl shadow-soft border border-neutral-subtle overflow-hidden group hover:shadow-lg transition-shadow duration-300">
+    <div className="bg-white dark:bg-slate-900 rounded-xl shadow-soft dark:shadow-premium border border-neutral-subtle dark:border-slate-800 overflow-hidden group hover:shadow-lg transition-all duration-300">
       <div className="relative h-48 w-full">
         <Image
           alt={title}
@@ -36,7 +36,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           src={imageUrl}
         />
-        <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm p-1.5 rounded-lg cursor-pointer hover:bg-white text-primary">
+        <div className="absolute top-3 right-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm p-1.5 rounded-lg cursor-pointer hover:bg-white dark:hover:bg-slate-800 text-primary dark:text-blue-400 transition-colors">
           <span className="material-icons-outlined text-lg">
             favorite_border
           </span>
@@ -51,20 +51,20 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
       </div>
       <div className="p-5">
         <div className="flex justify-between items-start mb-2">
-          <h3 className="font-bold text-lg text-primary">{price}</h3>
-          <span className="text-xs font-medium text-text-muted bg-neutral-subtle px-2 py-1 rounded-md">
+          <h3 className="font-bold text-lg text-primary dark:text-blue-400">{price}</h3>
+          <span className="text-xs font-medium text-text-muted dark:text-slate-400 bg-neutral-subtle dark:bg-slate-800 px-2 py-1 rounded-md transition-colors">
             {type}
           </span>
         </div>
-        <h4 className="font-medium text-text-main mb-1">{title}</h4>
-        <div className="flex items-center text-text-muted text-sm mb-4">
+        <h4 className="font-medium text-text-main dark:text-white mb-1">{title}</h4>
+        <div className="flex items-center text-text-muted dark:text-slate-400 text-sm mb-4">
           <span className="material-icons-outlined text-sm mr-1">
             location_on
           </span>
           {location}
         </div>
-        <div className="flex items-center justify-between border-t border-neutral-subtle pt-4">
-          <div className="flex gap-4 text-sm text-text-muted">
+        <div className="flex items-center justify-between border-t border-neutral-subtle dark:border-slate-800 pt-4 transition-colors">
+          <div className="flex gap-4 text-sm text-text-muted dark:text-slate-400">
             <span className="flex items-center gap-1">
               <span className="material-icons-outlined text-sm">bed</span>
               {beds}
@@ -80,7 +80,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
               {sqft}
             </span>
           </div>
-          <button className="text-primary hover:text-primary/80 font-medium text-sm">
+          <button className="text-primary dark:text-blue-400 hover:text-primary/80 dark:hover:text-blue-300 font-medium text-sm transition-colors">
             Details
           </button>
         </div>
