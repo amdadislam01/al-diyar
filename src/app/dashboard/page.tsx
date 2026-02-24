@@ -1,223 +1,264 @@
-import StatCard from "@/components/dashboard/StatCard";
-import MeetingItem from "@/components/dashboard/MeetingItem";
-import PropertyCard from "@/components/dashboard/PropertyCard";
-import InquiryTable from "@/components/dashboard/InquiryTable";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
-export default function Dashboard() {
-  const inquiries = [
-    {
-      property: {
-        name: "City Center Penthouse",
-        imageUrl:
-          "https://lh3.googleusercontent.com/aida-public/AB6AXuCGt6X4Ic4nSEv4oJHcs6_BGQxgyvlEgDVYkwzwNKMQSaCJ-kcVJShVOVkEt7sXp-YpXQ-rEiD0SpMkN7LpK5e8_RU2GAa6vWYo1MKSbMXTe9ZbY_llZKgLeZl-ziJ8BHqhssRpn4_-laWTc0OF4dJ97jfl7zxu39bfzaWSdJMj7lNgJbOWGdCRtx1q5hqufAKryO0FNXO3a8oA17kbhvtyOdkV-wnDe_lMdAC__R9hJphA84VZvXhtucQOSxcSLn7T_o0Kh6l_jbNs",
-      },
-      agent: "Michael Brown",
-      date: "Oct 22, 2023",
-      status: "Pending Reply",
-      statusBg: "bg-yellow-100",
-      statusColor: "text-yellow-800",
-      statusBorder: "border-yellow-200",
-    },
-    {
-      property: {
-        name: "Seaside Villa",
-        imageUrl:
-          "https://lh3.googleusercontent.com/aida-public/AB6AXuDk7WELHgQVdclvpSheBt6xMxNC8RHw9TYaJd4fex8LdiOV5PFabnBmXl-PQgOltKrpuX2vfqRv8q9EOwulJf-bdS6qe3Wrn0kRTisN_luEJJqvC_wuVkyU9JsbL5sQf0ortQS41ihwx_dBiejoZxR6482XBUAGgV9jiGDDal-2JRQmxeydZWKaUa6TK9ydCOePkwwdX89H8T9V2KdpvZ9DpJtXJ8MvQ5VCygq_yQPcm0DXzihqiD-cLc5R2WdKTbMyCXEw4ubYyrWI",
-      },
-      agent: "Sarah Jenkins",
-      date: "Oct 20, 2023",
-      status: "Responded",
-      statusBg: "bg-green-100",
-      statusColor: "text-green-800",
-      statusBorder: "border-green-200",
-    },
-  ];
+interface UserStats {
+  bookings: { total: number; pending: number; confirmed: number };
+  visits: { upcoming: number };
+}
+
+export default function UserDashboard() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [stats, setStats] = useState<UserStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const user = session?.user as any;
+  const role = user?.role;
+  const approvalStatus = user?.approvalStatus;
+
+  // Role-based redirects
+  useEffect(() => {
+    if (status !== "authenticated") return;
+    if (role === "admin") { router.replace("/dashboard/admin"); return; }
+    if (role === "agent" && approvalStatus === "approved") { router.replace("/dashboard/agent"); return; }
+    if (role === "seller" && approvalStatus === "approved") { router.replace("/dashboard/seller"); return; }
+  }, [session, status, router, role, approvalStatus]);
+
+  // Fetch real stats
+  useEffect(() => {
+    if (status !== "authenticated") return;
+    fetch("/api/user/stats")
+      .then((r) => r.json())
+      .then((data) => setStats(data))
+      .catch(() => { })
+      .finally(() => setLoading(false));
+  }, [status]);
+
+  const userName = user?.name?.split(" ")[0] ?? "there";
+  const isPending = (role === "agent" || role === "seller") && approvalStatus === "pending";
 
   return (
     <div className="p-6 lg:p-10 max-w-full mx-auto space-y-8">
-      {/* Header Section */}
+      {/* Header */}
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-primary dark:text-blue-400">
-            Welcome back, Ahmed
+          <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
+            Welcome back, <span className="text-primary">{userName}</span> 👋
           </h1>
-          <p className="text-text-muted dark:text-slate-400 text-sm mt-1">
-            Here's what's happening with your property search today.
+          <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
+            {isPending
+              ? "Your account is pending admin approval. You can browse as a regular user in the meantime."
+              : "Here's what's happening with your property journey."}
           </p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <ThemeToggle />
-          <div className="relative hidden md:block">
-            <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-              <span className="material-icons-outlined text-text-muted">
-                search
-              </span>
-            </span>
-            <input
-              className="w-64 pl-10 pr-4 py-2.5 rounded-lg border-0 bg-white dark:bg-slate-900 shadow-sm ring-1 ring-inset ring-neutral-subtle dark:ring-slate-800 placeholder:text-text-muted focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 text-text-main dark:text-white transition-colors"
-              placeholder="Search properties, locations..."
-              type="text"
-            />
-          </div>
-          <button className="relative p-2.5 bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-neutral-subtle dark:border-slate-800 text-text-muted hover:text-primary transition-colors">
-            <span className="material-icons-outlined">notifications</span>
-            <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-slate-900"></span>
-          </button>
         </div>
       </header>
 
+      {/* Pending banner */}
+      {isPending && (
+        <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/40">
+          <span className="material-icons-outlined text-amber-500 mt-0.5">schedule</span>
+          <div>
+            <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+              Account Pending Approval
+            </p>
+            <p className="text-xs text-amber-600 dark:text-amber-400 mt-0.5">
+              An admin will review your {role} application soon. You'll get full access once approved.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          icon="favorite"
-          iconBg="bg-primary/5"
+          icon="confirmation_number"
+          iconBg="bg-primary/10"
           iconColor="text-primary"
-          label="Saved Homes"
-          trend="+2 this week"
-          value="12"
+          label="Total Bookings"
+          value={loading ? "—" : String(stats?.bookings.total ?? 0)}
+          sub="All time"
+          href="/dashboard/bookings"
         />
         <StatCard
-          icon="calendar_today"
-          iconBg="bg-blue-50"
-          iconColor="text-blue-600"
-          label="Scheduled Visits"
-          value="3"
+          icon="schedule"
+          iconBg="bg-orange-50 dark:bg-orange-900/20"
+          iconColor="text-orange-500"
+          label="Pending"
+          value={loading ? "—" : String(stats?.bookings.pending ?? 0)}
+          sub="Awaiting confirmation"
+          href="/dashboard/bookings?status=Pending"
         />
         <StatCard
-          icon="description"
-          iconBg="bg-orange-50"
-          iconColor="text-orange-600"
-          label="Active Offers"
-          trend="Pending Approval"
-          trendColor="text-orange-600"
-          value="1"
+          icon="check_circle"
+          iconBg="bg-green-50 dark:bg-green-900/20"
+          iconColor="text-green-500"
+          label="Confirmed"
+          value={loading ? "—" : String(stats?.bookings.confirmed ?? 0)}
+          sub="Approved visits"
+          href="/dashboard/bookings?status=Confirmed"
         />
         <StatCard
-          icon="chat"
-          iconBg="bg-purple-50"
-          iconColor="text-purple-600"
-          label="Unread Messages"
-          value="5"
+          icon="calendar_month"
+          iconBg="bg-purple-50 dark:bg-purple-900/20"
+          iconColor="text-purple-500"
+          label="Upcoming Visits"
+          value={loading ? "—" : String(stats?.visits.upcoming ?? 0)}
+          sub="Scheduled"
+          href="/dashboard/visits"
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Your Schedule */}
-        <div className="lg:col-span-1 space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-primary dark:text-blue-400">Your Schedule</h2>
-            <a
-              className="text-sm font-medium text-primary dark:text-blue-400 hover:underline"
-              href="#"
+      {/* Quick Actions */}
+      <div>
+        <h2 className="text-base font-semibold text-slate-700 dark:text-slate-200 mb-4">
+          Quick Actions
+        </h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            { href: "/properties", icon: "search", label: "Browse Properties", color: "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400" },
+            { href: "/dashboard/bookings", icon: "confirmation_number", label: "My Bookings", color: "bg-primary/10 text-primary" },
+            { href: "/dashboard/visits", icon: "calendar_month", label: "Scheduled Visits", color: "bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400" },
+            { href: "/dashboard/saved", icon: "favorite_border", label: "Saved Listings", color: "bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400" },
+          ].map((action) => (
+            <Link
+              key={action.href}
+              href={action.href}
+              className="flex flex-col items-center gap-3 p-5 rounded-xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group"
             >
-              View Calendar
-            </a>
-          </div>
-          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-soft border border-neutral-subtle dark:border-slate-800 overflow-hidden transition-colors">
-            <MeetingItem
-              date={{ day: "24", month: "Oct" }}
-              status="CONFIRMED"
-              statusBg="bg-green-100"
-              statusColor="text-green-700"
-              time="2:00 PM - 3:00 PM"
-              title="Villa Tour with Sarah"
-              agent={{
-                imageUrl:
-                  "https://lh3.googleusercontent.com/aida-public/AB6AXuAPAuWxopho3HDuePL1Nq-__uaXUOz5hUdmdf653KRpLHCyi6y-otWzTaaLAzl0kgC-05WEp0ljWdT6EdJwJr40gaxRl181AmRG3kMQVV1p5_ugdH-32JI-Vdh51csiToY_mW4hGhfmU0qrUU5h6xXZqL3JV5otnbv1RCpbs0sgGeG3p6P_bKuSFyfJJ6XHUtTrEmCuZ1Aw1xPvu-XXS90-yHKQMe4VJvvIY7RpWatTfFZZAtwxQKzFsDWh5G28_3MN6mMX8-bAQt5X",
-                name: "Sarah Jenkins",
-                role: "Top Agent",
-              }}
-            />
-            <MeetingItem
-              date={{ day: "25", month: "Oct" }}
-              status="ONLINE"
-              statusBg="bg-blue-100"
-              statusColor="text-blue-700"
-              time="10:00 AM - 10:45 AM"
-              title="Video Walkthrough"
-              meetingLink
-              property="Downtown Loft #402"
-              type="ONLINE"
-            />
-            <a
-              className="block p-4 text-center text-sm font-medium text-primary dark:text-blue-400 bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
-              href="#"
-            >
-              View Full Calendar
-            </a>
-          </div>
-        </div>
-
-        {/* Recommended Properties */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-primary dark:text-blue-400">
-              Recommended for You
-            </h2>
-            <div className="flex gap-2">
-              <button className="p-1 rounded-md hover:bg-neutral-subtle text-text-muted">
-                <span className="material-icons-outlined">arrow_back</span>
-              </button>
-              <button className="p-1 rounded-md hover:bg-neutral-subtle text-text-muted">
-                <span className="material-icons-outlined">arrow_forward</span>
-              </button>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <PropertyCard
-              badge="NEW LISTING"
-              baths={2}
-              beds={2}
-              imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuCu8dipnM0OZk3PrgLGwQO9iPVrG9JmShqIZQlS5OKTe97xDXn0jrTqMNXtcBUcw7NTH97HQvW2FjCtE4dS-iVpXFeV1xtnd_NT6gUVOX70WsPb8rJ0EkMcvWAYbxWsZfoaUq-AF6bvE8u4NmSKaqJBMmOjCV03uY-xjUgpXqRAut9BPewZL8EC1xwpT9s8hj707_hvq97C9PwmOPXG9SgJMto_m51EhV66d-JMUSQwhyHTTVqAJFBWJXZurqVA24hIcfwtYmVo-Crm"
-              location="Marina District, Dubai"
-              price="$450,000"
-              sqft="1,200"
-              title="Modern Loft in Marina"
-              type="Apartment"
-            />
-            <PropertyCard
-              badge="PRICE DROP"
-              badgeBg="bg-green-600"
-              baths={3}
-              beds={4}
-              imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuAbGfhaP1FpWjxALmYt5zGrKaJOo5EfStwLM6JOaGmJzIvMpG0uIu91GiCUQ9iEcaKMDZgWoU_mPbBzh6vN__gVw_2XIRVuAqKa8diKEiyo-Jhp8dA79CXjmSfNIHmoLPwOjDM_xXKYoqga-Dh1CdRsj9EAYR4nwa_1-Az3xz-fDmIyMh7Jo1rPpfrEY4X9xim-FLfIdShFpZ4q8GM-jUFKGxVvX1VUH5G6Fm8KX22bD53EjeZrAOqXxKVUl7RsJkMVV1D4oFmCYWDE"
-              location="Green Valley, Cairo"
-              price="$850,000"
-              sqft="2,400"
-              title="Family Home in Suburbs"
-              type="House"
-            />
-          </div>
-          {/* Promo Banner */}
-          <div className="mt-6 bg-primary rounded-xl p-6 text-white relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl"></div>
-            <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-              <div>
-                <h3 className="text-xl font-bold">
-                  Get pre-approved for a mortgage
-                </h3>
-                <p className="text-white/80 text-sm mt-1 max-w-md">
-                  Unlock your budget and show sellers you're serious. It only
-                  takes 5 minutes to get started.
-                </p>
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${action.color}`}>
+                <span className="material-icons-outlined text-xl">{action.icon}</span>
               </div>
-              <button className="bg-white text-primary px-5 py-2.5 rounded-lg font-semibold text-sm hover:bg-gray-50 transition-colors whitespace-nowrap">
-                Check Rates
-              </button>
-            </div>
-          </div>
+              <span className="text-xs font-medium text-slate-600 dark:text-slate-300 text-center leading-snug">
+                {action.label}
+              </span>
+            </Link>
+          ))}
         </div>
       </div>
 
-      <div className="space-y-4">
-        <h2 className="text-lg font-bold text-primary dark:text-blue-400">Recent Inquiries</h2>
-        <InquiryTable inquiries={inquiries} />
+      {/* Recent Bookings */}
+      <RecentBookings />
+    </div>
+  );
+}
+
+// ─── Stat Card ────────────────────────────────────────────────────────────────
+
+function StatCard({
+  icon, iconBg, iconColor, label, value, sub, href,
+}: {
+  icon: string; iconBg: string; iconColor: string;
+  label: string; value: string; sub?: string; href?: string;
+}) {
+  const content = (
+    <div className="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{label}</p>
+          <p className="text-2xl font-bold text-slate-800 dark:text-white mt-1">{value}</p>
+          {sub && <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">{sub}</p>}
+        </div>
+        <div className={`${iconBg} w-10 h-10 rounded-xl flex items-center justify-center shrink-0`}>
+          <span className={`material-icons-outlined text-lg ${iconColor}`}>{icon}</span>
+        </div>
+      </div>
+    </div>
+  );
+  return href ? <Link href={href}>{content}</Link> : <div>{content}</div>;
+}
+
+// ─── Recent Bookings ──────────────────────────────────────────────────────────
+
+function RecentBookings() {
+  const [bookings, setBookings] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/user/bookings")
+      .then((r) => r.json())
+      .then((d) => setBookings((d.bookings ?? []).slice(0, 5)))
+      .catch(() => { })
+      .finally(() => setLoading(false));
+  }, []);
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-base font-semibold text-slate-700 dark:text-slate-200">Recent Bookings</h2>
+        <Link href="/dashboard/bookings" className="text-xs text-primary hover:underline font-medium">
+          View all →
+        </Link>
       </div>
 
-      <footer className="mt-12 p-6 border-t border-neutral-subtle dark:border-slate-800 text-center text-xs text-text-muted transition-colors">
-        <p>© 2023 Al-Diyar Real Estate. All rights reserved.</p>
-      </footer>
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
+        {loading ? (
+          <div className="p-6 space-y-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-14 rounded-lg bg-slate-50 dark:bg-slate-800 animate-pulse" />
+            ))}
+          </div>
+        ) : bookings.length === 0 ? (
+          <div className="flex flex-col items-center gap-3 py-12 text-center px-4">
+            <span className="material-icons-outlined text-4xl text-slate-300 dark:text-slate-600">confirmation_number</span>
+            <p className="text-sm text-slate-500 dark:text-slate-400">No bookings yet.</p>
+            <Link
+              href="/properties"
+              className="mt-1 text-xs bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
+            >
+              Browse Properties
+            </Link>
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-50 dark:divide-slate-800">
+            {bookings.map((b) => {
+              const listing = b.listing as any;
+              const statusColor =
+                b.status === "Confirmed"
+                  ? "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400"
+                  : b.status === "Cancelled"
+                    ? "bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400"
+                    : "bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400";
+
+              return (
+                <div key={b._id} className="flex items-center gap-4 px-5 py-4">
+                  {/* Image */}
+                  <div className="w-12 h-12 rounded-lg bg-slate-100 dark:bg-slate-800 overflow-hidden shrink-0">
+                    {listing?.images?.[0] ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={listing.images[0]} alt={listing.title} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <span className="material-icons-outlined text-slate-400 text-xl">home</span>
+                      </div>
+                    )}
+                  </div>
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-slate-800 dark:text-slate-100 truncate">
+                      {listing?.title ?? "Property"}
+                    </p>
+                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
+                      Visit: {new Date(b.visitDate).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                    </p>
+                  </div>
+                  {/* Status */}
+                  <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full ${statusColor}`}>
+                    {b.status}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

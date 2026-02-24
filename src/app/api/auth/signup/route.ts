@@ -11,7 +11,8 @@ interface UserData {
     email: string;
     phone: string;
     password: string;
-    role: 'user' | 'agent';
+    role: 'user' | 'seller' | 'agent';
+    approvalStatus: 'approved' | 'pending';
     emailVerified: boolean;
     companyName?: string;
     licenseNumber?: string;
@@ -51,17 +52,28 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        if (role !== 'user' && role !== 'agent') {
+        if (role !== 'user' && role !== 'agent' && role !== 'seller') {
             return NextResponse.json(
                 { error: 'Invalid account type' },
                 { status: 400 }
             );
         }
 
+        // Agent requires companyName, licenseNumber, businessAddress
         if (role === 'agent') {
             if (!companyName || !licenseNumber || !businessAddress) {
                 return NextResponse.json(
                     { error: 'Company name, license number, and business address are required for agents' },
+                    { status: 400 }
+                );
+            }
+        }
+
+        // Seller requires companyName, businessAddress (no license needed)
+        if (role === 'seller') {
+            if (!companyName || !businessAddress) {
+                return NextResponse.json(
+                    { error: 'Company name and business address are required for sellers' },
                     { status: 400 }
                 );
             }
@@ -98,13 +110,17 @@ export async function POST(request: NextRequest) {
             phone,
             password: hashedPassword,
             role,
+            // agents and sellers require admin approval; users are auto-approved
+            approvalStatus: (role === 'agent' || role === 'seller') ? 'pending' : 'approved',
             emailVerified: false,
         };
 
-        if (role === 'agent') {
+        if (role === 'agent' || role === 'seller') {
             userData.companyName = companyName;
-            userData.licenseNumber = licenseNumber;
             userData.businessAddress = businessAddress;
+            if (role === 'agent') {
+                userData.licenseNumber = licenseNumber;
+            }
             if (website) {
                 userData.website = website;
             }

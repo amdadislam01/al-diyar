@@ -6,11 +6,44 @@ import { ThemeToggle } from "./ThemeToggle";
 import { useState, useEffect, useRef } from "react";
 import { useSession, signOut } from "next-auth/react";
 
+// ─── Role → dashboard root ────────────────────────────────────────────────────
+function getDashboardHref(role?: string) {
+  if (role === "admin") return "/dashboard/admin";
+  if (role === "agent") return "/dashboard/agent";
+  if (role === "seller") return "/dashboard/seller";
+  return "/dashboard";
+}
+
+function getDashboardLabel(role?: string) {
+  if (role === "admin") return "Admin Panel";
+  if (role === "agent") return "Agent Portal";
+  if (role === "seller") return "Seller Portal";
+  return "My Dashboard";
+}
+
+// ─── Role → center nav items ──────────────────────────────────────────────────
+const publicNavItems = ["Home", "Listing", "Property", "Agents", "Blog"];
+
+const userNavItems = ["Home", "Listing", "Property", "Agents", "Blog"];
+const agentNavItems = ["Home", "Listing", "Property", "Agents", "Blog"];
+const adminNavItems = ["Home", "Listing", "Property", "Agents", "Blog"];
+
+function getCenterNavItems(role?: string) {
+  if (role === "admin") return adminNavItems;
+  if (role === "agent" || role === "seller") return agentNavItems;
+  if (role === "user") return userNavItems;
+  return publicNavItems;
+}
+
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { data: session, status } = useSession();
+
+  const role = (session?.user as { role?: string })?.role;
+  const dashboardHref = getDashboardHref(role);
+  const centerNavItems = getCenterNavItems(role);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -65,7 +98,7 @@ const Navbar = () => {
 
         {/* Center Menu */}
         <div className="hidden md:flex items-center space-x-10">
-          {["Home", "Listing", "Property", "Agents", "Blog"].map((item) => (
+          {centerNavItems.map((item) => (
             <Link
               key={item}
               href={`/${item === "Home" ? "" : item.toLowerCase()}`}
@@ -78,6 +111,19 @@ const Navbar = () => {
               <span className="absolute bottom-0 left-0 w-full h-0.5 bg-current transform translate-x-[-101%] group-hover:translate-x-0 transition-transform duration-300"></span>
             </Link>
           ))}
+          {/* Dashboard quick link for logged-in users */}
+          {session?.user && (
+            <Link
+              href={dashboardHref}
+              className={`text-sm font-semibold tracking-wide transition-all duration-300 hover:opacity-100 relative group overflow-hidden ${isScrolled
+                ? "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                : "text-white/80 hover:text-white"
+                }`}
+            >
+              Dashboard
+              <span className="absolute bottom-0 left-0 w-full h-0.5 bg-current transform translate-x-[-101%] group-hover:translate-x-0 transition-transform duration-300"></span>
+            </Link>
+          )}
         </div>
 
         {/* Right side */}
@@ -185,7 +231,7 @@ const Navbar = () => {
                   {/* Menu Items */}
                   <div className="py-2">
                     <Link
-                      href="/dashboard"
+                      href={dashboardHref}
                       onClick={() => setIsDropdownOpen(false)}
                       className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors duration-150 group"
                     >
@@ -194,7 +240,7 @@ const Navbar = () => {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                         </svg>
                       </div>
-                      Dashboard
+                      {getDashboardLabel(role)}
                     </Link>
 
                     <Link
@@ -252,8 +298,8 @@ const Navbar = () => {
             <Link
               href="/auth/signin"
               className={`group flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold tracking-tight transition-all duration-300 active:scale-95 hover:-translate-y-0.5 ${isScrolled
-                  ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md hover:shadow-lg"
-                  : "bg-white/15 backdrop-blur-sm border border-white/30 text-white hover:bg-white/25 hover:border-white/50 shadow-sm"
+                ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md hover:shadow-lg"
+                : "bg-white/15 backdrop-blur-sm border border-white/30 text-white hover:bg-white/25 hover:border-white/50 shadow-sm"
                 }`}
             >
               <span className="material-icons-round text-base leading-none">
