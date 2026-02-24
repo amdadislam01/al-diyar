@@ -8,7 +8,8 @@ import GoogleProvider from 'next-auth/providers/google';
 
 declare module 'next-auth' {
     interface User {
-        role: 'user' | 'agent';
+        role: 'user' | 'seller' | 'agent' | 'admin';
+        approvalStatus?: 'approved' | 'pending' | 'rejected';
         image?: string | null;
     }
 
@@ -18,7 +19,8 @@ declare module 'next-auth' {
             name?: string | null;
             email?: string | null;
             image?: string | null;
-            role: 'user' | 'agent';
+            role: 'user' | 'seller' | 'agent' | 'admin';
+            approvalStatus?: 'approved' | 'pending' | 'rejected';
         };
     }
 }
@@ -26,7 +28,8 @@ declare module 'next-auth' {
 declare module 'next-auth/jwt' {
     interface JWT {
         id: string;
-        role: 'user' | 'agent';
+        role: 'user' | 'seller' | 'agent' | 'admin';
+        approvalStatus?: 'approved' | 'pending' | 'rejected';
         image?: string | null;
     }
 }
@@ -83,6 +86,7 @@ export const authOptions: NextAuthOptions = {
                     email: user.email,
                     name: user.name,
                     role: user.role,
+                    approvalStatus: user.approvalStatus,
                 };
             },
         }),
@@ -118,6 +122,11 @@ export const authOptions: NextAuthOptions = {
                                 emailVerified: true,
                                 provider: 'google',
                                 image: user.image || undefined,
+                            },
+                            // Only set these on INSERT (new Google user) — existing users keep their role/approvalStatus
+                            $setOnInsert: {
+                                role: 'user',
+                                approvalStatus: 'approved',
                             },
                         },
                         {
@@ -161,6 +170,7 @@ export const authOptions: NextAuthOptions = {
                 if (dbUser) {
                     token.id = dbUser._id.toString();
                     token.role = dbUser.role;
+                    token.approvalStatus = dbUser.approvalStatus;
                     token.image = dbUser.image ?? null;
                 }
             }
@@ -170,6 +180,7 @@ export const authOptions: NextAuthOptions = {
             if (session.user) {
                 session.user.id = token.id;
                 session.user.role = token.role;
+                session.user.approvalStatus = token.approvalStatus;
                 session.user.image = token.image ?? session.user.image;
             }
             return session;
