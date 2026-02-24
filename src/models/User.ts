@@ -5,10 +5,11 @@ export interface IUser extends Document {
     email: string;
     phone?: string;
     password?: string;
-    role: 'user' | 'agent';
+    role: 'user' | 'seller' | 'agent' | 'admin';
+    approvalStatus: 'approved' | 'pending' | 'rejected';
     emailVerified: boolean;
     provider?: string;
-    // Agent-specific fields
+    // Agent / Seller specific fields
     companyName?: string;
     licenseNumber?: string;
     businessAddress?: string;
@@ -72,9 +73,14 @@ const UserSchema: Schema = new Schema(
         },
         role: {
             type: String,
-            enum: ['user', 'agent'],
+            enum: ['user', 'seller', 'agent', 'admin'],
             required: [true, 'Account type is required'],
             default: 'user',
+        },
+        approvalStatus: {
+            type: String,
+            enum: ['approved', 'pending', 'rejected'],
+            // No default here — enforced via pre-save hook below
         },
         emailVerified: {
             type: Boolean,
@@ -113,6 +119,23 @@ const UserSchema: Schema = new Schema(
         timestamps: true,
     }
 );
+
+// ─── Auto-assign approvalStatus before every save ────────────────────────────
+// Rule:
+//   agent / seller  → 'pending'  (must wait for admin approval)
+//   user  / admin   → 'approved' (auto-approved)
+//
+// This runs ONLY when approvalStatus is not already set (new doc or explicit change).
+UserSchema.pre('save', async function () {
+    if (!this.approvalStatus) {
+        const role = this.role as string;
+        if (role === 'agent' || role === 'seller') {
+            this.approvalStatus = 'pending';
+        } else {
+            this.approvalStatus = 'approved';
+        }
+    }
+});
 
 // Prevent model recompilation in development
 const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
