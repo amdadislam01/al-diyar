@@ -5,7 +5,16 @@ import { useTheme } from "next-themes";
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
+  const [isScrolled, setIsScrolled] = React.useState(false);
   const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   React.useEffect(() => {
     setMounted(true);
@@ -19,7 +28,11 @@ export function ThemeToggle() {
   return (
     <button
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className="w-10 h-10 rounded-full flex items-center justify-center text-slate-900 dark:text-slate-100 transition-all"
+      className={`w-10 h-10 rounded-full flex items-center justify-center text-slate-900 dark:text-slate-100 ${
+        isScrolled
+          ? "text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+          : "text-white/90 hover:text-white"
+      }transition-all`}
       aria-label="Toggle theme"
     >
       <span className="material-icons-round text-xl">
