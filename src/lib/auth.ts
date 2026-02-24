@@ -9,6 +9,7 @@ import GoogleProvider from 'next-auth/providers/google';
 declare module 'next-auth' {
     interface User {
         role: 'user' | 'agent';
+        image?: string | null;
     }
 
     interface Session {
@@ -16,6 +17,7 @@ declare module 'next-auth' {
             id: string;
             name?: string | null;
             email?: string | null;
+            image?: string | null;
             role: 'user' | 'agent';
         };
     }
@@ -25,6 +27,7 @@ declare module 'next-auth/jwt' {
     interface JWT {
         id: string;
         role: 'user' | 'agent';
+        image?: string | null;
     }
 }
 
@@ -147,6 +150,7 @@ export const authOptions: NextAuthOptions = {
             if (user) {
                 token.id = user.id;
                 token.role = user.role;
+                token.image = user.image ?? null;
             }
 
             if (token.email) {
@@ -157,6 +161,7 @@ export const authOptions: NextAuthOptions = {
                 if (dbUser) {
                     token.id = dbUser._id.toString();
                     token.role = dbUser.role;
+                    token.image = dbUser.image ?? null;
                 }
             }
             return token;
@@ -165,6 +170,7 @@ export const authOptions: NextAuthOptions = {
             if (session.user) {
                 session.user.id = token.id;
                 session.user.role = token.role;
+                session.user.image = token.image ?? session.user.image;
             }
             return session;
         },
