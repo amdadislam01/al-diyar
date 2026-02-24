@@ -100,7 +100,7 @@ const Hero = () => {
                 </div>
               </div>
 
-              <button className="w-full bg-accent hover:bg-accent-hover text-white font-bold py-4 rounded-xl shadow-lg shadow-orange-500/20 transition-all mt-4 uppercase text-xs tracking-widest">
+              <button className="w-full bg-primary hover:bg-primary-hover text-white font-bold py-4 rounded-xl shadow-lg shadow-primary-500/20 transition-all mt-4 uppercase text-xs tracking-widest cursor-pointer">
                 Search
               </button>
             </form>
