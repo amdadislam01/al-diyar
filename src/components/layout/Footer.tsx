@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 const Footer = () => {
@@ -8,8 +9,8 @@ const Footer = () => {
           {/* Brand Info */}
           <div className="space-y-6">
             <Link href="/" className="flex items-center gap-2 group w-fit">
-              <div className="w-8 h-8 bg-slate-900 dark:bg-white rounded-full flex items-center justify-center text-white dark:text-slate-900 font-bold text-sm">
-                AD
+              <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-white dark:text-slate-900 font-bold text-sm">
+                <Image src="/aldiyarlogo.png" alt="Logo" width={40} height={40} />
               </div>
               <span className="font-bold text-xl tracking-tight text-slate-900 dark:text-white">
                 Al-Diyar
@@ -148,6 +149,7 @@ const Footer = () => {
           </div>
         </div>
       </div>
+      <Image src="/footer-art.png" alt="Footer" width={1000} height={500} className="mx-auto mt-8" />
     </footer>
   );
 };
