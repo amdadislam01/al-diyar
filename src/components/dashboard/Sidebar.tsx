@@ -94,9 +94,9 @@ export default function Sidebar() {
       {/* Logo */}
       <div className="flex items-center h-20 px-8 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
-            <span className="material-icons-round text-white text-xl">apartment</span>
-          </div>
+          <Link href="/" className="w-10 h-10 rounded-lg bg-white p-1 flex items-center justify-center">
+            <Image src="/aldiyarlogo.png" alt="Logo" width={32} height={32} />
+          </Link>
           <div>
             <span className="text-xl font-bold tracking-tight">{meta.label}</span>
             <p className={`text-[10px] font-medium -mt-0.5 ${meta.color}`}>
