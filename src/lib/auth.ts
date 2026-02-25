@@ -5,6 +5,7 @@ import dbConnect from './mongodb';
 import User, { IUser } from '@/models/User';
 
 import GoogleProvider from 'next-auth/providers/google';
+import GithubProvider from 'next-auth/providers/github';
 
 declare module 'next-auth' {
     interface User {
@@ -39,6 +40,10 @@ export const authOptions: NextAuthOptions = {
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID!,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+        }),
+        GithubProvider({
+            clientId: process.env.GITHUB_ID!,
+            clientSecret: process.env.GITHUB_SECRET!,
         }),
         CredentialsProvider({
             name: 'Credentials',
@@ -102,10 +107,10 @@ export const authOptions: NextAuthOptions = {
     callbacks: {
         async signIn({ user, account, profile }) {
             try {
-                if (account?.provider === 'google') {
+                if (account?.provider === 'google' || account?.provider === 'github') {
                     const rawEmail = user.email;
                     if (!rawEmail) {
-                        console.error("Google Sign-In: No email provided");
+                        console.error(`${account.provider === 'google' ? 'Google' : 'GitHub'} Sign-In: No email provided`);
                         return false;
                     }
 
@@ -120,10 +125,10 @@ export const authOptions: NextAuthOptions = {
                             $set: {
                                 name: user.name,
                                 emailVerified: true,
-                                provider: 'google',
+                                provider: account.provider,
                                 image: user.image || undefined,
                             },
-                            // Only set these on INSERT (new Google user) — existing users keep their role/approvalStatus
+                            // Only set these on INSERT (new user) — existing users keep their role/approvalStatus
                             $setOnInsert: {
                                 role: 'user',
                                 approvalStatus: 'approved',
@@ -137,7 +142,7 @@ export const authOptions: NextAuthOptions = {
                     );
 
                     if (updatedUser) {
-                        console.log("✅ Google User Synced successfully:", updatedUser.email);
+                        console.log(`✅ ${account.provider === 'google' ? 'Google' : 'GitHub'} User Synced successfully:`, updatedUser.email);
                     }
                     return true;
                 }
