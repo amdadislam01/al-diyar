@@ -214,9 +214,9 @@ const Navbar = () => {
               {isDropdownOpen && (
                 <div className="absolute right-0 mt-3 w-60 rounded-2xl bg-white dark:bg-slate-900 shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                   {/* User Info Header */}
-                  <div className="px-4 py-4 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-slate-800 dark:to-slate-800 border-b border-slate-100 dark:border-slate-700">
+                  <div className="px-4 py-4 bg-linear-to-br from-amber-50 to-orange-50 dark:from-slate-800 dark:to-slate-800 border-b border-slate-100 dark:border-slate-700">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white dark:border-slate-600 shadow-md flex-shrink-0">
+                      <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white dark:border-slate-600 shadow-md shrink-0">
                         {session.user.image ? (
                           <Image
                             src={session.user.image}
@@ -226,7 +226,7 @@ const Navbar = () => {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-primary to-primary flex items-center justify-center">
+                          <div className="w-full h-full bg-linear-to-br from-primary to-primary flex items-center justify-center">
                             <span className="text-white text-base font-bold">
                               {getInitials(session.user.name)}
                             </span>
