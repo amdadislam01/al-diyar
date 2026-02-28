@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 const Footer = () => {
@@ -8,8 +9,8 @@ const Footer = () => {
           {/* Brand Info */}
           <div className="space-y-6">
             <Link href="/" className="flex items-center gap-2 group w-fit">
-              <div className="w-8 h-8 bg-slate-900 dark:bg-white rounded-full flex items-center justify-center text-white dark:text-slate-900 font-bold text-sm">
-                AD
+              <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-white dark:text-slate-900 font-bold text-sm">
+                <Image src="/aldiyarlogo.png" alt="Logo" width={40} height={40} className="p-1" />
               </div>
               <span className="font-bold text-xl tracking-tight text-slate-900 dark:text-white">
                 Al-Diyar
@@ -113,10 +114,11 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  href="#"
+                  href="https://github.com/amdadislam01/al-diyar"
+                  target="_blank"
                   className="hover:text-slate-900 transition-colors"
                 >
-                  Facebook
+                  GitHub
                 </Link>
               </li>
               <li>
@@ -136,9 +138,11 @@ const Footer = () => {
             © 2026 Al-Diyar. All rights reserved.
           </p>
           <div className="flex gap-4">
-            <span className="material-icons-round text-slate-400 dark:text-slate-600 text-lg hover:text-slate-600 dark:hover:text-slate-400 transition-colors cursor-pointer">
-              facebook
-            </span>
+            <Link href="https://github.com/amdadislam01/al-diyar" target="_blank" className="flex items-center">
+              <span className="material-icons-round text-slate-400 dark:text-slate-600 text-lg hover:text-slate-600 dark:hover:text-slate-400 transition-colors cursor-pointer">
+                code
+              </span>
+            </Link>
             <span className="material-icons-round text-slate-400 dark:text-slate-600 text-lg hover:text-slate-600 dark:hover:text-slate-400 transition-colors cursor-pointer">
               camera_alt
             </span>
@@ -148,6 +152,7 @@ const Footer = () => {
           </div>
         </div>
       </div>
+      <Image src="/footer-art.png" alt="Footer" width={1000} height={500} className="mx-auto mt-8" />
     </footer>
   );
 };

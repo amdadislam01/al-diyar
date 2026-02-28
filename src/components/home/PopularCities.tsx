@@ -41,7 +41,7 @@ const PopularCities = () => {
               of the globe.
             </p>
           </div>
-          <button className="text-xs font-black text-slate-900 dark:text-white border-2 border-slate-900 dark:border-white px-8 py-3 rounded-xl uppercase tracking-widest hover:bg-slate-900 hover:text-white dark:hover:bg-white dark:hover:text-slate-900 transition-all duration-300">
+          <button className="text-xs font-black text-slate-900 dark:text-white border-2 border-primary dark:border-primary px-8 py-3 rounded-xl uppercase tracking-widest hover:bg-primary hover:text-white dark:hover:bg-primary dark:hover:text-white transition-all duration-300 cursor-pointer">
             View All Cities
           </button>
         </div>

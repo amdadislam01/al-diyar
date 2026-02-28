@@ -5,10 +5,12 @@ import dbConnect from './mongodb';
 import User, { IUser } from '@/models/User';
 
 import GoogleProvider from 'next-auth/providers/google';
+import GithubProvider from 'next-auth/providers/github';
 
 declare module 'next-auth' {
     interface User {
-        role: 'user' | 'agent';
+        role: 'user' | 'seller' | 'agent' | 'admin';
+        approvalStatus?: 'approved' | 'pending' | 'rejected';
         image?: string | null;
     }
 
@@ -18,7 +20,8 @@ declare module 'next-auth' {
             name?: string | null;
             email?: string | null;
             image?: string | null;
-            role: 'user' | 'agent';
+            role: 'user' | 'seller' | 'agent' | 'admin';
+            approvalStatus?: 'approved' | 'pending' | 'rejected';
         };
     }
 }
@@ -26,7 +29,8 @@ declare module 'next-auth' {
 declare module 'next-auth/jwt' {
     interface JWT {
         id: string;
-        role: 'user' | 'agent';
+        role: 'user' | 'seller' | 'agent' | 'admin';
+        approvalStatus?: 'approved' | 'pending' | 'rejected';
         image?: string | null;
     }
 }
@@ -36,6 +40,10 @@ export const authOptions: NextAuthOptions = {
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID!,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+        }),
+        GithubProvider({
+            clientId: process.env.GITHUB_ID!,
+            clientSecret: process.env.GITHUB_SECRET!,
         }),
         CredentialsProvider({
             name: 'Credentials',
@@ -83,6 +91,7 @@ export const authOptions: NextAuthOptions = {
                     email: user.email,
                     name: user.name,
                     role: user.role,
+                    approvalStatus: user.approvalStatus,
                 };
             },
         }),
@@ -98,10 +107,10 @@ export const authOptions: NextAuthOptions = {
     callbacks: {
         async signIn({ user, account, profile }) {
             try {
-                if (account?.provider === 'google') {
+                if (account?.provider === 'google' || account?.provider === 'github') {
                     const rawEmail = user.email;
                     if (!rawEmail) {
-                        console.error("Google Sign-In: No email provided");
+                        console.error(`${account.provider === 'google' ? 'Google' : 'GitHub'} Sign-In: No email provided`);
                         return false;
                     }
 
@@ -116,8 +125,13 @@ export const authOptions: NextAuthOptions = {
                             $set: {
                                 name: user.name,
                                 emailVerified: true,
-                                provider: 'google',
+                                provider: account.provider,
                                 image: user.image || undefined,
+                            },
+                            // Only set these on INSERT (new user) — existing users keep their role/approvalStatus
+                            $setOnInsert: {
+                                role: 'user',
+                                approvalStatus: 'approved',
                             },
                         },
                         {
@@ -128,7 +142,7 @@ export const authOptions: NextAuthOptions = {
                     );
 
                     if (updatedUser) {
-                        console.log("✅ Google User Synced successfully:", updatedUser.email);
+                        console.log(`✅ ${account.provider === 'google' ? 'Google' : 'GitHub'} User Synced successfully:`, updatedUser.email);
                     }
                     return true;
                 }
@@ -161,6 +175,7 @@ export const authOptions: NextAuthOptions = {
                 if (dbUser) {
                     token.id = dbUser._id.toString();
                     token.role = dbUser.role;
+                    token.approvalStatus = dbUser.approvalStatus;
                     token.image = dbUser.image ?? null;
                 }
             }
@@ -170,6 +185,7 @@ export const authOptions: NextAuthOptions = {
             if (session.user) {
                 session.user.id = token.id;
                 session.user.role = token.role;
+                session.user.approvalStatus = token.approvalStatus;
                 session.user.image = token.image ?? session.user.image;
             }
             return session;
