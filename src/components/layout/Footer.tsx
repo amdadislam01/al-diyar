@@ -10,7 +10,7 @@ const Footer = () => {
           <div className="space-y-6">
             <Link href="/" className="flex items-center gap-2 group w-fit">
               <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-white dark:text-slate-900 font-bold text-sm">
-                <Image src="/aldiyarlogo.png" alt="Logo" width={40} height={40} />
+                <Image src="/aldiyarlogo.png" alt="Logo" width={40} height={40} className="p-1" />
               </div>
               <span className="font-bold text-xl tracking-tight text-slate-900 dark:text-white">
                 Al-Diyar

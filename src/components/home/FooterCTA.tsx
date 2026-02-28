@@ -27,7 +27,7 @@ const FooterCTA = () => {
                 placeholder="Type your email..."
                 className="w-full bg-white dark:bg-slate-800 rounded-full py-4 pl-8 pr-32 text-slate-900 dark:text-white font-medium outline-none shadow-xl border-none"
               />
-              <button className="absolute right-2 top-2 bottom-2 bg-accent hover:bg-accent-hover text-white px-8 rounded-full font-bold text-sm transition-all">
+              <button className="absolute right-2 top-2 bottom-2 bg-primary hover:bg-primary/80 text-white px-8 rounded-full font-bold text-sm transition-all">
                 Subscribe
               </button>
             </div>

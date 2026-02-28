@@ -56,7 +56,10 @@ const Navbar = () => {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
         setIsDropdownOpen(false);
       }
     };
@@ -77,20 +80,28 @@ const Navbar = () => {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 h-20 flex items-center transition-all duration-500 ${isScrolled
-        ? "bg-white/80 dark:bg-slate-950/80 backdrop-blur-lg border-b border-slate-100 dark:border-slate-800 shadow-sm h-16"
-        : "bg-transparent border-b border-transparent"
-        }`}
+      className={`fixed top-0 left-0 right-0 z-50 h-20 flex items-center transition-all duration-500 ${
+        isScrolled
+          ? "bg-white/80 dark:bg-slate-950/80 backdrop-blur-lg border-b border-slate-100 dark:border-slate-800 shadow-sm h-16"
+          : "bg-transparent border-b border-transparent"
+      }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex justify-between items-center">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group transition-all">
-          <div className="w-10 h-10 bg-slate-900 dark:bg-white rounded-full flex items-center justify-center text-white dark:text-slate-900 font-bold text-base transition-transform group-hover:scale-110">
-            AD
+          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-white dark:text-slate-900 font-bold text-base">
+            <Image
+              src="/aldiyarlogo.png"
+              alt="Logo"
+              width={40}
+              height={40}
+              className="p-2"
+            />
           </div>
           <span
-            className={`font-bold text-xl tracking-tight transition-colors duration-300 ${isScrolled ? "text-slate-900 dark:text-white" : "text-white"
-              }`}
+            className={`font-bold text-xl tracking-tight transition-colors duration-300 ${
+              isScrolled ? "text-slate-900 dark:text-white" : "text-white"
+            }`}
           >
             Al-Diyar
           </span>
@@ -102,10 +113,11 @@ const Navbar = () => {
             <Link
               key={item}
               href={`/${item === "Home" ? "" : item.toLowerCase()}`}
-              className={`text-sm font-semibold tracking-wide transition-all duration-300 hover:opacity-100 relative group overflow-hidden ${isScrolled
-                ? "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                : "text-white/80 hover:text-white"
-                }`}
+              className={`text-sm font-semibold tracking-wide transition-all duration-300 hover:opacity-100 relative group overflow-hidden ${
+                isScrolled
+                  ? "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                  : "text-white/80 hover:text-white"
+              }`}
             >
               {item}
               <span className="absolute bottom-0 left-0 w-full h-0.5 bg-current transform translate-x-[-101%] group-hover:translate-x-0 transition-transform duration-300"></span>
@@ -115,10 +127,11 @@ const Navbar = () => {
           {session?.user && (
             <Link
               href={dashboardHref}
-              className={`text-sm font-semibold tracking-wide transition-all duration-300 hover:opacity-100 relative group overflow-hidden ${isScrolled
-                ? "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                : "text-white/80 hover:text-white"
-                }`}
+              className={`text-sm font-semibold tracking-wide transition-all duration-300 hover:opacity-100 relative group overflow-hidden ${
+                isScrolled
+                  ? "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                  : "text-white/80 hover:text-white"
+              }`}
             >
               Dashboard
               <span className="absolute bottom-0 left-0 w-full h-0.5 bg-current transform translate-x-[-101%] group-hover:translate-x-0 transition-transform duration-300"></span>
@@ -131,10 +144,11 @@ const Navbar = () => {
           <ThemeToggle />
 
           <button
-            className={`hidden sm:block px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 shadow-lg active:scale-95 ${isScrolled
-              ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:shadow-xl"
-              : "bg-white text-slate-900 hover:bg-slate-100 shadow-white/10"
-              }`}
+            className={`hidden sm:block px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 shadow-lg active:scale-95 ${
+              isScrolled
+                ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:shadow-xl"
+                : "bg-white text-slate-900 hover:bg-slate-100 shadow-white/10"
+            }`}
           >
             Add Property
           </button>
@@ -152,10 +166,11 @@ const Navbar = () => {
               >
                 {/* Avatar */}
                 <div
-                  className={`w-10 h-10 rounded-full overflow-hidden border-2 transition-all duration-300 shadow-md group-hover:shadow-lg group-hover:scale-105 ${isScrolled
-                    ? "border-slate-200 dark:border-slate-700"
-                    : "border-white/50"
-                    }`}
+                  className={`w-10 h-10 rounded-full overflow-hidden border-2 transition-all duration-300 shadow-md group-hover:shadow-lg group-hover:scale-105 ${
+                    isScrolled
+                      ? "border-slate-200 dark:border-slate-700"
+                      : "border-white/50"
+                  }`}
                 >
                   {session.user.image ? (
                     <Image
@@ -175,9 +190,13 @@ const Navbar = () => {
                 </div>
                 {/* Chevron */}
                 <svg
-                  className={`w-4 h-4 transition-all duration-300 ${isDropdownOpen ? "rotate-180" : ""
-                    } ${isScrolled ? "text-slate-600 dark:text-slate-300" : "text-white/80"
-                    }`}
+                  className={`w-4 h-4 transition-all duration-300 ${
+                    isDropdownOpen ? "rotate-180" : ""
+                  } ${
+                    isScrolled
+                      ? "text-slate-600 dark:text-slate-300"
+                      : "text-white/80"
+                  }`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -195,9 +214,9 @@ const Navbar = () => {
               {isDropdownOpen && (
                 <div className="absolute right-0 mt-3 w-60 rounded-2xl bg-white dark:bg-slate-900 shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                   {/* User Info Header */}
-                  <div className="px-4 py-4 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-slate-800 dark:to-slate-800 border-b border-slate-100 dark:border-slate-700">
+                  <div className="px-4 py-4 bg-linear-to-br from-amber-50 to-orange-50 dark:from-slate-800 dark:to-slate-800 border-b border-slate-100 dark:border-slate-700">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white dark:border-slate-600 shadow-md flex-shrink-0">
+                      <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white dark:border-slate-600 shadow-md shrink-0">
                         {session.user.image ? (
                           <Image
                             src={session.user.image}
@@ -207,7 +226,7 @@ const Navbar = () => {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-primary to-primary flex items-center justify-center">
+                          <div className="w-full h-full bg-linear-to-br from-primary to-primary flex items-center justify-center">
                             <span className="text-white text-base font-bold">
                               {getInitials(session.user.name)}
                             </span>
@@ -236,8 +255,18 @@ const Navbar = () => {
                       className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors duration-150 group"
                     >
                       <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center group-hover:bg-blue-100 dark:group-hover:bg-blue-900/40 transition-colors">
-                        <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        <svg
+                          className="w-4 h-4 text-blue-600 dark:text-blue-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                          />
                         </svg>
                       </div>
                       {getDashboardLabel(role)}
@@ -249,8 +278,18 @@ const Navbar = () => {
                       className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors duration-150 group"
                     >
                       <div className="w-8 h-8 rounded-lg bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center group-hover:bg-purple-100 dark:group-hover:bg-purple-900/40 transition-colors">
-                        <svg className="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        <svg
+                          className="w-4 h-4 text-purple-600 dark:text-purple-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                          />
                         </svg>
                       </div>
                       My Profile
@@ -262,8 +301,18 @@ const Navbar = () => {
                       className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors duration-150 group"
                     >
                       <div className="w-8 h-8 rounded-lg bg-green-50 dark:bg-green-900/20 flex items-center justify-center group-hover:bg-green-100 dark:group-hover:bg-green-900/40 transition-colors">
-                        <svg className="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        <svg
+                          className="w-4 h-4 text-green-600 dark:text-green-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                          />
                         </svg>
                       </div>
                       My Properties
@@ -283,8 +332,18 @@ const Navbar = () => {
                       className="flex items-center gap-3 w-full px-4 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors duration-150 group cursor-pointer"
                     >
                       <div className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-900/20 flex items-center justify-center group-hover:bg-red-100 dark:group-hover:bg-red-900/30 transition-colors">
-                        <svg className="w-4 h-4 text-red-500 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        <svg
+                          className="w-4 h-4 text-red-500 dark:text-red-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                          />
                         </svg>
                       </div>
                       Sign Out
@@ -297,10 +356,11 @@ const Navbar = () => {
             /* Not logged in — Sign In button */
             <Link
               href="/auth/signin"
-              className={`group flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold tracking-tight transition-all duration-300 active:scale-95 hover:-translate-y-0.5 ${isScrolled
-                ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md hover:shadow-lg"
-                : "bg-white/15 backdrop-blur-sm border border-white/30 text-white hover:bg-white/25 hover:border-white/50 shadow-sm"
-                }`}
+              className={`group flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold tracking-tight transition-all duration-300 active:scale-95 hover:-translate-y-0.5 ${
+                isScrolled
+                  ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md hover:shadow-lg"
+                  : "bg-white/15 backdrop-blur-sm border border-white/30 text-white hover:bg-white/25 hover:border-white/50 shadow-sm"
+              }`}
             >
               <span className="material-icons-round text-base leading-none">
                 person_outline
