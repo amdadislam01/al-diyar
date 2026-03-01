@@ -27,12 +27,13 @@ function isValidObjectId(id: string) {
 
 export async function PATCH(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     const { session, error } = await getSellerSession();
     if (error) return error;
 
-    const { id } = params;
+    const { id } = await params;   
+
     if (!isValidObjectId(id)) {
         return NextResponse.json({ message: 'Invalid listing ID' }, { status: 400 });
     }
@@ -108,12 +109,13 @@ export async function PATCH(
 
 export async function DELETE(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     const { session, error } = await getSellerSession();
     if (error) return error;
 
-    const { id } = params;
+    const { id } = await params;  
+
     if (!isValidObjectId(id)) {
         return NextResponse.json({ message: 'Invalid listing ID' }, { status: 400 });
     }
