@@ -1,3 +1,28 @@
+/* ── PP Right Grotesk – local font faces ── */
+@font-face {
+  font-family: "PPRightGrotesk";
+  src: url("/fonts/PPRightGrotesk-CompactBlack.otf") format("opentype");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "PPRightGrotesk";
+  src: url("/fonts/PPRightGrotesk-CompactDark.otf") format("opentype");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "PPRightGrotesk";
+  src: url("/fonts/PPRightGrotesk-WideBlack.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 @import "tailwindcss";
 
 @theme {
@@ -65,6 +90,10 @@
   --shadow-soft:
     0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.18);
   --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.1);
+}
+
+h{
+  color: #6ed1ff;
 }
 
 @layer utilities {
