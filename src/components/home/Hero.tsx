@@ -369,7 +369,7 @@ const Hero = () => {
             {/* Floating Search Bar */}
             <div
               ref={searchRef}
-              className="absolute bottom-16  -translate-x-1/2 w-[92%] md:w-[110%] bg-white dark:bg-slate-900/90 rounded-full shadow-[0_20px_50px_-10px_rgba(0,0,0,0.18)] dark:shadow-[0_20px_50px_-10px_rgba(0,0,0,0.5)] p-2 flex items-center border border-slate-100/80 dark:border-slate-800 transition-all duration-300 z-50 backdrop-blur-sm"
+              className="absolute bottom-16 left-1/2 -translate-x-1/2 w-[92%] md:w-[110%] bg-white dark:bg-slate-900/90 rounded-full shadow-[0_20px_50px_-10px_rgba(0,0,0,0.18)] dark:shadow-[0_20px_50px_-10px_rgba(0,0,0,0.5)] p-2 flex items-center border border-slate-100/80 dark:border-slate-800 transition-all duration-300 z-50 backdrop-blur-sm"
             >
               <div className="flex-1 flex items-center px-5 md:px-8">
                 <input
