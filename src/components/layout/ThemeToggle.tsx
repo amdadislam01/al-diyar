@@ -36,7 +36,7 @@ export function ThemeToggle() {
           ? "text-slate-800 dark:text-slate-200"
           : isScrolled
             ? "text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
-            : "text-white/90 hover:text-white"
+            : "text-black dark:text-white"
       }`}
       aria-label="Toggle theme"
     >
