@@ -89,7 +89,7 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex justify-between items-center">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group transition-all">
-          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-white dark:text-slate-900 font-bold text-base">
+          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
             <Image
               src="/aldiyarlogo.png"
               alt="Logo"
@@ -99,10 +99,15 @@ const Navbar = () => {
             />
           </div>
           <span
-            className={`font-bold text-xl tracking-tight transition-colors duration-300 ${
-              isScrolled ? "text-slate-900 dark:text-white" : "text-white"
+            className={`font-bold text-3xl tracking-tight transition-colors duration-300 dark:text-white ${
+              isScrolled ? "text-slate-900 dark:text-white" : "text-black"
             }`}
-          >
+          
+          style={{
+              fontFamily:
+                "'PPRightGrotesk', 'Plus Jakarta Sans', 'Inter', sans-serif",
+              fontWeight: 900,
+            }}>
             Al-Diyar
           </span>
         </Link>
@@ -113,11 +118,9 @@ const Navbar = () => {
             <Link
               key={item}
               href={`/${item === "Home" ? "" : item.toLowerCase()}`}
-              className={`text-sm font-semibold tracking-wide transition-all duration-300 hover:opacity-100 relative group overflow-hidden ${
-                isScrolled
-                  ? "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                  : "text-white/80 hover:text-white"
-              }`}
+              className={`text-sm font-semibold tracking-wide transition-all duration-300 hover:opacity-100 relative group overflow-hidden dark:text-white ${
+              isScrolled ? "text-slate-900 dark:text-white" : "text-black"
+            }`}
             >
               {item}
               <span className="absolute bottom-0 left-0 w-full h-0.5 bg-current transform translate-x-[-101%] group-hover:translate-x-0 transition-transform duration-300"></span>
@@ -127,10 +130,10 @@ const Navbar = () => {
           {session?.user && (
             <Link
               href={dashboardHref}
-              className={`text-sm font-semibold tracking-wide transition-all duration-300 hover:opacity-100 relative group overflow-hidden ${
+              className={`text-sm font-semibold tracking-wide transition-all duration-300 hover:opacity-100 relative group overflow-hidden dark:text-white ${
                 isScrolled
-                  ? "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                  : "text-white/80 hover:text-white"
+                  ? "text-slate-900 dark:text-white hover:text-slate-900 dark:hover:text-white"
+                  : "text-black"
               }`}
             >
               Dashboard
@@ -359,7 +362,7 @@ const Navbar = () => {
               className={`group flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold tracking-tight transition-all duration-300 active:scale-95 hover:-translate-y-0.5 ${
                 isScrolled
                   ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md hover:shadow-lg"
-                  : "bg-white/15 backdrop-blur-sm border border-white/30 text-white hover:bg-white/25 hover:border-white/50 shadow-sm"
+                  : "bg-white/15 backdrop-blur-sm border border-white/30 text-black hover:bg-white/25 hover:border-white/50 shadow-sm"
               }`}
             >
               <span className="material-icons-round text-base leading-none">
