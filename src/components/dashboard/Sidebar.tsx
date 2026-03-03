@@ -239,10 +239,9 @@ export default function Sidebar() {
                 key={item.href}
                 href={item.href}
                 className={`flex items-center justify-between px-4 py-3 text-sm font-medium rounded-xl transition-colors
-                  ${
-                    active
-                      ? "bg-white/15 text-white"
-                      : "text-white/70 hover:bg-white/5 hover:text-white"
+                  ${active
+                    ? "bg-white/15 text-white"
+                    : "text-white/70 hover:bg-white/5 hover:text-white"
                   }`}
               >
                 <div className="flex items-center">
