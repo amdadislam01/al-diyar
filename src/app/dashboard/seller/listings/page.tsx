@@ -3,6 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Swal from "sweetalert2";
 
 interface Listing {
     _id: string;
@@ -49,21 +50,42 @@ export default function SellerListingsPage() {
     useEffect(() => { fetchListings(); }, [statusFilter]);
 
     const handleDelete = async (id: string) => {
-        if (!confirm("Are you sure you want to delete this listing?")) return;
-        setDeleting(id);
-        try {
-            const res = await fetch(`/api/seller/listings/${id}`, { method: "DELETE" });
-            const data = await res.json();
-            if (res.ok) {
-                setListings((prev) => prev.filter((l) => l._id !== id));
-                showToast("Listing deleted successfully", "success");
-            } else {
-                showToast(data.message || "Delete failed", "error");
+        const result = await Swal.fire({
+            title: "Are you sure?",
+            text: "Do you really want to delete this listing?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#EF4444",
+            cancelButtonColor: "#64748B",
+            confirmButtonText: "Yes, delete it!",
+            background: typeof document !== "undefined" && document.documentElement.classList.contains("dark") ? "#1e293b" : "#fff",
+            color: typeof document !== "undefined" && document.documentElement.classList.contains("dark") ? "#fff" : "#000",
+        });
+
+        if (result.isConfirmed) {
+            setDeleting(id);
+            try {
+                const res = await fetch(`/api/seller/listings/${id}`, { method: "DELETE" });
+                const data = await res.json();
+                if (res.ok) {
+                    setListings((prev) => prev.filter((l) => l._id !== id));
+                    Swal.fire({
+                        title: "Deleted!",
+                        text: "Listing has been deleted.",
+                        icon: "success",
+                        timer: 2000,
+                        showConfirmButton: false,
+                        background: typeof document !== "undefined" && document.documentElement.classList.contains("dark") ? "#1e293b" : "#fff",
+                        color: typeof document !== "undefined" && document.documentElement.classList.contains("dark") ? "#fff" : "#000",
+                    });
+                } else {
+                    showToast(data.message || "Delete failed", "error");
+                }
+            } catch {
+                showToast("Network error", "error");
+            } finally {
+                setDeleting(null);
             }
-        } catch {
-            showToast("Network error", "error");
-        } finally {
-            setDeleting(null);
         }
     };
 
