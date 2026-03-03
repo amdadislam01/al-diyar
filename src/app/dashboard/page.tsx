@@ -43,7 +43,7 @@ export default function UserDashboard() {
   const isPending = (role === "agent" || role === "seller") && approvalStatus === "pending";
 
   return (
-    <div className="p-6 lg:p-10 max-w-full mx-auto space-y-8">
+    <div className="p-4 sm:p-6 lg:p-10 max-w-full mx-auto space-y-6 sm:space-y-8">
       {/* Header */}
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -77,7 +77,7 @@ export default function UserDashboard() {
       )}
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           icon="confirmation_number"
           iconBg="bg-primary/10"
@@ -121,7 +121,7 @@ export default function UserDashboard() {
         <h2 className="text-base font-semibold text-slate-700 dark:text-slate-200 mb-4">
           Quick Actions
         </h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
           {[
             { href: "/properties", icon: "search", label: "Browse Properties", color: "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400" },
             { href: "/dashboard/bookings", icon: "confirmation_number", label: "My Bookings", color: "bg-primary/10 text-primary" },
@@ -131,12 +131,12 @@ export default function UserDashboard() {
             <Link
               key={action.href}
               href={action.href}
-              className="flex flex-col items-center gap-3 p-5 rounded-xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group"
+              className="flex flex-col items-center gap-2 sm:gap-3 p-4 sm:p-5 rounded-xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group"
             >
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${action.color}`}>
-                <span className="material-icons-outlined text-xl">{action.icon}</span>
+              <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center ${action.color}`}>
+                <span className="material-icons-outlined text-lg sm:text-xl">{action.icon}</span>
               </div>
-              <span className="text-xs font-medium text-slate-600 dark:text-slate-300 text-center leading-snug">
+              <span className="text-[10px] sm:text-xs font-medium text-slate-600 dark:text-slate-300 text-center leading-snug">
                 {action.label}
               </span>
             </Link>
@@ -228,7 +228,7 @@ function RecentBookings() {
                     : "bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400";
 
               return (
-                <div key={b._id} className="flex items-center gap-4 px-5 py-4">
+                <div key={b._id} className="flex items-center gap-3 sm:gap-4 px-4 sm:px-5 py-3 sm:py-4">
                   {/* Image */}
                   <div className="w-12 h-12 rounded-lg bg-slate-100 dark:bg-slate-800 overflow-hidden shrink-0">
                     {listing?.images?.[0] ? (
