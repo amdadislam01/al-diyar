@@ -82,25 +82,36 @@ export default function NewListingPage() {
     const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
     const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", uploadPreset || "al_diyar_preset");
-
-    const response = await fetch(
-      `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-      {
-        method: "POST",
-        body: formData,
-      },
-    );
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error?.message || "Upload failed");
+    if (!cloudName || !uploadPreset) {
+      console.error("Cloudinary configuration missing:", { cloudName, uploadPreset });
+      throw new Error("Cloudinary configuration is missing. Please check your environment variables.");
     }
 
-    const data = await response.json();
-    return data.secure_url as string;
+    const data = new FormData();
+    data.append("upload_preset", uploadPreset);
+    data.append("file", file);
+
+    try {
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+        {
+          method: "POST",
+          body: data,
+        },
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        console.error("Cloudinary Upload Error:", result);
+        throw new Error(result.error?.message || "Upload failed");
+      }
+
+      return result.secure_url as string;
+    } catch (error: any) {
+      console.error("Fetch Error:", error);
+      throw error;
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -394,10 +405,9 @@ export default function NewListingPage() {
                 type="button"
                 onClick={() => toggleAmenity(a)}
                 className={`px-3 py-1.5 rounded-full text-sm border font-medium transition-colors
-                  ${
-                    form.amenities.includes(a)
-                      ? "bg-primary text-white border-primary"
-                      : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-text-muted hover:border-primary hover:text-primary"
+                  ${form.amenities.includes(a)
+                    ? "bg-primary text-white border-primary"
+                    : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-text-muted hover:border-primary hover:text-primary"
                   }`}
               >
                 {a}
