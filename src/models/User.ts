@@ -167,7 +167,16 @@ UserSchema.pre('save', async function () {
     }
 });
 
-// Prevent model recompilation in development
+// Handle model recompilation in Next.js development
+if (mongoose.models.User) {
+    // If the model exists but is missing our new fields, we might need a refresh
+    // In development, this is common when editing the schema
+    const existingModel = mongoose.models.User;
+    if (process.env.NODE_ENV === 'development' && !existingModel.schema.paths.nid) {
+        delete (mongoose.models as any).User;
+    }
+}
+
 const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
 
 export default User;

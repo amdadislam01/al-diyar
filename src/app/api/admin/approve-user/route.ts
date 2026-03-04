@@ -101,6 +101,14 @@ export async function GET(request: NextRequest) {
             .sort({ createdAt: -1 })
             .lean();
 
+        console.log(`🔍 Fetched ${users.length} users. First user fields:`, users[0] ? {
+            name: users[0].name,
+            role: users[0].role,
+            nid: users[0].nid,
+            division: users[0].division,
+            district: users[0].district,
+            upazila: users[0].upazila
+        } : 'none');
         return NextResponse.json({ users });
     } catch (err) {
         console.error('❌ Get users error:', err);
