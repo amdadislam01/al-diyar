@@ -7,9 +7,17 @@ interface UserEntry {
     _id: string;
     name: string;
     email: string;
+    phone?: string;
     role: "user" | "agent" | "seller" | "admin";
     approvalStatus?: "pending" | "approved" | "rejected";
     companyName?: string;
+    licenseNumber?: string;
+    businessAddress?: string;
+    website?: string;
+    nid?: string;
+    division?: string;
+    district?: string;
+    upazila?: string;
     createdAt: string;
 }
 
@@ -40,6 +48,7 @@ export default function AdminUsersPage() {
     const [loading, setLoading] = useState(true);
     const [processing, setProcessing] = useState<string | null>(null);
     const [roleChanging, setRoleChanging] = useState<string | null>(null);
+    const [selectedUser, setSelectedUser] = useState<UserEntry | null>(null);
 
     // Sync tab → URL
     const switchTab = (newTab: TabKey) => {
@@ -109,8 +118,8 @@ export default function AdminUsersPage() {
                 {tabs.map((t) => (
                     <button key={t.key} onClick={() => switchTab(t.key)}
                         className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors -mb-px whitespace-nowrap ${tab === t.key
-                                ? "border-primary text-primary"
-                                : "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                            ? "border-primary text-primary"
+                            : "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
                             }`}>
                         <span className="material-icons-outlined text-base">{t.icon}</span>
                         {t.label}
@@ -144,13 +153,13 @@ export default function AdminUsersPage() {
                 <div className="space-y-3">
                     {users.map((user) => (
                         <div key={user._id}
-                            className="bg-surface dark:bg-surface-dark border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex items-center justify-between gap-4 shadow-card flex-wrap">
+                            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex items-center justify-between gap-4 shadow-sm hover:shadow-md transition-shadow flex-wrap group">
 
                             {/* Left: avatar + info */}
-                            <div className="flex items-center gap-4 min-w-0">
-                                <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 font-bold text-white text-base ${user.role === "agent" ? "bg-emerald-500" :
-                                        user.role === "seller" ? "bg-blue-500" :
-                                            user.role === "admin" ? "bg-purple-500" : "bg-slate-400"
+                            <div className="flex items-center gap-4 min-w-0 cursor-pointer" onClick={() => setSelectedUser(user)}>
+                                <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 font-bold text-white text-base shadow-sm ${user.role === "agent" ? "bg-emerald-500" :
+                                    user.role === "seller" ? "bg-blue-500" :
+                                        user.role === "admin" ? "bg-purple-500" : "bg-slate-400"
                                     }`}>
                                     {user.name.charAt(0).toUpperCase()}
                                 </div>
@@ -205,6 +214,149 @@ export default function AdminUsersPage() {
                             </div>
                         </div>
                     ))}
+                </div>
+            )}
+
+            {/* User Details Modal */}
+            {selectedUser && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-all duration-300">
+                    <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl shadow-premium overflow-hidden border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in duration-200">
+                        {/* Modal Header */}
+                        <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                            <h3 className="text-lg font-bold text-text-main dark:text-white">User Details</h3>
+                            <button onClick={() => setSelectedUser(null)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                                <span className="material-icons-outlined text-slate-500">close</span>
+                            </button>
+                        </div>
+
+                        {/* Modal Body */}
+                        <div className="p-6 space-y-6 overflow-y-auto max-h-[70vh]">
+                            {/* Basic Info */}
+                            <div className="flex items-center gap-4">
+                                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center font-black text-2xl text-white shadow-glow ${selectedUser.role === "agent" ? "bg-emerald-500" :
+                                    selectedUser.role === "seller" ? "bg-blue-500" :
+                                        selectedUser.role === "admin" ? "bg-purple-500" : "bg-slate-400"
+                                    }`}>
+                                    {selectedUser.name.charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                    <h4 className="text-xl font-bold text-text-main dark:text-white">{selectedUser.name}</h4>
+                                    <p className="text-sm text-text-muted dark:text-slate-400">{selectedUser.email}</p>
+                                    <div className="flex items-center gap-2 mt-2">
+                                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ${ROLE_STYLES[selectedUser.role] ?? ROLE_STYLES.user}`}>
+                                            {selectedUser.role}
+                                        </span>
+                                        {selectedUser.approvalStatus && (selectedUser.role === "agent" || selectedUser.role === "seller") && (
+                                            <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ${STATUS_STYLES[selectedUser.approvalStatus]}`}>
+                                                {selectedUser.approvalStatus}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Detailed Info Grid */}
+                            <div className="grid grid-cols-2 gap-4 pt-4">
+                                {selectedUser.companyName && (
+                                    <div className="col-span-2 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Company Name</p>
+                                        <p className="text-sm font-semibold text-text-main dark:text-slate-200">🏢 {selectedUser.companyName}</p>
+                                    </div>
+                                )}
+
+                                {selectedUser.nid && (
+                                    <div className="col-span-2 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">NID Number</p>
+                                        <p className="text-sm font-semibold text-text-main dark:text-slate-200">🪪 {selectedUser.nid}</p>
+                                    </div>
+                                )}
+
+                                {selectedUser.division && (
+                                    <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Division</p>
+                                        <p className="text-sm font-semibold text-text-main dark:text-slate-200">{selectedUser.division}</p>
+                                    </div>
+                                )}
+
+                                {selectedUser.district && (
+                                    <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">District</p>
+                                        <p className="text-sm font-semibold text-text-main dark:text-slate-200">{selectedUser.district}</p>
+                                    </div>
+                                )}
+
+                                {selectedUser.upazila && (
+                                    <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Upazila / Thana</p>
+                                        <p className="text-sm font-semibold text-text-main dark:text-slate-200">{selectedUser.upazila}</p>
+                                    </div>
+                                )}
+
+                                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Registered On</p>
+                                    <p className="text-sm font-semibold text-text-main dark:text-slate-200">
+                                        {new Date(selectedUser.createdAt).toLocaleDateString()}
+                                    </p>
+                                </div>
+
+                                {selectedUser.phone && (
+                                    <div className="col-span-2 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Phone Number</p>
+                                        <p className="text-sm font-semibold text-text-main dark:text-slate-200">📞 {selectedUser.phone}</p>
+                                    </div>
+                                )}
+
+                                {selectedUser.licenseNumber && (
+                                    <div className="col-span-2 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">License Number</p>
+                                        <p className="text-sm font-semibold text-text-main dark:text-slate-200">📜 {selectedUser.licenseNumber}</p>
+                                    </div>
+                                )}
+
+                                {selectedUser.website && (
+                                    <div className="col-span-2 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Website</p>
+                                        <a href={selectedUser.website} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-primary hover:underline flex items-center gap-1">
+                                            🌐 {selectedUser.website}
+                                        </a>
+                                    </div>
+                                )}
+
+                                {selectedUser.businessAddress && (
+                                    <div className="col-span-2 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Address</p>
+                                        <p className="text-sm font-semibold text-text-main dark:text-slate-200">📍 {selectedUser.businessAddress}</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="p-6 border-t border-slate-100 dark:border-slate-800 flex gap-3">
+                            {selectedUser.approvalStatus === "pending" && (selectedUser.role === "agent" || selectedUser.role === "seller") ? (
+                                <>
+                                    <button
+                                        onClick={() => { handleApproval(selectedUser._id, "approve"); setSelectedUser(null); }}
+                                        disabled={processing === selectedUser._id}
+                                        className="flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition-all shadow-glow hover:shadow-lg disabled:opacity-50"
+                                    >
+                                        Approve Account
+                                    </button>
+                                    <button
+                                        onClick={() => { handleApproval(selectedUser._id, "reject"); setSelectedUser(null); }}
+                                        disabled={processing === selectedUser._id}
+                                        className="px-6 py-3 bg-red-100 dark:bg-red-900/20 text-red-600 font-bold rounded-xl hover:bg-red-200 transition-all disabled:opacity-50"
+                                    >
+                                        Reject
+                                    </button>
+                                </>
+                            ) : (
+                                <button onClick={() => setSelectedUser(null)} className="w-full py-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">
+                                    Close Details
+                                </button>
+                            )}
+                        </div>
+                    </div>
                 </div>
             )}
         </div>
