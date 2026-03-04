@@ -126,6 +126,7 @@ const adminNavItems: NavItem[] = [
     icon: "confirmation_number",
   },
   { href: "/dashboard/admin/analytics", label: "Analytics", icon: "analytics" },
+  { href: "/dashboard/admin/blogs", label: "Manage Blogs", icon: "article" },
   { href: "/dashboard/admin/settings", label: "Settings", icon: "settings" },
 ];
 
@@ -158,7 +159,7 @@ function getNavItems(role: string) {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const pathname = usePathname();
   const { data: session, status } = useSession();
 
@@ -181,25 +182,37 @@ export default function Sidebar() {
   const effectiveNavItems = isPending ? userNavItems : navItems;
 
   return (
-    <aside className="hidden md:flex flex-col w-64 bg-primary text-white shrink-0 h-full">
-      {/* Logo */}
-      <div className="flex items-center h-20 px-8 border-b border-white/10">
+    <aside
+      className={`fixed inset-y-0 left-0 z-50 flex flex-col w-72 bg-primary text-white transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:w-64 shrink-0 h-full
+        ${isOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"}`}
+    >
+      {/* Logo & Close Button (Mobile) */}
+      <div className="flex items-center h-20 px-6 border-b border-white/10 justify-between">
         <div className="flex items-center gap-3">
           <Link
             href="/"
-            className="w-10 h-10 rounded-lg bg-white p-1 flex items-center justify-center"
+            className="w-10 h-10 rounded-lg bg-white p-1 flex items-center justify-center shrink-0"
           >
             <Image src="/aldiyarlogo.png" alt="Logo" width={32} height={32} />
           </Link>
-          <div>
-            <span className="text-xl font-bold tracking-tight">
+          <div className="min-w-0">
+            <span className="text-xl font-bold tracking-tight block truncate">
               {meta.label}
             </span>
-            <p className={`text-[10px] font-medium -mt-0.5 ${meta.color}`}>
+            <p className={`text-[10px] font-medium -mt-0.5 truncate ${meta.color}`}>
               {meta.subtitle}
             </p>
           </div>
         </div>
+
+        {/* Close Button — only visible on mobile when open */}
+        <button
+          onClick={onClose}
+          className="md:hidden p-2 hover:bg-white/10 rounded-lg transition-colors"
+          aria-label="Close menu"
+        >
+          <span className="material-icons-outlined">close</span>
+        </button>
       </div>
 
       {/* Pending approval banner (subtle) */}
@@ -220,7 +233,7 @@ export default function Sidebar() {
       )}
 
       {/* Navigation */}
-      <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+      <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto custom-scrollbar">
         {status === "loading" ? (
           // Skeleton while session loads
           <div className="space-y-2 px-2">
@@ -238,10 +251,10 @@ export default function Sidebar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center justify-between px-4 py-3 text-sm font-medium rounded-xl transition-colors
+                className={`flex items-center justify-between px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200
                   ${active
-                    ? "bg-white/15 text-white"
-                    : "text-white/70 hover:bg-white/5 hover:text-white"
+                    ? "bg-white/15 text-white translate-x-1"
+                    : "text-white/70 hover:bg-white/5 hover:text-white hover:translate-x-1"
                   }`}
               >
                 <div className="flex items-center">
@@ -266,7 +279,7 @@ export default function Sidebar() {
 
       {/* Bottom — User card */}
       <div className="p-4 border-t border-white/10 space-y-2">
-        <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/5">
+        <div className="flex items-center gap-3 px-3 py-3 rounded-xl bg-white/5">
           {/* Avatar */}
           {session?.user?.image ? (
             <Image
@@ -290,7 +303,7 @@ export default function Sidebar() {
               {session?.user?.name ?? "User"}
             </p>
             <p
-              className={`text-[10px] font-semibold uppercase tracking-wide
+              className={`text-[10px] font-semibold uppercase tracking-wide truncate
                 ${role === "admin" ? "text-warning" : role === "agent" ? "text-emerald-400" : role === "seller" ? "text-accent" : "text-white/50"}`}
             >
               {role}

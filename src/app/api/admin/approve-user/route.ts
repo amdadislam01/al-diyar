@@ -36,13 +36,8 @@ export async function PATCH(request: NextRequest) {
                 return NextResponse.json({ error: 'Invalid role' }, { status: 400 });
             }
             user.role = role;
-            // When changing to agent/seller reset approvalStatus to pending
-            if (role === 'agent' || role === 'seller') {
-                user.approvalStatus = 'pending';
-            } else {
-                // user / admin roles don't need approval
-                user.approvalStatus = 'approved';
-            }
+            // Role changes by admin are automatically approved
+            user.approvalStatus = 'approved';
             await user.save();
             return NextResponse.json({
                 message: `Role changed to ${role}`,
@@ -58,7 +53,11 @@ export async function PATCH(request: NextRequest) {
             if (user.role !== 'agent' && user.role !== 'seller') {
                 return NextResponse.json({ error: 'Only agent or seller accounts can be approved' }, { status: 400 });
             }
-            user.approvalStatus = action === 'approve' ? 'approved' : 'rejected';
+            user.approvalStatus = action === 'approve' ? 'approved' : 'approved';
+            // If rejected, demote to 'user' role
+            if (action === 'reject') {
+                user.role = 'user';
+            }
             await user.save();
             return NextResponse.json({
                 message: `User ${action}d successfully`,
@@ -98,10 +97,18 @@ export async function GET(request: NextRequest) {
         // If neither, return ALL users
 
         const users = await User.find(query)
-            .select('name email role approvalStatus companyName businessAddress createdAt')
+            .select('name email phone role approvalStatus companyName licenseNumber businessAddress website nid division district upazila createdAt')
             .sort({ createdAt: -1 })
             .lean();
 
+        console.log(`🔍 Fetched ${users.length} users. First user fields:`, users[0] ? {
+            name: users[0].name,
+            role: users[0].role,
+            nid: users[0].nid,
+            division: users[0].division,
+            district: users[0].district,
+            upazila: users[0].upazila
+        } : 'none');
         return NextResponse.json({ users });
     } catch (err) {
         console.error('❌ Get users error:', err);
