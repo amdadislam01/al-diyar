@@ -14,6 +14,12 @@ export interface IUser extends Document {
     licenseNumber?: string;
     businessAddress?: string;
     website?: string;
+    nid?: string;
+    division?: string;
+    district?: string;
+    upazila?: string;
+    postOffice?: string;
+    postCode?: string;
     image?: string;
     resetPasswordToken?: string;
     resetPasswordExpires?: Date;
@@ -103,6 +109,30 @@ const UserSchema: Schema = new Schema(
             type: String,
             trim: true,
             match: [/^https?:\/\/.+/, 'Invalid URL format'],
+        },
+        nid: {
+            type: String,
+            trim: true,
+        },
+        division: {
+            type: String,
+            trim: true,
+        },
+        district: {
+            type: String,
+            trim: true,
+        },
+        upazila: {
+            type: String,
+            trim: true,
+        },
+        postOffice: {
+            type: String,
+            trim: true,
+        },
+        postCode: {
+            type: String,
+            trim: true,
         },
         image: {
             type: String,
