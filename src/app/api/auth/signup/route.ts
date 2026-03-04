@@ -18,6 +18,12 @@ interface UserData {
     licenseNumber?: string;
     businessAddress?: string;
     website?: string;
+    nid?: string;
+    division?: string;
+    district?: string;
+    upazila?: string;
+    postOffice?: string;
+    postCode?: string;
 }
 
 
@@ -43,6 +49,12 @@ export async function POST(request: NextRequest) {
             licenseNumber,
             businessAddress,
             website,
+            nid,
+            division,
+            district,
+            upazila,
+            postOffice,
+            postCode,
         } = body;
 
         if (!name || !email || !phone || !password || !role) {
@@ -59,21 +71,21 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Agent requires companyName, licenseNumber, businessAddress
+        // Agent requires companyName, licenseNumber, businessAddress, nid, division, district, upazila
         if (role === 'agent') {
-            if (!companyName || !licenseNumber || !businessAddress) {
+            if (!companyName || !licenseNumber || !businessAddress || !nid || !division || !district || !upazila) {
                 return NextResponse.json(
-                    { error: 'Company name, license number, and business address are required for agents' },
+                    { error: 'All professional details (Company, License, Address, NID, and Location) are required for agents' },
                     { status: 400 }
                 );
             }
         }
 
-        // Seller requires companyName, businessAddress (no license needed)
+        // Seller requires businessAddress, nid, division, district, upazila (companyName optional, no license)
         if (role === 'seller') {
-            if (!companyName || !businessAddress) {
+            if (!businessAddress || !nid || !division || !district || !upazila) {
                 return NextResponse.json(
-                    { error: 'Company name and business address are required for sellers' },
+                    { error: 'NID, Address, and Location details are required for sellers' },
                     { status: 400 }
                 );
             }
@@ -116,11 +128,21 @@ export async function POST(request: NextRequest) {
         };
 
         if (role === 'agent' || role === 'seller') {
-            userData.companyName = companyName;
             userData.businessAddress = businessAddress;
+            userData.nid = nid;
+            userData.division = division;
+            userData.district = district;
+            userData.upazila = upazila;
+
             if (role === 'agent') {
+                userData.companyName = companyName;
                 userData.licenseNumber = licenseNumber;
+                userData.postOffice = postOffice;
+                userData.postCode = postCode;
+            } else if (companyName) {
+                userData.companyName = companyName;
             }
+
             if (website) {
                 userData.website = website;
             }
