@@ -22,6 +22,7 @@ type FormData = {
   division?: string;
   district?: string;
   upazila?: string;
+  country?: string;
   terms: boolean;
 };
 
@@ -33,12 +34,7 @@ export default function SignUpPage() {
   const [apiError, setApiError] = useState("");
 
   // Location data state
-  const [divisions, setDivisions] = useState<any[]>([]);
-  const [districts, setDistricts] = useState<any[]>([]);
-  const [postcodes, setPostcodes] = useState<any[]>([]);
-
-  const [selectedDivisionId, setSelectedDivisionId] = useState("");
-  const [selectedDistrictId, setSelectedDistrictId] = useState("");
+  const [countries, setCountries] = useState<any[]>([]);
 
   const {
     register,
@@ -56,43 +52,34 @@ export default function SignUpPage() {
   useEffect(() => {
     const loadLocationData = async () => {
       try {
-        const [divRes, distRes, postRes] = await Promise.all([
-          fetch("/data/bd-divisions.json"),
-          fetch("/data/bd-districts.json"),
-          fetch("/data/bd-postcodes.json"),
-        ]);
-        const divData = await divRes.json();
-        const distData = await distRes.json();
-        const postData = await postRes.json();
-
-        setDivisions(divData.divisions || []);
-        setDistricts(distData.districts || []);
-        setPostcodes(postData.postcodes || []);
+        const res = await fetch("/data/country.json");
+        const data = await res.json();
+        setCountries(data || []);
       } catch (error) {
-        console.error("Error loading location data:", error);
+        console.error("Error loading country data:", error);
       }
     };
     loadLocationData();
   }, []);
 
-  // Filtered lists
-  const filteredDistricts = districts.filter(
-    (d) => d.division_id === selectedDivisionId
-  );
-
-  // Get unique upazilas for the selected district from postcodes
-  const filteredUpazilas = Array.from(
-    new Set(
-      postcodes
-        .filter((p) => p.district_id === selectedDistrictId)
-        .map((p) => p.upazila)
-    )
-  ).sort();
+  // Filtered lists (none needed now)
 
   const onSubmit = async (data: FormData) => {
     setApiError("");
 
     try {
+      // Prepare final data
+      const selectedCountry = countries.find(c => c.name === data.country);
+      const dialCode = selectedCountry?.dial_code || "";
+
+      // Prepend dial code to phone if not already present
+      let finalPhone = data.phone.trim();
+      if (dialCode && !finalPhone.startsWith("+") && !finalPhone.startsWith(dialCode.replace("+", ""))) {
+        // Remove leading zero if present when prepending dial code
+        const phoneWithoutLeadingZero = finalPhone.startsWith("0") ? finalPhone.substring(1) : finalPhone;
+        finalPhone = dialCode + phoneWithoutLeadingZero;
+      }
+
       const response = await fetch("/api/auth/signup", {
         method: "POST",
         headers: {
@@ -100,6 +87,7 @@ export default function SignUpPage() {
         },
         body: JSON.stringify({
           ...data,
+          phone: finalPhone,
           role,
         }),
       });
@@ -286,7 +274,7 @@ export default function SignUpPage() {
                   )}
                 </div>
 
-                {/* Phone  */}
+                {/* Phone Number */}
                 <div className="lg:col-span-2">
                   <label
                     htmlFor="phone"
@@ -294,25 +282,62 @@ export default function SignUpPage() {
                   >
                     Phone Number *
                   </label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    {...register("phone", {
-                      required: "Phone number is required",
-                      pattern: {
-                        value: /^(\+?880|0)?1[3-9]\d{8}$/,
-                        message: "Invalid Bangladesh phone number",
-                      },
-                    })}
-                    className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.phone
-                      ? "border-danger-300"
-                      : "border-surface-tonal-300 dark:border-slate-700"
-                      }`}
-                    placeholder="+880 1XXX XXXXXX"
-                  />
+                  <div className="relative">
+                    {/* Dial Code Prefix */}
+                    {watch("country") && countries.find(c => c.name === watch("country"))?.dial_code && (
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted font-medium pr-2 border-r border-slate-200 dark:border-slate-700 pointer-events-none">
+                        {countries.find(c => c.name === watch("country")).dial_code}
+                      </div>
+                    )}
+                    <input
+                      type="tel"
+                      id="phone"
+                      {...register("phone", {
+                        required: "Phone number is required",
+                      })}
+                      style={{ paddingLeft: watch("country") && countries.find(c => c.name === watch("country"))?.dial_code ? `${(countries.find(c => c.name === watch("country")).dial_code.length * 9) + 30}px` : undefined }}
+                      className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.phone
+                        ? "border-danger-300"
+                        : "border-surface-tonal-300 dark:border-slate-700"
+                        }`}
+                      placeholder="1XXXXXXXXX"
+                    />
+                  </div>
                   {errors.phone && (
                     <p className="mt-1 text-sm text-red-500">
                       {errors.phone.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Country Selection */}
+                <div className="lg:col-span-2">
+                  <label
+                    htmlFor="country"
+                    className="block text-sm font-medium text-text-main dark:text-slate-200 mb-2"
+                  >
+                    Country *
+                  </label>
+                  <select
+                    id="country"
+                    {...register("country", {
+                      required: "Country is required",
+                    })}
+                    className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.country
+                      ? "border-danger-300"
+                      : "border-surface-tonal-300 dark:border-slate-700"
+                      }`}
+                  >
+                    <option value="">Select Country</option>
+                    {countries.map((c, idx) => (
+                      <option key={idx} value={c.name}>
+                        {c.emoji} {c.name}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.country && (
+                    <p className="mt-1 text-sm text-red-500">
+                      {errors.country.message}
                     </p>
                   )}
                 </div>
@@ -421,115 +446,6 @@ export default function SignUpPage() {
                     )}
                   </div>
 
-                  {/* Division */}
-                  <div>
-                    <label
-                      htmlFor="division"
-                      className="block text-sm font-medium text-text-main dark:text-slate-200 mb-2"
-                    >
-                      Division *
-                    </label>
-                    <select
-                      id="division"
-                      {...register("division", {
-                        required: "Division is required",
-                        onChange: (e) => {
-                          const division = divisions.find(d => d.name === e.target.value);
-                          setSelectedDivisionId(division?.id || "");
-                          setSelectedDistrictId("");
-                          setValue("district", "");
-                          setValue("upazila", "");
-                        }
-                      })}
-                      className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.division
-                        ? "border-danger-300"
-                        : "border-surface-tonal-300 dark:border-slate-700"
-                        }`}
-                    >
-                      <option value="">Select Division</option>
-                      {divisions.map((div) => (
-                        <option key={div.id} value={div.name}>
-                          {div.name}
-                        </option>
-                      ))}
-                    </select>
-                    {errors.division && (
-                      <p className="mt-1 text-sm text-red-500">
-                        {errors.division.message}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* District */}
-                  <div>
-                    <label
-                      htmlFor="district"
-                      className="block text-sm font-medium text-text-main dark:text-slate-200 mb-2"
-                    >
-                      District *
-                    </label>
-                    <select
-                      id="district"
-                      disabled={!selectedDivisionId}
-                      {...register("district", {
-                        required: "District is required",
-                        onChange: (e) => {
-                          const district = districts.find(d => d.name === e.target.value);
-                          setSelectedDistrictId(district?.id || "");
-                          setValue("upazila", "");
-                        }
-                      })}
-                      className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.district
-                        ? "border-danger-300"
-                        : "border-surface-tonal-300 dark:border-slate-700"
-                        } disabled:opacity-50`}
-                    >
-                      <option value="">Select District</option>
-                      {filteredDistricts.map((dist) => (
-                        <option key={dist.id} value={dist.name}>
-                          {dist.name}
-                        </option>
-                      ))}
-                    </select>
-                    {errors.district && (
-                      <p className="mt-1 text-sm text-red-500">
-                        {errors.district.message}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Upazila / Thana */}
-                  <div className="lg:col-span-2">
-                    <label
-                      htmlFor="upazila"
-                      className="block text-sm font-medium text-text-main dark:text-slate-200 mb-2"
-                    >
-                      Upazila / Thana *
-                    </label>
-                    <select
-                      id="upazila"
-                      disabled={!selectedDistrictId}
-                      {...register("upazila", {
-                        required: "Upazila is required",
-                      })}
-                      className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.upazila
-                        ? "border-danger-300"
-                        : "border-surface-tonal-300 dark:border-slate-700"
-                        } disabled:opacity-50`}
-                    >
-                      <option value="">Select Upazila</option>
-                      {filteredUpazilas.map((upa, index) => (
-                        <option key={index} value={upa}>
-                          {upa}
-                        </option>
-                      ))}
-                    </select>
-                    {errors.upazila && (
-                      <p className="mt-1 text-sm text-red-500">
-                        {errors.upazila.message}
-                      </p>
-                    )}
-                  </div>
 
                   {/* Address (Both Agent and Seller) */}
                   <div className="lg:col-span-2">

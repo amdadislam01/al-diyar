@@ -18,6 +18,7 @@ export interface IUser extends Document {
     division?: string;
     district?: string;
     upazila?: string;
+    country?: string;
     postOffice?: string;
     postCode?: string;
     image?: string;
@@ -56,10 +57,10 @@ const UserSchema: Schema = new Schema(
                 validator: function (v: string) {
                     // Skip validation if not provided (for social login)
                     if (!v && (this as unknown as IUser).provider !== 'credentials') return true;
-                    // Otherwise validate format
-                    return /^(\+?880|0)?1[3-9]\d{8}$/.test(v);
+                    // General phone validation: starts with + or digit, length 7-15
+                    return /^(\+?\d{1,4})?\d{7,15}$/.test(v);
                 },
-                message: 'Invalid Bangladesh phone number',
+                message: 'Invalid phone number format',
             },
         },
         password: {
@@ -123,6 +124,10 @@ const UserSchema: Schema = new Schema(
             trim: true,
         },
         upazila: {
+            type: String,
+            trim: true,
+        },
+        country: {
             type: String,
             trim: true,
         },
