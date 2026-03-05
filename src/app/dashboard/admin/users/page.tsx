@@ -15,9 +15,7 @@ interface UserEntry {
     businessAddress?: string;
     website?: string;
     nid?: string;
-    division?: string;
-    district?: string;
-    upazila?: string;
+    country?: string;
     createdAt: string;
 }
 
@@ -271,24 +269,10 @@ export default function AdminUsersPage() {
                                     </div>
                                 )}
 
-                                {selectedUser.division && (
+                                {selectedUser.country && (
                                     <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Division</p>
-                                        <p className="text-sm font-semibold text-text-main dark:text-slate-200">{selectedUser.division}</p>
-                                    </div>
-                                )}
-
-                                {selectedUser.district && (
-                                    <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">District</p>
-                                        <p className="text-sm font-semibold text-text-main dark:text-slate-200">{selectedUser.district}</p>
-                                    </div>
-                                )}
-
-                                {selectedUser.upazila && (
-                                    <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Upazila / Thana</p>
-                                        <p className="text-sm font-semibold text-text-main dark:text-slate-200">{selectedUser.upazila}</p>
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Country</p>
+                                        <p className="text-sm font-semibold text-text-main dark:text-slate-200">{selectedUser.country}</p>
                                     </div>
                                 )}
 

@@ -97,7 +97,7 @@ export async function GET(request: NextRequest) {
         // If neither, return ALL users
 
         const users = await User.find(query)
-            .select('name email phone role approvalStatus companyName licenseNumber businessAddress website nid division district upazila createdAt')
+            .select('name email phone role approvalStatus companyName licenseNumber businessAddress website nid country createdAt')
             .sort({ createdAt: -1 })
             .lean();
 

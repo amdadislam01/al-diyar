@@ -22,6 +22,7 @@ interface UserData {
     division?: string;
     district?: string;
     upazila?: string;
+    country: string;
     postOffice?: string;
     postCode?: string;
 }
@@ -54,11 +55,12 @@ export async function POST(request: NextRequest) {
             division,
             district,
             upazila,
+            country,
             postOffice,
             postCode,
         } = body;
 
-        if (!name || !email || !phone || !password || !role) {
+        if (!name || !email || !phone || !password || !role || !country) {
             return NextResponse.json(
                 { error: 'All required fields must be provided' },
                 { status: 400 }
@@ -72,21 +74,21 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Agent requires companyName, licenseNumber, businessAddress, nid, division, district, upazila
+        // Agent requires companyName, licenseNumber, businessAddress, nid, country
         if (role === 'agent') {
-            if (!companyName || !licenseNumber || !businessAddress || !nid || !division || !district || !upazila) {
+            if (!companyName || !licenseNumber || !businessAddress || !nid || !country) {
                 return NextResponse.json(
-                    { error: 'All professional details (Company, License, Address, NID, and Location) are required for agents' },
+                    { error: 'All professional details (Company, License, Address, NID, and Country) are required for agents' },
                     { status: 400 }
                 );
             }
         }
 
-        // Seller requires businessAddress, nid, division, district, upazila (companyName optional, no license)
+        // Seller requires businessAddress, nid, country
         if (role === 'seller') {
-            if (!businessAddress || !nid || !division || !district || !upazila) {
+            if (!businessAddress || !nid || !country) {
                 return NextResponse.json(
-                    { error: 'NID, Address, and Location details are required for sellers' },
+                    { error: 'NID, Address, and Country details are required for sellers' },
                     { status: 400 }
                 );
             }
@@ -123,6 +125,7 @@ export async function POST(request: NextRequest) {
             phone,
             password: hashedPassword,
             role,
+            country, // country added here for all roles
             // agents and sellers require admin approval; users are auto-approved
             approvalStatus: (role === 'agent' || role === 'seller') ? 'pending' : 'approved',
             emailVerified: false,
@@ -131,9 +134,6 @@ export async function POST(request: NextRequest) {
         if (role === 'agent' || role === 'seller') {
             userData.businessAddress = businessAddress;
             userData.nid = nid;
-            userData.division = division;
-            userData.district = district;
-            userData.upazila = upazila;
 
             if (role === 'agent') {
                 userData.companyName = companyName;
@@ -155,9 +155,7 @@ export async function POST(request: NextRequest) {
             id: user._id,
             role: user.role,
             nid: (user as any).nid,
-            division: (user as any).division,
-            district: (user as any).district,
-            upazila: (user as any).upazila,
+            country: (user as any).country,
             businessAddress: (user as any).businessAddress
         });
 
