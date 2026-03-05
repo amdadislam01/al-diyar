@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -18,26 +18,76 @@ type FormData = {
   licenseNumber?: string;
   businessAddress?: string;
   website?: string;
+  nid?: string;
+  division?: string;
+  district?: string;
+  upazila?: string;
   terms: boolean;
 };
 
 export default function SignUpPage() {
   const router = useRouter();
-  const [role, setrole] = useState<"user" | "agent">("user");
+  const [role, setrole] = useState<"user" | "seller" | "agent">("user");
   const [showOTP, setShowOTP] = useState(false);
   const [userEmail, setUserEmail] = useState("");
   const [apiError, setApiError] = useState("");
+
+  // Location data state
+  const [divisions, setDivisions] = useState<any[]>([]);
+  const [districts, setDistricts] = useState<any[]>([]);
+  const [postcodes, setPostcodes] = useState<any[]>([]);
+
+  const [selectedDivisionId, setSelectedDivisionId] = useState("");
+  const [selectedDistrictId, setSelectedDistrictId] = useState("");
 
   const {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     mode: "onBlur",
   });
 
   const password = watch("password");
+
+  // Load location data
+  useEffect(() => {
+    const loadLocationData = async () => {
+      try {
+        const [divRes, distRes, postRes] = await Promise.all([
+          fetch("/data/bd-divisions.json"),
+          fetch("/data/bd-districts.json"),
+          fetch("/data/bd-postcodes.json"),
+        ]);
+        const divData = await divRes.json();
+        const distData = await distRes.json();
+        const postData = await postRes.json();
+
+        setDivisions(divData.divisions || []);
+        setDistricts(distData.districts || []);
+        setPostcodes(postData.postcodes || []);
+      } catch (error) {
+        console.error("Error loading location data:", error);
+      }
+    };
+    loadLocationData();
+  }, []);
+
+  // Filtered lists
+  const filteredDistricts = districts.filter(
+    (d) => d.division_id === selectedDivisionId
+  );
+
+  // Get unique upazilas for the selected district from postcodes
+  const filteredUpazilas = Array.from(
+    new Set(
+      postcodes
+        .filter((p) => p.district_id === selectedDistrictId)
+        .map((p) => p.upazila)
+    )
+  ).sort();
 
   const onSubmit = async (data: FormData) => {
     setApiError("");
@@ -132,23 +182,33 @@ export default function SignUpPage() {
         <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 lg:p-10 shadow-soft dark:shadow-premium border border-surface-300 dark:border-slate-800 transition-colors">
           {/* Account Type  */}
           <div className="mb-8">
-            <div className="grid grid-cols-2 gap-3 ">
+            <div className="grid grid-cols-3 gap-3 ">
               <button
                 type="button"
                 onClick={() => setrole("user")}
                 className={`py-3 px-4 rounded-xl font-medium transition-all duration-300 cursor-pointer ${role === "user"
-                    ? "bg-primary dark:bg-blue-600 text-white shadow-glow dark:shadow-premium"
-                    : "bg-surface-tonal-100 dark:bg-slate-800 text-text-main dark:text-slate-200 hover:bg-surface-tonal-200 dark:hover:bg-slate-700"
+                  ? "bg-primary dark:bg-blue-600 text-white shadow-glow dark:shadow-premium"
+                  : "bg-surface-tonal-100 dark:bg-slate-800 text-text-main dark:text-slate-200 hover:bg-surface-tonal-200 dark:hover:bg-slate-700"
                   }`}
               >
                 User
               </button>
               <button
                 type="button"
+                onClick={() => setrole("seller")}
+                className={`py-3 px-4 rounded-xl font-medium transition-all duration-300 cursor-pointer ${role === "seller"
+                  ? "bg-primary dark:bg-blue-600 text-white shadow-glow dark:shadow-premium"
+                  : "bg-surface-tonal-100 dark:bg-slate-800 text-text-main dark:text-slate-200 hover:bg-surface-tonal-200 dark:hover:bg-slate-700"
+                  }`}
+              >
+                Seller
+              </button>
+              <button
+                type="button"
                 onClick={() => setrole("agent")}
                 className={`py-3 px-4 rounded-xl font-medium transition-all duration-300 cursor-pointer ${role === "agent"
-                    ? "bg-primary dark:bg-blue-600 text-white shadow-glow dark:shadow-premium"
-                    : "bg-surface-tonal-100 dark:bg-slate-800 text-text-main dark:text-slate-200 hover:bg-surface-tonal-200 dark:hover:bg-slate-700"
+                  ? "bg-primary dark:bg-blue-600 text-white shadow-glow dark:shadow-premium"
+                  : "bg-surface-tonal-100 dark:bg-slate-800 text-text-main dark:text-slate-200 hover:bg-surface-tonal-200 dark:hover:bg-slate-700"
                   }`}
               >
                 Agent
@@ -183,8 +243,8 @@ export default function SignUpPage() {
                       },
                     })}
                     className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.name
-                        ? "border-danger-300"
-                        : "border-surface-tonal-300 dark:border-slate-700"
+                      ? "border-danger-300"
+                      : "border-surface-tonal-300 dark:border-slate-700"
                       }`}
                     placeholder="Enter your full name"
                   />
@@ -214,8 +274,8 @@ export default function SignUpPage() {
                       },
                     })}
                     className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.email
-                        ? "border-danger-300"
-                        : "border-surface-tonal-300 dark:border-slate-700"
+                      ? "border-danger-300"
+                      : "border-surface-tonal-300 dark:border-slate-700"
                       }`}
                     placeholder="you@example.com"
                   />
@@ -227,7 +287,7 @@ export default function SignUpPage() {
                 </div>
 
                 {/* Phone  */}
-                <div>
+                <div className="lg:col-span-2">
                   <label
                     htmlFor="phone"
                     className="block text-sm font-medium text-text-main dark:text-slate-200 mb-2"
@@ -245,8 +305,8 @@ export default function SignUpPage() {
                       },
                     })}
                     className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.phone
-                        ? "border-danger-300"
-                        : "border-surface-tonal-300 dark:border-slate-700"
+                      ? "border-danger-300"
+                      : "border-surface-tonal-300 dark:border-slate-700"
                       }`}
                     placeholder="+880 1XXX XXXXXX"
                   />
@@ -256,7 +316,288 @@ export default function SignUpPage() {
                     </p>
                   )}
                 </div>
+              </div>
+            </div>
 
+            {/* Agent/Seller Specific Information */}
+            {(role === "agent" || role === "seller") && (
+              <div className="pt-6 border-t border-surface-tonal-300">
+                {role === "agent" && (
+                  <h3 className="text-lg font-semibold text-text-main dark:text-white mb-4">
+                    Business & Identification
+                  </h3>
+                )}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {/* Company Name (Shown only for Agent) */}
+                  {role === "agent" && (
+                    <div>
+                      <label
+                        htmlFor="companyName"
+                        className="block text-sm font-medium text-text-main dark:text-slate-200 mb-2"
+                      >
+                        Company Name *
+                      </label>
+                      <input
+                        type="text"
+                        id="companyName"
+                        {...register("companyName", {
+                          required: "Company name is required for agents",
+                          minLength: {
+                            value: 2,
+                            message: "Company name must be at least 2 characters",
+                          },
+                        })}
+                        className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.companyName
+                          ? "border-danger-300"
+                          : "border-surface-tonal-300 dark:border-slate-700"
+                          }`}
+                        placeholder="Your company or agency name"
+                      />
+                      {errors.companyName && (
+                        <p className="mt-1 text-sm text-red-500">
+                          {errors.companyName.message}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* License Number (Agent only) */}
+                  {role === "agent" && (
+                    <div>
+                      <label
+                        htmlFor="licenseNumber"
+                        className="block text-sm font-medium text-text-main dark:text-slate-200 mb-2"
+                      >
+                        License Number *
+                      </label>
+                      <input
+                        type="text"
+                        id="licenseNumber"
+                        {...register("licenseNumber", {
+                          required: "License number is required for agents",
+                        })}
+                        className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.licenseNumber
+                          ? "border-danger-300"
+                          : "border-surface-tonal-300 dark:border-slate-700"
+                          }`}
+                        placeholder="Real estate license number"
+                      />
+                      {errors.licenseNumber && (
+                        <p className="mt-1 text-sm text-red-500">
+                          {errors.licenseNumber.message}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* NID Number (Both Agent and Seller) */}
+                  <div className="lg:col-span-2">
+                    <label
+                      htmlFor="nid"
+                      className="block text-sm font-medium text-text-main dark:text-slate-200 mb-2"
+                    >
+                      NID Number *
+                    </label>
+                    <input
+                      type="text"
+                      id="nid"
+                      {...register("nid", {
+                        required: "NID number is required",
+                        pattern: {
+                          value: /^[0-9]{10,17}$/,
+                          message: "Invalid NID format (10-17 digits)",
+                        },
+                      })}
+                      className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.nid
+                        ? "border-danger-300"
+                        : "border-surface-tonal-300 dark:border-slate-700"
+                        }`}
+                      placeholder="Enter your 10, 13, or 17 digit NID number"
+                    />
+                    {errors.nid && (
+                      <p className="mt-1 text-sm text-red-500">
+                        {errors.nid.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Division */}
+                  <div>
+                    <label
+                      htmlFor="division"
+                      className="block text-sm font-medium text-text-main dark:text-slate-200 mb-2"
+                    >
+                      Division *
+                    </label>
+                    <select
+                      id="division"
+                      {...register("division", {
+                        required: "Division is required",
+                        onChange: (e) => {
+                          const division = divisions.find(d => d.name === e.target.value);
+                          setSelectedDivisionId(division?.id || "");
+                          setSelectedDistrictId("");
+                          setValue("district", "");
+                          setValue("upazila", "");
+                        }
+                      })}
+                      className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.division
+                        ? "border-danger-300"
+                        : "border-surface-tonal-300 dark:border-slate-700"
+                        }`}
+                    >
+                      <option value="">Select Division</option>
+                      {divisions.map((div) => (
+                        <option key={div.id} value={div.name}>
+                          {div.name}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.division && (
+                      <p className="mt-1 text-sm text-red-500">
+                        {errors.division.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* District */}
+                  <div>
+                    <label
+                      htmlFor="district"
+                      className="block text-sm font-medium text-text-main dark:text-slate-200 mb-2"
+                    >
+                      District *
+                    </label>
+                    <select
+                      id="district"
+                      disabled={!selectedDivisionId}
+                      {...register("district", {
+                        required: "District is required",
+                        onChange: (e) => {
+                          const district = districts.find(d => d.name === e.target.value);
+                          setSelectedDistrictId(district?.id || "");
+                          setValue("upazila", "");
+                        }
+                      })}
+                      className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.district
+                        ? "border-danger-300"
+                        : "border-surface-tonal-300 dark:border-slate-700"
+                        } disabled:opacity-50`}
+                    >
+                      <option value="">Select District</option>
+                      {filteredDistricts.map((dist) => (
+                        <option key={dist.id} value={dist.name}>
+                          {dist.name}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.district && (
+                      <p className="mt-1 text-sm text-red-500">
+                        {errors.district.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Upazila / Thana */}
+                  <div className="lg:col-span-2">
+                    <label
+                      htmlFor="upazila"
+                      className="block text-sm font-medium text-text-main dark:text-slate-200 mb-2"
+                    >
+                      Upazila / Thana *
+                    </label>
+                    <select
+                      id="upazila"
+                      disabled={!selectedDistrictId}
+                      {...register("upazila", {
+                        required: "Upazila is required",
+                      })}
+                      className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.upazila
+                        ? "border-danger-300"
+                        : "border-surface-tonal-300 dark:border-slate-700"
+                        } disabled:opacity-50`}
+                    >
+                      <option value="">Select Upazila</option>
+                      {filteredUpazilas.map((upa, index) => (
+                        <option key={index} value={upa}>
+                          {upa}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.upazila && (
+                      <p className="mt-1 text-sm text-red-500">
+                        {errors.upazila.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Address (Both Agent and Seller) */}
+                  <div className="lg:col-span-2">
+                    <label
+                      htmlFor="businessAddress"
+                      className="block text-sm font-medium text-text-main dark:text-slate-200 mb-2"
+                    >
+                      Address *
+                    </label>
+                    <input
+                      type="text"
+                      id="businessAddress"
+                      {...register("businessAddress", {
+                        required: "Address is required",
+                      })}
+                      className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.businessAddress
+                        ? "border-danger-300"
+                        : "border-surface-tonal-300 dark:border-slate-700"
+                        }`}
+                      placeholder={role === "agent" ? "Office or business location" : "Your current address or shop location"}
+                    />
+                    {errors.businessAddress && (
+                      <p className="mt-1 text-sm text-red-500">
+                        {errors.businessAddress.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Website (Optional, Agent only) */}
+                  {role === "agent" && (
+                    <div className="lg:col-span-2">
+                      <label
+                        htmlFor="website"
+                        className="block text-sm font-medium text-text-main dark:text-slate-200 mb-2"
+                      >
+                        Website (Optional)
+                      </label>
+                      <input
+                        type="url"
+                        id="website"
+                        {...register("website", {
+                          pattern: {
+                            value: /^https?:\/\/.+/,
+                            message:
+                              "Please enter a valid URL (http:// or https://)",
+                          },
+                        })}
+                        className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.website
+                          ? "border-danger-300"
+                          : "border-surface-tonal-300 dark:border-slate-700"
+                          }`}
+                        placeholder="https://yourwebsite.com"
+                      />
+                      {errors.website && (
+                        <p className="mt-1 text-sm text-red-500">
+                          {errors.website.message}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Security Section (At the end for everyone) */}
+            <div className="pt-6 border-t border-surface-tonal-300">
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {/* Password */}
                 <div>
                   <label
@@ -281,8 +622,8 @@ export default function SignUpPage() {
                       },
                     })}
                     className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.password
-                        ? "border-danger-300"
-                        : "border-surface-tonal-300 dark:border-slate-700"
+                      ? "border-danger-300"
+                      : "border-surface-tonal-300 dark:border-slate-700"
                       }`}
                     placeholder="Create a strong password"
                   />
@@ -294,7 +635,7 @@ export default function SignUpPage() {
                 </div>
 
                 {/* Confirm Password */}
-                <div className="lg:col-span-2">
+                <div>
                   <label
                     htmlFor="confirmPassword"
                     className="block text-sm font-medium text-text-main dark:text-slate-200 mb-2"
@@ -310,8 +651,8 @@ export default function SignUpPage() {
                         value === password || "Passwords do not match",
                     })}
                     className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.confirmPassword
-                        ? "border-danger-300"
-                        : "border-surface-tonal-300 dark:border-slate-700"
+                      ? "border-danger-300"
+                      : "border-surface-tonal-300 dark:border-slate-700"
                       }`}
                     placeholder="Confirm your password"
                   />
@@ -323,141 +664,6 @@ export default function SignUpPage() {
                 </div>
               </div>
             </div>
-
-            {/* Agent-Specific Information - Only shown when Agent is selected */}
-            {role === "agent" && (
-              <div className="pt-6 border-t border-surface-tonal-300">
-                <h3 className="text-lg font-semibold text-text-main dark:text-white mb-4">
-                  Business Information
-                </h3>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  {/* Company Name */}
-                  <div>
-                    <label
-                      htmlFor="companyName"
-                      className="block text-sm font-medium text-text-main dark:text-slate-200 mb-2"
-                    >
-                      Company Name *
-                    </label>
-                    <input
-                      type="text"
-                      id="companyName"
-                      {...register("companyName", {
-                        required:
-                          role === "agent"
-                            ? "Company name is required for agents"
-                            : false,
-                        minLength: {
-                          value: 2,
-                          message: "Company name must be at least 2 characters",
-                        },
-                      })}
-                      className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.companyName
-                          ? "border-danger-300"
-                          : "border-surface-tonal-300 dark:border-slate-700"
-                        }`}
-                      placeholder="Your company or agency name"
-                    />
-                    {errors.companyName && (
-                      <p className="mt-1 text-sm text-red-500">
-                        {errors.companyName.message}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* License Number */}
-                  <div>
-                    <label
-                      htmlFor="licenseNumber"
-                      className="block text-sm font-medium text-text-main dark:text-slate-200 mb-2"
-                    >
-                      License Number *
-                    </label>
-                    <input
-                      type="text"
-                      id="licenseNumber"
-                      {...register("licenseNumber", {
-                        required:
-                          role === "agent"
-                            ? "License number is required for agents"
-                            : false,
-                      })}
-                      className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.licenseNumber
-                          ? "border-danger-300"
-                          : "border-surface-tonal-300 dark:border-slate-700"
-                        }`}
-                      placeholder="Real estate license number"
-                    />
-                    {errors.licenseNumber && (
-                      <p className="mt-1 text-sm text-red-500">
-                        {errors.licenseNumber.message}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Business Address */}
-                  <div>
-                    <label
-                      htmlFor="businessAddress"
-                      className="block text-sm font-medium text-text-main dark:text-slate-200 mb-2"
-                    >
-                      Business Address *
-                    </label>
-                    <input
-                      type="text"
-                      id="businessAddress"
-                      {...register("businessAddress", {
-                        required:
-                          role === "agent"
-                            ? "Business address is required for agents"
-                            : false,
-                      })}
-                      className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.businessAddress
-                          ? "border-danger-300"
-                          : "border-surface-tonal-300 dark:border-slate-700"
-                        }`}
-                      placeholder="Office or business location"
-                    />
-                    {errors.businessAddress && (
-                      <p className="mt-1 text-sm text-red-500">
-                        {errors.businessAddress.message}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Website (Optional) */}
-                  <div>
-                    <label
-                      htmlFor="website"
-                      className="block text-sm font-medium text-text-main dark:text-slate-200 mb-2"
-                    >
-                      Website (Optional)
-                    </label>
-                    <input
-                      type="url"
-                      id="website"
-                      {...register("website", {
-                        pattern: {
-                          value: /^https?:\/\/.+/,
-                          message:
-                            "Please enter a valid URL (http:// or https://)",
-                        },
-                      })}
-                      className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.website
-                          ? "border-danger-300"
-                          : "border-surface-tonal-300 dark:border-slate-700"
-                        }`}
-                      placeholder="https://yourwebsite.com"
-                    />
-                    {errors.website && (
-                      <p className="mt-1 text-sm text-red-500">
-                        {errors.website.message}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* Terms & Conditions */}
             <div className="flex items-start gap-2 pt-4">
@@ -514,61 +720,66 @@ export default function SignUpPage() {
             </button>
           </form>
 
-          {/* Divider */}
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-surface-tonal-300 dark:border-slate-800"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white dark:bg-slate-900 text-text-muted dark:text-slate-400 transition-colors">
-                Or continue with
-              </span>
-            </div>
-          </div>
+          {/* Divider and Social Login - Hidden for Seller and Agent */}
+          {role === "user" && (
+            <>
+              {/* Divider */}
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-surface-tonal-300 dark:border-slate-800"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-4 bg-white dark:bg-slate-900 text-text-muted dark:text-slate-400 transition-colors">
+                    Or continue with
+                  </span>
+                </div>
+              </div>
 
-          {/* Social Login */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() => handleSocialLogin("Google")}
-              className="w-full py-3 px-4 bg-surface-tonal-100 dark:bg-slate-800 text-text-main dark:text-white font-medium rounded-xl border border-surface-tonal-300 dark:border-slate-700 hover:bg-surface-tonal-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-300 flex items-center justify-center gap-3 cursor-pointer"
-            >
-              <svg className="w-5 h-5" viewBox="0 0 24 24">
-                <path
-                  fill="#4285F4"
-                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                />
-                <path
-                  fill="#EA4335"
-                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                />
-              </svg>
-              Continue with Google
-            </button>
+              {/* Social Login */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => handleSocialLogin("Google")}
+                  className="w-full py-3 px-4 bg-surface-tonal-100 dark:bg-slate-800 text-text-main dark:text-white font-medium rounded-xl border border-surface-tonal-300 dark:border-slate-700 hover:bg-surface-tonal-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-300 flex items-center justify-center gap-3 cursor-pointer"
+                >
+                  <svg className="w-5 h-5" viewBox="0 0 24 24">
+                    <path
+                      fill="#4285F4"
+                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                    />
+                    <path
+                      fill="#FBBC05"
+                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                    />
+                    <path
+                      fill="#EA4335"
+                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                    />
+                  </svg>
+                  Continue with Google
+                </button>
 
-            <button
-              type="button"
-              onClick={() => handleSocialLogin("GitHub")}
-              className="w-full py-3 px-4 bg-surface-tonal-100 dark:bg-slate-800 text-text-main dark:text-white font-medium rounded-xl border border-surface-tonal-300 dark:border-slate-700 hover:bg-surface-tonal-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-300 flex items-center justify-center gap-3 cursor-pointer"
-            >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path
-                  fillRule="evenodd"
-                  d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              Continue with GitHub
-            </button>
-          </div>
+                <button
+                  type="button"
+                  onClick={() => handleSocialLogin("GitHub")}
+                  className="w-full py-3 px-4 bg-surface-tonal-100 dark:bg-slate-800 text-text-main dark:text-white font-medium rounded-xl border border-surface-tonal-300 dark:border-slate-700 hover:bg-surface-tonal-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-300 flex items-center justify-center gap-3 cursor-pointer"
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path
+                      fillRule="evenodd"
+                      d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  Continue with GitHub
+                </button>
+              </div>
+            </>
+          )}
 
           {/* Sign In */}
           <p className="mt-6 text-center text-sm text-text-muted dark:text-slate-400 transition-colors">
