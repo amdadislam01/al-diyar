@@ -50,7 +50,7 @@ const TrustSection = () => {
         </svg>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-10/12 mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white mb-6">
             Empowering Your <span className="text-gradient">Success.</span>
