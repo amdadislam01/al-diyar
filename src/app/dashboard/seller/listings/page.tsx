@@ -11,7 +11,9 @@ interface Listing {
     price: number;
     type: "Sale" | "Rent";
     category: string;
-    status: "Active" | "Inactive";
+    status: "Active" | "Pending" | "Sold" | "Inactive";
+    assignmentStatus: "pending" | "approved" | "rejected";
+    assignedAgent?: { name: string };
     location: { address?: string; lat: number; lng: number };
     images: string[];
     createdAt: string;
@@ -218,13 +220,28 @@ export default function SellerListingsPage() {
                                         className={`px-2.5 py-0.5 rounded-full text-xs font-bold
                       ${listing.status === "Active"
                                                 ? "bg-success text-white"
-                                                : "bg-slate-500 text-white"
+                                                : listing.status === "Pending"
+                                                    ? "bg-warning text-white"
+                                                    : "bg-slate-500 text-white"
                                             }`}
                                     >
-                                        {listing.status}
+                                        {listing.status === "Pending" ? "Pending Agent Review" : listing.status}
                                     </span>
+                                    {listing.assignmentStatus === "rejected" && (
+                                        <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-danger text-white">
+                                            Rejected by Agent
+                                        </span>
+                                    )}
                                 </div>
                             </div>
+                            {/* Assigned Agent info */}
+                            {listing.assignedAgent && (
+                                <div className="px-4 py-1 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
+                                    <p className="text-[10px] text-text-muted italic">
+                                        Assigned to: <span className="font-semibold">{listing.assignedAgent.name}</span>
+                                    </p>
+                                </div>
+                            )}
 
                             {/* Body */}
                             <div className="p-4 space-y-2">
@@ -247,10 +264,13 @@ export default function SellerListingsPage() {
                             <div className="flex items-center justify-between px-4 pb-4 gap-2">
                                 <button
                                     onClick={() => handleToggleStatus(listing)}
+                                    disabled={listing.status === "Pending"}
                                     className={`flex-1 text-xs font-medium px-3 py-2 rounded-lg border transition-colors
                     ${listing.status === "Active"
                                             ? "border-warning text-warning hover:bg-warning/10"
-                                            : "border-success text-success hover:bg-success/10"
+                                            : listing.status === "Pending"
+                                                ? "border-slate-200 text-slate-400 cursor-not-allowed"
+                                                : "border-success text-success hover:bg-success/10"
                                         }`}
                                 >
                                     {listing.status === "Active" ? "Deactivate" : "Activate"}

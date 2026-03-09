@@ -22,6 +22,8 @@ interface FormData {
     category: string;
     address: string;
     neighborhood: string;
+    country: string; // New field
+    assignedAgent: string; // New field
     lat: string;
     lng: string;
     status: "Active" | "Pending" | "Sold" | "Inactive";
@@ -74,6 +76,10 @@ export default function EditListingPage() {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
 
+    const [countries, setCountries] = useState<{ name: string; code: string }[]>([]);
+    const [agents, setAgents] = useState<{ _id: string; name: string; companyName?: string }[]>([]);
+    const [loadingAgents, setLoadingAgents] = useState(false);
+
     const [form, setForm] = useState<FormData>({
         title: "",
         description: "",
@@ -82,6 +88,8 @@ export default function EditListingPage() {
         category: "Apartment",
         address: "",
         neighborhood: "",
+        country: "", // New field
+        assignedAgent: "", // New field
         lat: "",
         lng: "",
         status: "Active",
@@ -123,12 +131,35 @@ export default function EditListingPage() {
     });
 
     useEffect(() => {
+        fetch("/data/country.json")
+            .then(res => res.json())
+            .then(data => setCountries(data))
+            .catch(err => console.error("Failed to load countries", err));
+    }, []);
+
+    useEffect(() => {
+        if (form.country) {
+            setLoadingAgents(true);
+            fetch(`/api/agents?country=${form.country}`)
+                .then(res => res.json())
+                .then(data => {
+                    setAgents(data.agents || []);
+                })
+                .catch(err => console.error("Failed to load agents", err))
+                .finally(() => setLoadingAgents(false));
+        } else {
+            setAgents([]);
+        }
+    }, [form.country]);
+
+    useEffect(() => {
         const fetchListing = async () => {
             try {
-                const res = await fetch(`/api/seller/listings`);
+                // Fetch specific listing instead of all listings
+                const res = await fetch(`/api/seller/listings/${id}`);
                 const data = await res.json();
                 if (res.ok) {
-                    const listing = data.listings.find((l: { _id: string }) => l._id === id);
+                    const listing = data.listing; 
                     if (listing) {
                         setForm({
                             title: listing.title ?? "",
@@ -138,6 +169,8 @@ export default function EditListingPage() {
                             category: listing.category ?? "Apartment",
                             address: listing.location?.address ?? "",
                             neighborhood: listing.neighborhood ?? "",
+                            country: listing.country ?? "",
+                            assignedAgent: listing.assignedAgent ?? "",
                             lat: String(listing.location?.lat ?? ""),
                             lng: String(listing.location?.lng ?? ""),
                             status: listing.status ?? "Active",
@@ -189,7 +222,13 @@ export default function EditListingPage() {
     }, [id]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+        const { name, value } = e.target;
+        setForm((prev) => {
+            const newState = { ...prev, [name]: value };
+            // If country changes, clear agent
+            if (name === "country") newState.assignedAgent = "";
+            return newState;
+        });
         setError("");
     };
 
@@ -251,6 +290,8 @@ export default function EditListingPage() {
                 type: form.type,
                 category: form.category,
                 status: form.status,
+                country: form.country,
+                assignedAgent: form.assignedAgent,
                 location: { address: form.address, lat: Number(form.lat), lng: Number(form.lng) },
                 images: imageUrls,
                 amenities: form.amenities,
@@ -347,7 +388,7 @@ export default function EditListingPage() {
     }
 
     return (
-        <div className="p-6 max-w-3xl mx-auto">
+        <div className="p-6 mx-auto">
             <div className="mb-8">
                 <button onClick={() => router.back()} className="flex items-center gap-1 text-sm text-text-muted hover:text-primary mb-4 transition-colors">
                     <span className="material-icons-outlined text-base">arrow_back</span>
@@ -389,19 +430,45 @@ export default function EditListingPage() {
                         <label className="block text-sm font-medium text-text-muted mb-1.5">Address</label>
                         <input name="address" value={form.address} onChange={handleChange} placeholder="Street, City, Zip" className={inputClass} />
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label className="block text-sm font-medium text-text-muted mb-1.5">Neighborhood</label>
+                        <input name="neighborhood" value={form.neighborhood} onChange={handleChange} placeholder="e.g. Downtown" className={inputClass} />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-text-muted mb-1.5">Neighborhood</label>
-                            <input name="neighborhood" value={form.neighborhood} onChange={handleChange} placeholder="e.g. Downtown" className={inputClass} />
+                            <label className="block text-sm font-medium text-text-muted mb-1.5">Property Country *</label>
+                            <select name="country" value={form.country} onChange={handleChange} required className={inputClass}>
+                                <option value="">Select Country</option>
+                                {countries.map((c) => (
+                                    <option key={c.code} value={c.name}>{c.name}</option>
+                                ))}
+                            </select>
                         </div>
+                        <div>
+                            <label className="block text-sm font-medium text-text-muted mb-1.5">
+                                Assigned Agent * {loadingAgents && <span className="animate-pulse"> (Loading...)</span>}
+                            </label>
+                            <select name="assignedAgent" value={form.assignedAgent} onChange={handleChange} required className={inputClass} disabled={loadingAgents || !form.country}>
+                                <option value="">Select Agent</option>
+                                {agents.map((a) => (
+                                    <option key={a._id} value={a._id}>{a.name} ({a.companyName || "Independent"})</option>
+                                ))}
+                            </select>
+                            {form.country && agents.length === 0 && !loadingAgents && (
+                                <p className="text-[10px] text-danger mt-1">No approved agents found for this country.</p>
+                            )}
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-text-muted mb-1.5">Status</label>
                             <select name="status" value={form.status} onChange={handleChange} className={inputClass}>
-                                <option value="Active">Active</option>
-                                <option value="Pending">Pending</option>
-                                <option value="Sold">Sold</option>
+                                <option value="Pending">Pending Agent Review</option>
                                 <option value="Inactive">Inactive</option>
+                                <option value="Sold">Sold</option>
+                                {form.status === "Active" && <option value="Active">Active</option>}
                             </select>
+                            <p className="text-[10px] text-text-muted mt-1">Note: Changing Country or Agent will reset status to Pending.</p>
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-text-muted mb-1.5">Listed Date</label>

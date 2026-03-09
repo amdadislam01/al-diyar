@@ -53,7 +53,7 @@ export async function PATCH(request: NextRequest) {
             if (user.role !== 'agent' && user.role !== 'seller') {
                 return NextResponse.json({ error: 'Only agent or seller accounts can be approved' }, { status: 400 });
             }
-            user.approvalStatus = action === 'approve' ? 'approved' : 'approved';
+            user.approvalStatus = action === 'approve' ? 'approved' : 'rejected';
             // If rejected, demote to 'user' role
             if (action === 'reject') {
                 user.role = 'user';

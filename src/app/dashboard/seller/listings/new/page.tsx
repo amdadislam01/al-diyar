@@ -22,6 +22,8 @@ interface FormData {
     category: string;
     address: string;
     neighborhood: string;
+    country: string; // New field
+    assignedAgent: string; // New field
     lat: string;
     lng: string;
     status: "Active" | "Pending" | "Sold";
@@ -70,6 +72,10 @@ export default function NewListingPage() {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
 
+    const [countries, setCountries] = useState<{ name: string; code: string }[]>([]);
+    const [agents, setAgents] = useState<{ _id: string; name: string; companyName?: string }[]>([]);
+    const [loadingAgents, setLoadingAgents] = useState(false);
+
     const [form, setForm] = useState<FormData>({
         title: "",
         description: "",
@@ -78,9 +84,11 @@ export default function NewListingPage() {
         category: "Apartment",
         address: "",
         neighborhood: "",
+        country: "", // New field
+        assignedAgent: "", // New field
         lat: "",
         lng: "",
-        status: "Active",
+        status: "Pending", // Default to Pending for new listings
         listedDate: "",
         pricePerSqft: "",
         estimatedMortgage: "",
@@ -119,6 +127,34 @@ export default function NewListingPage() {
     });
 
     useEffect(() => {
+        fetch("/data/country.json")
+            .then(res => res.json())
+            .then(data => setCountries(data))
+            .catch(err => console.error("Failed to load countries", err));
+    }, []);
+
+    useEffect(() => {
+        if (form.country) {
+            setLoadingAgents(true);
+            fetch(`/api/agents?country=${form.country}`)
+                .then(res => res.json())
+                .then(data => {
+                    setAgents(data.agents || []);
+                    if (data.agents?.length > 0) {
+                        setForm(prev => ({ ...prev, assignedAgent: data.agents[0]._id }));
+                    } else {
+                        setForm(prev => ({ ...prev, assignedAgent: "" }));
+                    }
+                })
+                .catch(err => console.error("Failed to load agents", err))
+                .finally(() => setLoadingAgents(false));
+        } else {
+            setAgents([]);
+            setForm(prev => ({ ...prev, assignedAgent: "" }));
+        }
+    }, [form.country]);
+
+    useEffect(() => {
         if (session?.user) {
             setForm((prev) => ({
                 ...prev,
@@ -129,7 +165,8 @@ export default function NewListingPage() {
     }, [session?.user]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+        const { name, value } = e.target;
+        setForm((prev) => ({ ...prev, [name]: value }));
         setError("");
     };
 
@@ -195,7 +232,9 @@ export default function NewListingPage() {
                 price: Number(form.price),
                 type: form.type,
                 category: form.category,
-                status: form.status,
+                status: "Pending", // Always Pending for new listings
+                country: form.country,
+                assignedAgent: form.assignedAgent,
                 location: { address: form.address, lat: Number(form.lat), lng: Number(form.lng) },
                 images: imageUrls,
                 amenities: form.amenities,
@@ -282,7 +321,7 @@ export default function NewListingPage() {
     );
 
     return (
-        <div className="p-6 max-w-3xl mx-auto">
+        <div className="p-6 mx-auto">
             <div className="mb-8">
                 <button onClick={() => router.back()} className="flex items-center gap-1 text-sm text-text-muted hover:text-primary mb-4 transition-colors">
                     <span className="material-icons-outlined text-base">arrow_back</span>
@@ -324,19 +363,36 @@ export default function NewListingPage() {
                         <label className="block text-sm font-medium text-text-muted mb-1.5">Address</label>
                         <input name="address" value={form.address} onChange={handleChange} placeholder="Street, City, Zip" className={inputClass} />
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label className="block text-sm font-medium text-text-muted mb-1.5">Neighborhood</label>
+                        <input name="neighborhood" value={form.neighborhood} onChange={handleChange} placeholder="e.g. Downtown" className={inputClass} />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-text-muted mb-1.5">Neighborhood</label>
-                            <input name="neighborhood" value={form.neighborhood} onChange={handleChange} placeholder="e.g. Downtown" className={inputClass} />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-text-muted mb-1.5">Status</label>
-                            <select name="status" value={form.status} onChange={handleChange} className={inputClass}>
-                                <option value="Active">Active</option>
-                                <option value="Pending">Pending</option>
-                                <option value="Sold">Sold</option>
+                            <label className="block text-sm font-medium text-text-muted mb-1.5">Property Country *</label>
+                            <select name="country" value={form.country} onChange={handleChange} required className={inputClass}>
+                                <option value="">Select Country</option>
+                                {countries.map((c) => (
+                                    <option key={c.code} value={c.name}>{c.name}</option>
+                                ))}
                             </select>
                         </div>
+                        <div>
+                            <label className="block text-sm font-medium text-text-muted mb-1.5">
+                                Assigned Agent * {loadingAgents && <span className="animate-pulse"> (Loading...)</span>}
+                            </label>
+                            <select name="assignedAgent" value={form.assignedAgent} onChange={handleChange} required className={inputClass} disabled={loadingAgents || !form.country}>
+                                <option value="">Select Agent</option>
+                                {agents.map((a) => (
+                                    <option key={a._id} value={a._id}>{a.name} ({a.companyName || "Independent"})</option>
+                                ))}
+                            </select>
+                            {form.country && agents.length === 0 && !loadingAgents && (
+                                <p className="text-[10px] text-danger mt-1">No approved agents found for this country.</p>
+                            )}
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-text-muted mb-1.5">Listed Date</label>
                             <input name="listedDate" type="date" value={form.listedDate} onChange={handleChange} className={inputClass} />

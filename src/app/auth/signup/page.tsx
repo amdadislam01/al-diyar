@@ -274,6 +274,38 @@ export default function SignUpPage() {
                   )}
                 </div>
 
+                {/* Country Selection */}
+                <div className="lg:col-span-2">
+                  <label
+                    htmlFor="country"
+                    className="block text-sm font-medium text-text-main dark:text-slate-200 mb-2"
+                  >
+                    Country *
+                  </label>
+                  <select
+                    id="country"
+                    {...register("country", {
+                      required: "Country is required",
+                    })}
+                    className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.country
+                      ? "border-danger-300"
+                      : "border-surface-tonal-300 dark:border-slate-700"
+                      }`}
+                  >
+                    <option value="">Select Country</option>
+                    {countries.map((c, idx) => (
+                      <option key={idx} value={c.name}>
+                        {c.emoji} {c.name}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.country && (
+                    <p className="mt-1 text-sm text-red-500">
+                      {errors.country.message}
+                    </p>
+                  )}
+                </div>
+
                 {/* Phone Number */}
                 <div className="lg:col-span-2">
                   <label
@@ -310,37 +342,7 @@ export default function SignUpPage() {
                   )}
                 </div>
 
-                {/* Country Selection */}
-                <div className="lg:col-span-2">
-                  <label
-                    htmlFor="country"
-                    className="block text-sm font-medium text-text-main dark:text-slate-200 mb-2"
-                  >
-                    Country *
-                  </label>
-                  <select
-                    id="country"
-                    {...register("country", {
-                      required: "Country is required",
-                    })}
-                    className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.country
-                      ? "border-danger-300"
-                      : "border-surface-tonal-300 dark:border-slate-700"
-                      }`}
-                  >
-                    <option value="">Select Country</option>
-                    {countries.map((c, idx) => (
-                      <option key={idx} value={c.name}>
-                        {c.emoji} {c.name}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.country && (
-                    <p className="mt-1 text-sm text-red-500">
-                      {errors.country.message}
-                    </p>
-                  )}
-                </div>
+                
               </div>
             </div>
 

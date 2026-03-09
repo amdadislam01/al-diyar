@@ -87,6 +87,11 @@ const agentNavItems: NavItem[] = [
     icon: "home_work",
     exact: true,
   },
+  {
+    href: "/dashboard/agent/assigned-requests",
+    label: "Assigned Requests",
+    icon: "assignment_ind",
+  },
   { href: "/dashboard/agent/clients", label: "Clients", icon: "group" },
   {
     href: "/dashboard/agent/bookings",
