@@ -19,7 +19,7 @@ async function getAgentSession() {
     return { session, error: null };
 }
 
-// GET /api/agent/listings — All listings posted by this agent
+// GET /api/agent/listings — All listings managed by this agent
 export async function GET(req: NextRequest) {
     const { session, error } = await getAgentSession();
     if (error) return error;
@@ -30,12 +30,22 @@ export async function GET(req: NextRequest) {
         const { searchParams } = new URL(req.url);
         const statusFilter = searchParams.get("status");
 
-        const query: Record<string, unknown> = { listedBy: session!.user.id };
+        // Query: Added by agent OR Assigned & Approved
+        const query: Record<string, any> = {
+            $or: [
+                { listedBy: session!.user.id },
+                { assignedAgent: session!.user.id, assignmentStatus: "approved" }
+            ]
+        };
+
         if (statusFilter && ["Active", "Inactive", "Pending", "Sold"].includes(statusFilter)) {
             query.status = statusFilter;
         }
 
-        const listings = await Listing.find(query).sort({ createdAt: -1 }).lean();
+        const listings = await Listing.find(query)
+            .populate("listedBy", "name email phone")
+            .sort({ createdAt: -1 })
+            .lean();
 
         return NextResponse.json({ listings }, { status: 200 });
     } catch (err: unknown) {
@@ -60,9 +70,14 @@ export async function POST(req: NextRequest) {
             type,
             category,
             location,
+            country, // Ensure country is included
             images,
             amenities,
-            // New structured fields
+            // Seller Info
+            sellerName,
+            sellerEmail,
+            sellerPhone,
+            // Existing structured fields...
             neighborhood,
             listedDate,
             pricePerSqft,
@@ -99,12 +114,8 @@ export async function POST(req: NextRequest) {
             email,
         } = body;
 
-        if (!title || !description || price === undefined || !type || !category || !location) {
+        if (!title || !description || price === undefined || !type || !category || !location || !country) {
             return NextResponse.json({ message: "Missing required fields" }, { status: 400 });
-        }
-
-        if (!["Sale", "Rent"].includes(type)) {
-            return NextResponse.json({ message: "type must be 'Sale' or 'Rent'" }, { status: 400 });
         }
 
         const listing = await Listing.create({
@@ -114,10 +125,18 @@ export async function POST(req: NextRequest) {
             type,
             category,
             location,
+            country,
             images: images ?? [],
             amenities: amenities ?? [],
             listedBy: session!.user.id,
-            // New structured fields (all optional)
+            assignedAgent: session!.user.id, // Agent listing themselves as agent
+            assignmentStatus: "approved",    // Auto-approve agent's own listing
+            status: "Active",                 // Start as active
+            // Seller Info
+            sellerName,
+            sellerEmail,
+            sellerPhone,
+            // Other fields
             neighborhood,
             listedDate,
             pricePerSqft,
