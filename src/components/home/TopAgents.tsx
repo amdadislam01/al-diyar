@@ -23,7 +23,7 @@ const agents = [
 const TopAgents = () => {
   return (
     <section className="py-24 bg-white dark:bg-slate-950 transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-10/12 mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row justify-between items-center mb-16">
           <h2 className="text-4xl font-bold text-slate-900 dark:text-white">
             Our Agents
