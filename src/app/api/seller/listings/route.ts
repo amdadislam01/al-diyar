@@ -11,7 +11,7 @@ async function getSellerSession() {
     if (!session?.user) {
         return { session: null, error: NextResponse.json({ message: "Unauthorized" }, { status: 401 }) };
     }
-    if (session.user.role !== "seller" && session.user.role !== "agent") {
+    if (session.user.role !== "seller") {
         return { session: null, error: NextResponse.json({ message: "Forbidden: Seller access only" }, { status: 403 }) };
     }
     return { session, error: null };
@@ -26,6 +26,7 @@ export async function POST(req: NextRequest) {
 
     try {
         await dbConnect();
+        const User = (await import("@/models/User")).default;
 
         const body = await req.json();
 
@@ -36,10 +37,11 @@ export async function POST(req: NextRequest) {
             type,
             category,
             location,
+            country,
+            assignedAgent,
             images,
             amenities,
-            // Structured fields
-            neighborhood,
+             neighborhood,
             listedDate,
             pricePerSqft,
             estimatedMortgage,
@@ -76,8 +78,8 @@ export async function POST(req: NextRequest) {
         } = body;
 
         // Basic validation
-        if (!title || !description || price === undefined || !type || !category || !location) {
-            return NextResponse.json({ message: "Missing required fields: title, description, price, type, category, location" }, { status: 400 });
+        if (!title || !description || price === undefined || !type || !category || !location || !country || !assignedAgent) {
+            return NextResponse.json({ message: "Missing required fields matching the new workflow" }, { status: 400 });
         }
 
         if (!["Sale", "Rent"].includes(type)) {
@@ -88,6 +90,17 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ message: "location must include numeric lat and lng" }, { status: 400 });
         }
 
+        // Workflow validation: Check if assigned agent is valid
+        const agent = await User.findById(assignedAgent);
+        if (!agent || agent.role !== "agent" || agent.approvalStatus !== "approved") {
+            return NextResponse.json({ message: "Invalid or unapproved agent selected" }, { status: 400 });
+        }
+
+        // Country matching validation (case-insensitive)
+        if (agent.country?.toLowerCase() !== country.toLowerCase()) {
+            return NextResponse.json({ message: "Selected agent does not belong to the property country" }, { status: 400 });
+        }
+
         const listing = await Listing.create({
             title,
             description,
@@ -95,9 +108,13 @@ export async function POST(req: NextRequest) {
             type,
             category,
             location,
+            country,
+            assignedAgent,
+            assignmentStatus: "pending",
             images: images ?? [],
             amenities: amenities ?? [],
             listedBy: session!.user.id,
+            status: "Pending", // Force initial status
             // Structured fields (all optional)
             neighborhood,
             listedDate,
@@ -135,7 +152,7 @@ export async function POST(req: NextRequest) {
             email,
         });
 
-        return NextResponse.json({ message: "Listing created successfully", listing }, { status: 201 });
+        return NextResponse.json({ message: "Listing created and sent for agent review", listing }, { status: 201 });
     } catch (err: unknown) {
         console.error("[POST /api/seller/listings]", err);
         const message = err instanceof Error ? err.message : "Internal server error";
