@@ -66,6 +66,11 @@ interface FormData {
     dreNumber: string;
     phone: string;
     email: string;
+    /* Seller Info */
+    sellerName: string;
+    sellerEmail: string;
+    sellerPhone: string;
+    country: string;
     /* Existing */
     images: (string | File)[];
     amenities: string[];
@@ -123,6 +128,10 @@ export default function AgentNewListingPage() {
         dreNumber: "",
         phone: "",
         email: "",
+        sellerName: "",
+        sellerEmail: "",
+        sellerPhone: "",
+        country: "Bangladesh",
         images: [],
         amenities: [],
     });
@@ -243,6 +252,11 @@ export default function AgentNewListingPage() {
                 dreNumber: form.dreNumber || undefined,
                 phone: form.phone || undefined,
                 email: form.email || undefined,
+                /* Seller Info */
+                sellerName: form.sellerName || undefined,
+                sellerEmail: form.sellerEmail || undefined,
+                sellerPhone: form.sellerPhone || undefined,
+                country: form.country,
             };
 
             const res = await fetch("/api/agent/listings", {
@@ -321,13 +335,19 @@ export default function AgentNewListingPage() {
                         <span className="material-icons-outlined text-emerald-500 text-lg">location_on</span>
                         📍 Location & Basic Info
                     </h2>
-                    <div>
-                        <label className="block text-sm font-medium text-text-muted mb-1.5">Property Title *</label>
-                        <input name="title" value={form.title} onChange={handleChange} required placeholder="e.g. Modern Townhouse in Downtown" className={inputClass} />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-text-muted mb-1.5">Property Title *</label>
+                            <input name="title" value={form.title} onChange={handleChange} required placeholder="e.g. Modern Townhouse" className={inputClass} />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-text-muted mb-1.5">Country *</label>
+                            <input name="country" value={form.country} onChange={handleChange} required placeholder="e.g. Bangladesh" className={inputClass} />
+                        </div>
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-text-muted mb-1.5">Description *</label>
-                        <textarea name="description" value={form.description} onChange={handleChange} required rows={4} placeholder="Describe the property in detail..." className={`${inputClass} resize-none`} />
+                        <textarea name="description" value={form.description} onChange={handleChange} required rows={4} placeholder="Describe the property..." className={`${inputClass} resize-none`} />
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-text-muted mb-1.5">Address</label>
@@ -534,11 +554,11 @@ export default function AgentNewListingPage() {
                     </div>
                 </section>
 
-                {/* ───── 7. Contact ───── */}
+                {/* ───── 7. Contact (Agent Only) ───── */}
                 <section className={sectionClass}>
                     <h2 className={sectionHeadingClass}>
                         <span className="material-icons-outlined text-emerald-500 text-lg">contact_phone</span>
-                        📞 Contact
+                        📞 Agent Contact (Public)
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
@@ -558,6 +578,28 @@ export default function AgentNewListingPage() {
                         <div>
                             <label className="block text-sm font-medium text-text-muted mb-1.5">Email</label>
                             <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="agent@example.com" className={inputClass} />
+                        </div>
+                    </div>
+                </section>
+
+                {/* ───── 8. Seller Info (For Agent's Reference) ───── */}
+                <section className={sectionClass}>
+                    <h2 className={sectionHeadingClass}>
+                        <span className="material-icons-outlined text-emerald-500 text-lg">person</span>
+                        👤 Seller Info (For Internal Use)
+                    </h2>
+                    <div>
+                        <label className="block text-sm font-medium text-text-muted mb-1.5">Seller Name</label>
+                        <input name="sellerName" value={form.sellerName} onChange={handleChange} placeholder="Full name of the property owner" className={inputClass} />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-text-muted mb-1.5">Seller Email</label>
+                            <input name="sellerEmail" type="email" value={form.sellerEmail} onChange={handleChange} placeholder="seller@example.com" className={inputClass} />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-text-muted mb-1.5">Seller Phone</label>
+                            <input name="sellerPhone" value={form.sellerPhone} onChange={handleChange} placeholder="e.g. +880123456789" className={inputClass} />
                         </div>
                     </div>
                 </section>
