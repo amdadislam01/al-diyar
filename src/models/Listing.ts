@@ -15,6 +15,9 @@ export interface IListing extends Document {
     amenities: string[];
     listedBy: Types.ObjectId;
     status: "Active" | "Pending" | "Sold" | "Inactive";
+    country: string;
+    assignedAgent: Types.ObjectId;
+    assignmentStatus: "pending" | "approved" | "rejected";
     createdAt: Date;
     updatedAt: Date;
 
@@ -65,6 +68,10 @@ export interface IListing extends Document {
     dreNumber?: string;
     phone?: string;
     email?: string;
+    /* ── Seller Info (for Agent Listings) ── */
+    sellerName?: string;
+    sellerEmail?: string;
+    sellerPhone?: string;
 }
 
 const ListingSchema: Schema = new Schema(
@@ -110,7 +117,22 @@ const ListingSchema: Schema = new Schema(
         status: {
             type: String,
             enum: ["Active", "Pending", "Sold", "Inactive"],
-            default: "Active",
+            default: "Pending", // Changed default to Pending for workflow
+        },
+        country: {
+            type: String,
+            required: [true, "Property country is required"],
+            trim: true,
+        },
+        assignedAgent: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+            required: [true, "Assigned agent is required"],
+        },
+        assignmentStatus: {
+            type: String,
+            enum: ["pending", "approved", "rejected"],
+            default: "pending",
         },
 
         /* ── Location & Basic Info ── */
@@ -160,14 +182,20 @@ const ListingSchema: Schema = new Schema(
         dreNumber: { type: String, trim: true },
         phone: { type: String, trim: true },
         email: { type: String, trim: true },
+        /* ── Seller Info (for Agent Listings) ── */
+        sellerName: { type: String, trim: true },
+        sellerEmail: { type: String, trim: true },
+        sellerPhone: { type: String, trim: true },
     },
     {
         timestamps: true,
     },
 );
 
-// Index for fast per-seller queries
+// Indexes for fast queries
 ListingSchema.index({ listedBy: 1, status: 1 });
+ListingSchema.index({ assignedAgent: 1, assignmentStatus: 1, createdAt: -1 });
+ListingSchema.index({ country: 1, status: 1 });
 
 // Delete cached model to prevent hot-reload array issues in Next.js development
 if (mongoose.models.Listing) {
