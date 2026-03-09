@@ -3,6 +3,7 @@ import { Inter, Epilogue, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import AuthProvider from "@/components/AuthProvider";
 import { ThemeProvider } from "@/components/theme-provider";
+import ConditionalLayout from "@/components/layout/ConditionalLayout";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -25,7 +26,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Al-Diyar - Buyer Dashboard",
+  title: "Al-Diyar - Home",
   description: "Premium property management dashboard",
 };
 
@@ -60,8 +61,10 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            {children}
-            </AuthProvider>
+            <ConditionalLayout>
+              {children}
+            </ConditionalLayout>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

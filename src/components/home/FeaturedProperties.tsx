@@ -1,48 +1,32 @@
-import PropertyCard from "../PropertyCard";
+"use client";
 
-const properties = [
-  {
-    id: "1",
-    title: "The Grand Villa",
-    price: "$1.2M",
-    location: "Palm Jumeirah, Dubai",
-    beds: 5,
-    baths: 4,
-    sqft: "4,500",
-    image:
-      "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=2071&auto=format&fit=crop",
-    type: "For Sale" as const,
-  },
-  {
-    id: "2",
-    title: "Skyline Apartment",
-    price: "$2,400/mo",
-    location: "Downtown, Dubai",
-    beds: 2,
-    baths: 2,
-    sqft: "1,200",
-    image:
-      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=2070&auto=format&fit=crop",
-    type: "For Rent" as const,
-  },
-  {
-    id: "3",
-    title: "Seaside Penthouse",
-    price: "$850k",
-    location: "Marina, Dubai",
-    beds: 3,
-    baths: 3,
-    sqft: "2,100",
-    image:
-      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2070&auto=format&fit=crop",
-    type: "For Sale" as const,
-  },
-];
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import PropertyCard from "../PropertyCard";
+import { IListing } from "@/models/Listing";
 
 const FeaturedProperties = () => {
+  const [properties, setProperties] = useState<IListing[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPopularProperties = async () => {
+      try {
+        const response = await fetch("/api/listings?limit=3");
+        const data = await response.json();
+        setProperties(data.listings || []);
+      } catch (error) {
+        console.error("Error fetching popular listings:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPopularProperties();
+  }, []);
+
   return (
     <section className="py-24 bg-white dark:bg-slate-950 transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-10/12 mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
           <div className="max-w-xl">
             <h2 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white mb-6 tracking-tighter">
@@ -53,18 +37,39 @@ const FeaturedProperties = () => {
               luxury living. From urban penthouses to serene coastal villas.
             </p>
           </div>
-          <button className="text-xs font-black text-slate-900 dark:text-white border-2 border-primary dark:border-primary px-8 py-3 rounded-xl uppercase tracking-widest hover:bg-primary hover:text-white dark:hover:bg-primary dark:hover:text-white transition-all duration-300 cursor-pointer">
+          <Link href="/property" className="text-xs font-black text-slate-900 dark:text-white border-2 border-primary dark:border-primary px-8 py-3 rounded-xl uppercase tracking-widest hover:bg-primary hover:text-white dark:hover:bg-primary dark:hover:text-white transition-all duration-300 cursor-pointer">
             Explore All Listings
-          </button>
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {properties.map((property) => (
-            <PropertyCard key={property.id} {...property} />
-          ))}
+          {loading ? (
+            Array(3).fill(0).map((_, i) => (
+              <div key={i} className="aspect-[4/5] bg-slate-100 dark:bg-slate-800 rounded-[2.5rem] animate-pulse" />
+            ))
+          ) : properties.length > 0 ? (
+            properties.map((property) => (
+              <PropertyCard 
+                key={property._id?.toString()} 
+                id={property._id?.toString() || ""}
+                title={property.title}
+                price={new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(property.price) + (property.type === "Rent" ? "/mo" : "")}
+                location={property.location.address || "Dhaka, Bangladesh"}
+                beds={property.bedrooms || 0}
+                baths={property.bathrooms || 0}
+                sqft={(property.size || 0).toString()}
+                image={property.images[0] || "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=2071&auto=format&fit=crop"}
+                type={property.type === "Sale" ? "For Sale" : "For Rent"}
+              />
+            ))
+          ) : (
+            <div className="col-span-full text-center py-10 text-slate-400">
+               No active properties to show at the moment.
+            </div>
+          )}
         </div>
 
-        {/* Pagination Dots - matching image */}
+        {/* Pagination Dots */}
         <div className="mt-16 flex items-center justify-center gap-3">
           <div className="w-2 h-2 rounded-full bg-slate-200 dark:bg-slate-800 transition-all duration-300"></div>
           <div className="w-12 h-2 rounded-full bg-slate-900 dark:bg-white transition-all duration-300 shadow-glow"></div>
