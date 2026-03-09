@@ -133,8 +133,16 @@ const Hero = () => {
       // 4. Search bar elastic bounce
       tl.fromTo(
         searchRef.current,
-        { y: 30, opacity: 0, scale: 0.92 },
-        { y: 0, opacity: 1, scale: 1, duration: 0.9, ease: "back.out(2)" },
+        { y: 30, opacity: 0, scale: 0.92, xPercent: -50, left: "50%" },
+        {
+          y: 0,
+          opacity: 1,
+          scale: 1,
+          duration: 0.9,
+          ease: "back.out(2)",
+          xPercent: -50,
+          left: "50%",
+        },
         1.0,
       );
 
@@ -304,7 +312,7 @@ const Hero = () => {
         <div className="relative z-20 w-full max-w-4xl mb-10 md:mb-14">
           <h1
             ref={headingRef}
-            className="text-[clamp(2.8rem,6vw,6rem)] text-slate-900 dark:text-white leading-[0.8] absolute -top-6 left-0 w-full text-center transition-colors duration-300"
+            className="text-[clamp(3rem,6vw,6rem)] md:text-[clamp(2.8rem,6vw,6rem)] text-slate-900 dark:text-white leading-[0.8] absolute top-16 md:-top-6 left-0 w-full text-center transition-colors duration-300"
             style={{
               fontFamily:
                 "'PPRightGrotesk', 'Plus Jakarta Sans', 'Inter', sans-serif",
@@ -353,23 +361,10 @@ const Hero = () => {
             />
             {/* </div> */}
 
-            {/* Mobile stats */}
-            <div className="lg:hidden flex flex-col items-center gap-3 mt-6 mb-12 relative z-20">
-              <p className="text-slate-600 dark:text-slate-400 text-sm font-medium transition-colors duration-300">
-                Discover homes that fit your life.
-              </p>
-              <p className="text-3xl font-black text-slate-900 dark:text-white leading-none transition-colors duration-300">
-                <span ref={mobileCountRef}>0+</span>
-              </p>
-              <p className="text-slate-500 dark:text-slate-500 font-semibold text-xs uppercase tracking-widest transition-colors duration-300">
-                Homes Sold Last Month
-              </p>
-            </div>
-
             {/* Floating Search Bar */}
             <div
               ref={searchRef}
-              className="absolute bottom-16 left-1/2 -translate-x-1/2 w-[92%] md:w-[110%] bg-white dark:bg-slate-900/90 rounded-full shadow-[0_20px_50px_-10px_rgba(0,0,0,0.18)] dark:shadow-[0_20px_50px_-10px_rgba(0,0,0,0.5)] p-2 flex items-center border border-slate-100/80 dark:border-slate-800 transition-all duration-300 z-50 backdrop-blur-sm"
+              className="absolute bottom-12 md:bottom-16 left-1/2 -translate-x-1/2 w-[92%] md:w-[110%] bg-white dark:bg-slate-900/90 rounded-full shadow-[0_20px_50px_-10px_rgba(0,0,0,0.18)] dark:shadow-[0_20px_50px_-10px_rgba(0,0,0,0.5)] p-2 flex items-center border border-slate-100/80 dark:border-slate-800 z-50 backdrop-blur-sm"
             >
               <div className="flex-1 flex items-center px-5 md:px-8">
                 <input

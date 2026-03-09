@@ -42,3 +42,5 @@ next-env.d.ts
 
 references/
 .vscode/
+.agents
+skills-lock.json
