@@ -4,6 +4,12 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import ImageUpload from "@/components/dashboard/ImageUpload";
+import dynamic from "next/dynamic";
+
+const LocationPickerMap = dynamic(() => import("@/components/dashboard/LocationPickerMap"), {
+    ssr: false,
+    loading: () => <div className="h-[450px] w-full bg-slate-100 dark:bg-slate-800 rounded-xl animate-pulse flex items-center justify-center border border-slate-200 dark:border-slate-700 text-slate-500">Loading Map...</div>,
+});
 
 const CATEGORIES = ["Apartment", "Villa", "Land", "Office", "Shop", "House", "Duplex", "Penthouse", "Townhouse", "Condo"];
 const AMENITIES_LIST = ["Parking", "Gym", "Swimming Pool", "Elevator", "Security", "Generator", "Garden", "Balcony", "Air Conditioning", "Internet", "Laundry", "Playground"];
@@ -333,7 +339,7 @@ export default function AgentNewListingPage() {
                 <section className={sectionClass}>
                     <h2 className={sectionHeadingClass}>
                         <span className="material-icons-outlined text-emerald-500 text-lg">location_on</span>
-                        📍 Location & Basic Info
+                        Location & Basic Info
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
@@ -388,6 +394,11 @@ export default function AgentNewListingPage() {
                             </select>
                         </div>
                     </div>
+                    <div className="mt-4 mb-6">
+                        <label className="block text-sm font-medium text-text-muted mb-2">Location on Map *</label>
+                        <p className="text-xs text-text-muted mb-3 italic">Search for an address or click anywhere on the map to pick coordinates.</p>
+                        <LocationPickerMap lat={Number(form.lat) || 0} lng={Number(form.lng) || 0} onChange={(lat, lng) => setForm((prev) => ({ ...prev, lat: lat.toString(), lng: lng.toString() }))} onAddressChange={(addr) => setForm((prev) => ({ ...prev, address: addr }))} />
+                    </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-text-muted mb-1.5">Latitude *</label>
@@ -404,7 +415,7 @@ export default function AgentNewListingPage() {
                 <section className={sectionClass}>
                     <h2 className={sectionHeadingClass}>
                         <span className="material-icons-outlined text-emerald-500 text-lg">payments</span>
-                        💰 Price & Mortgage
+                        Price & Mortgage
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
@@ -440,7 +451,7 @@ export default function AgentNewListingPage() {
                 <section className={sectionClass}>
                     <h2 className={sectionHeadingClass}>
                         <span className="material-icons-outlined text-emerald-500 text-lg">weekend</span>
-                        🛋️ Interior Details
+                        Interior Details
                     </h2>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                         <div>
@@ -484,7 +495,7 @@ export default function AgentNewListingPage() {
                 <section className={sectionClass}>
                     <h2 className={sectionHeadingClass}>
                         <span className="material-icons-outlined text-emerald-500 text-lg">apartment</span>
-                        🏢 Building & Exterior
+                        Building & Exterior
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
@@ -515,7 +526,7 @@ export default function AgentNewListingPage() {
                 <section className={sectionClass}>
                     <h2 className={sectionHeadingClass}>
                         <span className="material-icons-outlined text-emerald-500 text-lg">park</span>
-                        🌳 Community & Amenities
+                        Community & Amenities
                     </h2>
                     <div>
                         <label className="block text-sm font-medium text-text-muted mb-1.5">Nearby Schools / Hospitals</label>
@@ -536,7 +547,7 @@ export default function AgentNewListingPage() {
                 <section className={sectionClass}>
                     <h2 className={sectionHeadingClass}>
                         <span className="material-icons-outlined text-emerald-500 text-lg">description</span>
-                        📝 Legal & Documentation
+                        Legal & Documentation
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
@@ -558,7 +569,7 @@ export default function AgentNewListingPage() {
                 <section className={sectionClass}>
                     <h2 className={sectionHeadingClass}>
                         <span className="material-icons-outlined text-emerald-500 text-lg">contact_phone</span>
-                        📞 Agent Contact (Public)
+                        Agent Contact (Public)
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
@@ -586,7 +597,7 @@ export default function AgentNewListingPage() {
                 <section className={sectionClass}>
                     <h2 className={sectionHeadingClass}>
                         <span className="material-icons-outlined text-emerald-500 text-lg">person</span>
-                        👤 Seller Info (For Internal Use)
+                        Seller Info (For Internal Use)
                     </h2>
                     <div>
                         <label className="block text-sm font-medium text-text-muted mb-1.5">Seller Name</label>
@@ -632,7 +643,7 @@ export default function AgentNewListingPage() {
                 {/* ───── 9. Amenities ───── */}
                 <section className={sectionClass}>
                     <h2 className={sectionHeadingClass}>
-                        <span className="material-icons-outlined text-emerald-500 text-lg">star</span>✨ Property Amenities
+                        <span className="material-icons-outlined text-emerald-500 text-lg">star</span> Property Amenities
                     </h2>
                     <TagToggle items={AMENITIES_LIST} field="amenities" />
                 </section>

@@ -4,6 +4,12 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import ImageUpload from "@/components/dashboard/ImageUpload";
+import dynamic from "next/dynamic";
+
+const LocationPickerMap = dynamic(() => import("@/components/dashboard/LocationPickerMap"), {
+    ssr: false,
+    loading: () => <div className="h-[400px] w-full bg-slate-100 dark:bg-slate-800 rounded-xl animate-pulse flex items-center justify-center border border-slate-200 dark:border-slate-700 text-slate-500">Loading Map...</div>,
+});
 
 const CATEGORIES = ["Apartment", "Villa", "Land", "Office", "Shop", "House", "Duplex", "Penthouse", "Townhouse", "Condo"];
 const AMENITIES_LIST = ["Parking", "Gym", "Swimming Pool", "Elevator", "Security", "Generator", "Garden", "Balcony", "Air Conditioning", "Internet", "Laundry", "Playground"];
@@ -128,29 +134,29 @@ export default function NewListingPage() {
 
     useEffect(() => {
         fetch("/data/country.json")
-            .then(res => res.json())
-            .then(data => setCountries(data))
-            .catch(err => console.error("Failed to load countries", err));
+            .then((res) => res.json())
+            .then((data) => setCountries(data))
+            .catch((err) => console.error("Failed to load countries", err));
     }, []);
 
     useEffect(() => {
         if (form.country) {
             setLoadingAgents(true);
             fetch(`/api/agents?country=${form.country}`)
-                .then(res => res.json())
-                .then(data => {
+                .then((res) => res.json())
+                .then((data) => {
                     setAgents(data.agents || []);
                     if (data.agents?.length > 0) {
-                        setForm(prev => ({ ...prev, assignedAgent: data.agents[0]._id }));
+                        setForm((prev) => ({ ...prev, assignedAgent: data.agents[0]._id }));
                     } else {
-                        setForm(prev => ({ ...prev, assignedAgent: "" }));
+                        setForm((prev) => ({ ...prev, assignedAgent: "" }));
                     }
                 })
-                .catch(err => console.error("Failed to load agents", err))
+                .catch((err) => console.error("Failed to load agents", err))
                 .finally(() => setLoadingAgents(false));
         } else {
             setAgents([]);
-            setForm(prev => ({ ...prev, assignedAgent: "" }));
+            setForm((prev) => ({ ...prev, assignedAgent: "" }));
         }
     }, [form.country]);
 
@@ -349,7 +355,7 @@ export default function NewListingPage() {
                 <section className={sectionClass}>
                     <h2 className={sectionHeadingClass}>
                         <span className="material-icons-outlined text-primary text-lg">location_on</span>
-                        📍 Location & Basic Info
+                        Location & Basic Info
                     </h2>
                     <div>
                         <label className="block text-sm font-medium text-text-muted mb-1.5">Property Title *</label>
@@ -373,23 +379,23 @@ export default function NewListingPage() {
                             <select name="country" value={form.country} onChange={handleChange} required className={inputClass}>
                                 <option value="">Select Country</option>
                                 {countries.map((c) => (
-                                    <option key={c.code} value={c.name}>{c.name}</option>
+                                    <option key={c.code} value={c.name}>
+                                        {c.name}
+                                    </option>
                                 ))}
                             </select>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-text-muted mb-1.5">
-                                Assigned Agent * {loadingAgents && <span className="animate-pulse"> (Loading...)</span>}
-                            </label>
+                            <label className="block text-sm font-medium text-text-muted mb-1.5">Assigned Agent * {loadingAgents && <span className="animate-pulse"> (Loading...)</span>}</label>
                             <select name="assignedAgent" value={form.assignedAgent} onChange={handleChange} required className={inputClass} disabled={loadingAgents || !form.country}>
                                 <option value="">Select Agent</option>
                                 {agents.map((a) => (
-                                    <option key={a._id} value={a._id}>{a.name} ({a.companyName || "Independent"})</option>
+                                    <option key={a._id} value={a._id}>
+                                        {a.name} ({a.companyName || "Independent"})
+                                    </option>
                                 ))}
                             </select>
-                            {form.country && agents.length === 0 && !loadingAgents && (
-                                <p className="text-[10px] text-danger mt-1">No approved agents found for this country.</p>
-                            )}
+                            {form.country && agents.length === 0 && !loadingAgents && <p className="text-[10px] text-danger mt-1">No approved agents found for this country.</p>}
                         </div>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -415,6 +421,11 @@ export default function NewListingPage() {
                             </select>
                         </div>
                     </div>
+                    <div className="mt-4 mb-6">
+                        <label className="block text-sm font-medium text-text-muted mb-2">Location on Map *</label>
+                        <p className="text-xs text-text-muted mb-3 italic">Search for an address or click anywhere on the map to pick coordinates.</p>
+                        <LocationPickerMap lat={Number(form.lat) || 0} lng={Number(form.lng) || 0} onChange={(lat, lng) => setForm((prev) => ({ ...prev, lat: lat.toString(), lng: lng.toString() }))} onAddressChange={(addr) => setForm((prev) => ({ ...prev, address: addr }))} />
+                    </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-text-muted mb-1.5">Latitude *</label>
@@ -431,7 +442,7 @@ export default function NewListingPage() {
                 <section className={sectionClass}>
                     <h2 className={sectionHeadingClass}>
                         <span className="material-icons-outlined text-primary text-lg">payments</span>
-                        💰 Price & Mortgage
+                        Price & Mortgage
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
@@ -467,7 +478,7 @@ export default function NewListingPage() {
                 <section className={sectionClass}>
                     <h2 className={sectionHeadingClass}>
                         <span className="material-icons-outlined text-primary text-lg">weekend</span>
-                        🛋️ Interior Details
+                        Interior Details
                     </h2>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                         <div>
@@ -511,7 +522,7 @@ export default function NewListingPage() {
                 <section className={sectionClass}>
                     <h2 className={sectionHeadingClass}>
                         <span className="material-icons-outlined text-primary text-lg">apartment</span>
-                        🏢 Building & Exterior
+                        Building & Exterior
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
@@ -542,7 +553,7 @@ export default function NewListingPage() {
                 <section className={sectionClass}>
                     <h2 className={sectionHeadingClass}>
                         <span className="material-icons-outlined text-primary text-lg">park</span>
-                        🌳 Community & Amenities
+                        Community & Amenities
                     </h2>
                     <div>
                         <label className="block text-sm font-medium text-text-muted mb-1.5">Nearby Schools / Hospitals</label>
@@ -563,7 +574,7 @@ export default function NewListingPage() {
                 <section className={sectionClass}>
                     <h2 className={sectionHeadingClass}>
                         <span className="material-icons-outlined text-primary text-lg">description</span>
-                        📝 Legal & Documentation
+                        Legal & Documentation
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
@@ -585,7 +596,7 @@ export default function NewListingPage() {
                 <section className={sectionClass}>
                     <h2 className={sectionHeadingClass}>
                         <span className="material-icons-outlined text-primary text-lg">contact_phone</span>
-                        📞 Contact
+                        Contact
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
@@ -637,7 +648,7 @@ export default function NewListingPage() {
                 {/* ───── 9. Amenities ───── */}
                 <section className={sectionClass}>
                     <h2 className={sectionHeadingClass}>
-                        <span className="material-icons-outlined text-primary text-lg">star</span>✨ Property Amenities
+                        <span className="material-icons-outlined text-primary text-lg">star</span> Property Amenities
                     </h2>
                     <TagToggle items={AMENITIES_LIST} field="amenities" />
                 </section>
