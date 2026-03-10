@@ -22,11 +22,11 @@ function getDashboardLabel(role?: string) {
 }
 
 // ─── Role → center nav items ──────────────────────────────────────────────────
-const publicNavItems = ["Home", "Listing", "Property", "Agents", "Blog"];
+const publicNavItems = ["Home", "Property", "Agents", "Blog"];
 
-const userNavItems = ["Home", "Listing", "Property", "Agents", "Blog"];
-const agentNavItems = ["Home", "Listing", "Property", "Agents", "Blog"];
-const adminNavItems = ["Home", "Listing", "Property", "Agents", "Blog"];
+const userNavItems = ["Home", "Property", "Agents", "Blog"];
+const agentNavItems = ["Home", "Property", "Agents", "Blog"];
+const adminNavItems = ["Home", "Property", "Agents", "Blog"];
 
 function getCenterNavItems(role?: string) {
   if (role === "admin") return adminNavItems;
@@ -86,7 +86,7 @@ const Navbar = () => {
           : "bg-transparent border-b border-transparent"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex justify-between items-center">
+      <div className="max-w-10/12 mx-auto px-4 sm:px-6 lg:px-8 w-full flex justify-between items-center">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group transition-all">
           <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">

@@ -51,7 +51,7 @@ const ClientsTestimonials = () => {
 
   return (
     <section className="py-24 bg-slate-50 dark:bg-slate-900 transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-10/12 mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <div className="inline-block px-4 py-1.5 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-4 shadow-sm">
             Clients

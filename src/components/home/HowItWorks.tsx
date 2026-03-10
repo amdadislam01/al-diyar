@@ -25,7 +25,7 @@ const steps = [
 const HowItWorks = () => {
   return (
     <section className="py-32 bg-white dark:bg-background-dark">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-10/12 mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-20">
           <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-6">
             The <span className="text-gradient">Al-Diyar</span> Standard.

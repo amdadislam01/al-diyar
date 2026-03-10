@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 interface PropertyProps {
   id: string;
   title: string;
@@ -11,6 +13,7 @@ interface PropertyProps {
 }
 
 const PropertyCard = ({
+  id,
   title,
   price,
   location,
@@ -21,7 +24,10 @@ const PropertyCard = ({
   type,
 }: PropertyProps) => {
   return (
-    <div className="group flex flex-col bg-white dark:bg-slate-900 rounded-[2.5rem] overflow-hidden shadow-premium hover:shadow-2xl transition-all duration-700 border border-slate-100 dark:border-white/5">
+    <Link 
+      href={`/property/${id}`}
+      className="group flex flex-col bg-white dark:bg-slate-900 rounded-[2.5rem] overflow-hidden shadow-premium hover:shadow-2xl transition-all duration-700 border border-slate-100 dark:border-white/5"
+    >
       {/* Image Container */}
       <div className="relative aspect-4/3 overflow-hidden">
         <img
@@ -102,7 +108,7 @@ const PropertyCard = ({
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 
