@@ -45,8 +45,6 @@ export default function BlogListingPage() {
 
     return (
         <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-500">
-            <Navbar />
-
             <main className="grow pt-32 pb-20">
                 <div className="max-w-10/12 mx-auto px-6 lg:px-10">
                     {/* Header */}
@@ -160,8 +158,6 @@ export default function BlogListingPage() {
                     )}
                 </div>
             </main>
-
-            <Footer />
         </div>
     );
 }
