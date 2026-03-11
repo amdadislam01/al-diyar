@@ -63,6 +63,7 @@ export default function RootLayout({
           <AuthProvider>
             <ConditionalLayout>
               {children}
+              
             </ConditionalLayout>
           </AuthProvider>
         </ThemeProvider>
