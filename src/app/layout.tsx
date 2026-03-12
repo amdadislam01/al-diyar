@@ -6,23 +6,23 @@ import { ThemeProvider } from "@/components/theme-provider";
 import ConditionalLayout from "@/components/layout/ConditionalLayout";
 
 const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
+    variable: "--font-inter",
+    subsets: ["latin"],
 });
 
 const epilogue = Epilogue({
-  variable: "--font-epilogue",
-  subsets: ["latin"],
+    variable: "--font-epilogue",
+    subsets: ["latin"],
 });
 
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+    variable: "--font-geist-sans",
+    subsets: ["latin"],
 });
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+    variable: "--font-geist-mono",
+    subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
@@ -31,9 +31,9 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({
-  children,
+    children,
 }: Readonly<{
-  children: React.ReactNode;
+    children: React.ReactNode;
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
