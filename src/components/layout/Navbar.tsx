@@ -5,6 +5,15 @@ import Image from "next/image";
 import { ThemeToggle } from "./ThemeToggle";
 import { useState, useEffect, useRef } from "react";
 import { useSession, signOut } from "next-auth/react";
+import { usePathname } from "next/navigation";
+import { 
+  Menu, X, 
+  ChevronDown, LayoutDashboard, UserCircle, LogOut 
+} from "lucide-react";
+import { HomeIcon } from "@/components/ui/home";
+import { BlocksIcon } from "@/components/ui/blocks";
+import { UsersIcon } from "@/components/ui/users";
+import { FileTextIcon } from "@/components/ui/file-text";
 
 // ─── Role → dashboard root ────────────────────────────────────────────────────
 function getDashboardHref(role?: string) {
@@ -22,28 +31,24 @@ function getDashboardLabel(role?: string) {
 }
 
 // ─── Role → center nav items ──────────────────────────────────────────────────
-const publicNavItems = ["Home", "Property", "Agents", "Blog"];
-
-const userNavItems = ["Home", "Property", "Agents", "Blog"];
-const agentNavItems = ["Home", "Property", "Agents", "Blog"];
-const adminNavItems = ["Home", "Property", "Agents", "Blog"];
-
-function getCenterNavItems(role?: string) {
-  if (role === "admin") return adminNavItems;
-  if (role === "agent" || role === "seller") return agentNavItems;
-  if (role === "user") return userNavItems;
-  return publicNavItems;
-}
+const navItemsMap = [
+  { label: "Home", href: "/", icon: HomeIcon },
+  { label: "Property", href: "/property", icon: BlocksIcon },
+  { label: "Agents", href: "/agents", icon: UsersIcon },
+  { label: "Blog", href: "/blog", icon: FileTextIcon }
+];
 
 const Navbar = () => {
+  const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
   const { data: session, status } = useSession();
 
   const role = (session?.user as { role?: string })?.role;
   const dashboardHref = getDashboardHref(role);
-  const centerNavItems = getCenterNavItems(role);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -56,16 +61,37 @@ const Navbar = () => {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(e.target as Node)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setIsDropdownOpen(false);
+      }
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(e.target as Node) && isMobileMenuOpen) {
+          // Keep button click out of this logic to prevent double toggle
+          const target = e.target as HTMLElement;
+          if(!target.closest('.mobile-menu-btn')) {
+              setIsMobileMenuOpen(false);
+          }
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [isMobileMenuOpen]);
+
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMobileMenuOpen]);
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [pathname]);
 
   // Get user initials for avatar fallback
   const getInitials = (name?: string | null) => {
@@ -79,302 +105,337 @@ const Navbar = () => {
   };
 
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-50 h-20 flex items-center transition-all duration-500 ${
-        isScrolled
-          ? "bg-white/80 dark:bg-slate-950/80 backdrop-blur-lg border-b border-slate-100 dark:border-slate-800 shadow-sm h-16"
-          : "bg-transparent border-b border-transparent"
-      }`}
-    >
-      <div className="max-w-10/12 mx-auto px-4 sm:px-6 lg:px-8 w-full flex justify-between items-center">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 group transition-all">
-          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-            <Image
-              src="/aldiyarlogo.png"
-              alt="Logo"
-              width={40}
-              height={40}
-              className="p-2"
-            />
-          </div>
-          <span
-            className={`font-bold text-3xl tracking-tight transition-colors duration-300 dark:text-white ${
-              isScrolled ? "text-slate-900 dark:text-white" : "text-black"
-            }`}
-          
-          style={{
-              fontFamily:
-                "'PPRightGrotesk', 'Plus Jakarta Sans', 'Inter', sans-serif",
-              fontWeight: 900,
-            }}>
-            Al-Diyar
-          </span>
-        </Link>
-
-        {/* Center Menu */}
-        <div className="hidden md:flex items-center space-x-10">
-          {centerNavItems.map((item) => (
-            <Link
-              key={item}
-              href={`/${item === "Home" ? "" : item.toLowerCase()}`}
-              className={`text-sm font-semibold tracking-wide transition-all duration-300 hover:opacity-100 relative group overflow-hidden dark:text-white ${
-              isScrolled ? "text-slate-900 dark:text-white" : "text-black"
-            }`}
-            >
-              {item}
-              <span className="absolute bottom-0 left-0 w-full h-0.5 bg-current transform translate-x-[-101%] group-hover:translate-x-0 transition-transform duration-300"></span>
-            </Link>
-          ))}
-          {/* Dashboard quick link for logged-in users */}
-          {session?.user && (
-            <Link
-              href={dashboardHref}
-              className={`text-sm font-semibold tracking-wide transition-all duration-300 hover:opacity-100 relative group overflow-hidden dark:text-white ${
-                isScrolled
-                  ? "text-slate-900 dark:text-white hover:text-slate-900 dark:hover:text-white"
-                  : "text-black"
-              }`}
-            >
-              Dashboard
-              <span className="absolute bottom-0 left-0 w-full h-0.5 bg-current transform translate-x-[-101%] group-hover:translate-x-0 transition-transform duration-300"></span>
-            </Link>
-          )}
-        </div>
-
-        {/* Right side */}
-        <div className="flex items-center space-x-4">
-          <ThemeToggle />
-
-          <button
-            className={`hidden sm:block px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 shadow-lg active:scale-95 ${
-              isScrolled
-                ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:shadow-xl"
-                : "bg-white text-slate-900 hover:bg-slate-100 shadow-white/10"
-            }`}
-          >
-            Add Property
-          </button>
-
-          {/* Auth Section */}
-          {status === "loading" ? (
-            /* Loading skeleton */
-            <div className="w-10 h-10 rounded-full bg-white/20 animate-pulse" />
-          ) : session?.user ? (
-            <div className="relative" ref={dropdownRef}>
-              <button
-                onClick={() => setIsDropdownOpen((prev) => !prev)}
-                className="relative flex items-center gap-2 group focus:outline-none cursor-pointer"
-                aria-label="Open profile menu"
+    <>
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+          isScrolled
+            ? "py-3"
+            : "py-5"
+        }`}
+      >
+        <div className={`mx-auto max-w-10/12 px-4 sm:px-6 lg:px-8 transition-all duration-500 ${
+          isScrolled 
+            ? "w-[95%] sm:w-11/12 rounded-4xl bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/50 shadow-premium" 
+            : "w-full bg-transparent border-transparent"
+        }`}>
+          <div className="flex justify-between items-center h-16">
+            
+            {/* Logo */}
+            <Link href="/" className="flex items-center gap-3 group transition-all shrink-0">
+              <div className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-colors duration-300 ${
+                isScrolled ? "bg-primary/10" : "bg-white shadow-lg"
+              }`}>
+                <Image
+                  src="/aldiyarlogo.png"
+                  alt="Logo"
+                  width={28}
+                  height={28}
+                  className="object-contain"
+                />
+              </div>
+              <span
+                className={`font-black text-2xl tracking-tighter transition-colors duration-300 dark:text-white ${
+                  isScrolled ? "text-slate-900 dark:text-white" : "text-black"
+                }`}
               >
-                {/* Avatar */}
-                <div
-                  className={`w-10 h-10 rounded-full overflow-hidden border-2 transition-all duration-300 shadow-md group-hover:shadow-lg group-hover:scale-105 ${
-                    isScrolled
-                      ? "border-slate-200 dark:border-slate-700"
-                      : "border-white/50"
-                  }`}
-                >
-                  {session.user.image ? (
-                    <Image
-                      src={session.user.image}
-                      alt={session.user.name ?? "User"}
-                      width={40}
-                      height={40}
-                      className="w-full h-full object-cover"
+                Al-Diyar
+              </span>
+            </Link>
+
+            {/* Center Menu (Desktop) */}
+            <div className="hidden md:flex items-center justify-center flex-1 px-8">
+              <div className="flex items-center gap-1 p-1.5 rounded-full bg-slate-50/50 dark:bg-slate-900/50 backdrop-blur-sm border border-slate-200/50 dark:border-slate-800/50">
+                {navItemsMap.map((item) => {
+                  const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
+                  return (
+                    <DesktopNavItem 
+                      key={item.label} 
+                      item={item} 
+                      isActive={isActive} 
+                      isScrolled={isScrolled} 
                     />
-                  ) : (
-                    <div className="w-full h-full bg-primary flex items-center justify-center cursor-pointer">
-                      <span className="text-white text-sm font-bold">
-                        {getInitials(session.user.name)}
-                      </span>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Right side (Desktop & Mobile combined) */}
+            <div className="flex items-center gap-3 shrink-0">
+              <div className="hidden sm:block">
+                 <ThemeToggle />
+              </div>
+
+              <Link
+                href="/dashboard/seller/listings/new"
+                className={`hidden md:flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-bold transition-all duration-300 shadow-md hover:shadow-lg active:scale-95 ${
+                  isScrolled
+                    ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900"
+                    : "bg-white text-slate-900 hover:bg-slate-50"
+                }`}
+              >
+                Add Property
+              </Link>
+
+              {/* Auth Section */}
+              {status === "loading" ? (
+                <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse" />
+              ) : session?.user ? (
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    onClick={() => setIsDropdownOpen((prev) => !prev)}
+                    className="relative flex items-center gap-2 p-1 pr-3 rounded-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-300 focus:outline-none group shadow-sm"
+                    aria-label="Open profile menu"
+                  >
+                    <div className="w-8 h-8 rounded-full overflow-hidden shrink-0">
+                      {session.user.image ? (
+                        <Image
+                          src={session.user.image}
+                          alt={session.user.name ?? "User"}
+                          width={32}
+                          height={32}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-primary flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">
+                            {getInitials(session.user.name)}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform duration-300 ${isDropdownOpen ? "rotate-180" : ""}`} />
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  {isDropdownOpen && (
+                    <div className="absolute right-0 mt-3 w-64 rounded-3xl bg-white dark:bg-slate-950 shadow-premium border border-slate-200/50 dark:border-slate-800/50 overflow-hidden z-50 animate-in fade-in slide-in-from-top-4 duration-300">
+                      <div className="p-4 bg-slate-50/50 dark:bg-slate-900/50 backdrop-blur-xl border-b border-slate-100 dark:border-slate-800">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 border-2 border-white dark:border-slate-800 shadow-sm">
+                            {session.user.image ? (
+                              <Image
+                                src={session.user.image}
+                                alt={session.user.name ?? "User"}
+                                width={48}
+                                height={48}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-primary flex items-center justify-center">
+                                <span className="text-white text-base font-bold">
+                                  {getInitials(session.user.name)}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-bold text-slate-900 dark:text-white truncate">
+                              {session.user.name ?? "User"}
+                            </p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                              {session.user.email}
+                            </p>
+                             <span className="inline-flex items-center mt-1 px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-primary/10 text-primary">
+                              {role ?? "user"}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="p-2 space-y-1">
+                        <Link
+                          href={dashboardHref}
+                          onClick={() => setIsDropdownOpen(false)}
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white transition-colors group"
+                        >
+                          <LayoutDashboard className="w-4 h-4 text-slate-400 group-hover:text-primary transition-colors" />
+                          {getDashboardLabel(role)}
+                        </Link>
+                        <Link
+                          href="/dashboard/profile"
+                          onClick={() => setIsDropdownOpen(false)}
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white transition-colors group"
+                        >
+                          <UserCircle className="w-4 h-4 text-slate-400 group-hover:text-primary transition-colors" />
+                          My Profile
+                        </Link>
+                        <Link
+                          href="/dashboard/properties"
+                          onClick={() => setIsDropdownOpen(false)}
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white transition-colors group"
+                        >
+                          <HomeIcon size={16} className="text-slate-400 group-hover:text-primary transition-colors" />
+                          My Properties
+                        </Link>
+                      </div>
+
+                      <div className="p-2 border-t border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-900/30">
+                        <button
+                          onClick={() => {
+                            setIsDropdownOpen(false);
+                            signOut({ callbackUrl: "/" });
+                          }}
+                          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors group"
+                        >
+                          <LogOut className="w-4 h-4 text-red-500 group-hover:scale-110 transition-transform" />
+                          Sign Out
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
-                {/* Chevron */}
-                <svg
-                  className={`w-4 h-4 transition-all duration-300 ${
-                    isDropdownOpen ? "rotate-180" : ""
-                  } ${
+              ) : (
+                <Link
+                  href="/auth/signin"
+                  className={`hidden sm:flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-bold tracking-wide transition-all duration-300 active:scale-95 ${
                     isScrolled
-                      ? "text-slate-600 dark:text-slate-300"
-                      : "text-white/80"
+                      ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700"
+                      : "bg-white/90 backdrop-blur-md text-slate-900 hover:bg-white shadow-sm"
                   }`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
+                  <UserCircle className="w-4 h-4" />
+                  Sign In
+                </Link>
+              )}
+
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className={`mobile-menu-btn md:hidden p-2 rounded-full transition-colors ${
+                  isScrolled ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white" : "bg-white text-slate-900 shadow-md"
+                }`}
+                aria-label="Toggle mobile menu"
+              >
+                {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
+            </div>
+          </div>
+        </div>
+      </nav>
 
-              {/* Dropdown Menu */}
-              {isDropdownOpen && (
-                <div className="absolute right-0 mt-3 w-60 rounded-2xl bg-white dark:bg-slate-900 shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                  {/* User Info Header */}
-                  <div className="px-4 py-4 bg-linear-to-br from-amber-50 to-orange-50 dark:from-slate-800 dark:to-slate-800 border-b border-slate-100 dark:border-slate-700">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white dark:border-slate-600 shadow-md shrink-0">
-                        {session.user.image ? (
-                          <Image
-                            src={session.user.image}
-                            alt={session.user.name ?? "User"}
-                            width={48}
-                            height={48}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-linear-to-br from-primary to-primary flex items-center justify-center">
-                            <span className="text-white text-base font-bold">
-                              {getInitials(session.user.name)}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-slate-900 dark:text-white truncate">
-                          {session.user.name ?? "User"}
-                        </p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                          {session.user.email}
-                        </p>
-                        <span className="inline-flex items-center mt-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 capitalize">
-                          {(session.user as any).role ?? "user"}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-40 md:hidden flex justify-end">
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+          
+          {/* Drawer */}
+          <div 
+            ref={mobileMenuRef}
+            className="w-4/5 max-w-sm h-full bg-white dark:bg-slate-950 shadow-2xl relative flex flex-col animate-in slide-in-from-right duration-300"
+          >
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+               <span className="font-black text-xl tracking-tight text-slate-900 dark:text-white">Menu</span>
+               <div className="sm:hidden">
+                 <ThemeToggle />
+               </div>
+            </div>
 
-                  {/* Menu Items */}
-                  <div className="py-2">
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+              <div className="space-y-2">
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 mb-4">Navigation</p>
+                {navItemsMap.map((item) => {
+                  const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
+                  return (
+                    <MobileNavItem 
+                      key={item.label} 
+                      item={item} 
+                      isActive={isActive} 
+                      onClick={() => setIsMobileMenuOpen(false)} 
+                    />
+                  );
+                })}
+              </div>
+
+              {!session?.user && (
+                 <div className="pt-6 border-t border-slate-100 dark:border-slate-800">
+                    <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 mb-4">Account</p>
                     <Link
-                      href={dashboardHref}
-                      onClick={() => setIsDropdownOpen(false)}
-                      className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors duration-150 group"
+                      href="/auth/signin"
+                      className="flex items-center justify-center gap-2 w-full px-6 py-4 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-center"
                     >
-                      <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center group-hover:bg-blue-100 dark:group-hover:bg-blue-900/40 transition-colors">
-                        <svg
-                          className="w-4 h-4 text-blue-600 dark:text-blue-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                          />
-                        </svg>
-                      </div>
-                      {getDashboardLabel(role)}
+                      <UserCircle className="w-5 h-5" />
+                      Sign In
                     </Link>
-
-                    <Link
-                      href="/dashboard/profile"
-                      onClick={() => setIsDropdownOpen(false)}
-                      className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors duration-150 group"
-                    >
-                      <div className="w-8 h-8 rounded-lg bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center group-hover:bg-purple-100 dark:group-hover:bg-purple-900/40 transition-colors">
-                        <svg
-                          className="w-4 h-4 text-purple-600 dark:text-purple-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                          />
-                        </svg>
-                      </div>
-                      My Profile
-                    </Link>
-
-                    <Link
-                      href="/dashboard/properties"
-                      onClick={() => setIsDropdownOpen(false)}
-                      className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors duration-150 group"
-                    >
-                      <div className="w-8 h-8 rounded-lg bg-green-50 dark:bg-green-900/20 flex items-center justify-center group-hover:bg-green-100 dark:group-hover:bg-green-900/40 transition-colors">
-                        <svg
-                          className="w-4 h-4 text-green-600 dark:text-green-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                          />
-                        </svg>
-                      </div>
-                      My Properties
-                    </Link>
-                  </div>
-
-                  {/* Divider */}
-                  <div className="h-px bg-slate-100 dark:bg-slate-800 mx-3" />
-
-                  {/* Logout */}
-                  <div className="py-2">
-                    <button
-                      onClick={() => {
-                        setIsDropdownOpen(false);
-                        signOut({ callbackUrl: "/" });
-                      }}
-                      className="flex items-center gap-3 w-full px-4 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors duration-150 group cursor-pointer"
-                    >
-                      <div className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-900/20 flex items-center justify-center group-hover:bg-red-100 dark:group-hover:bg-red-900/30 transition-colors">
-                        <svg
-                          className="w-4 h-4 text-red-500 dark:text-red-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                          />
-                        </svg>
-                      </div>
-                      Sign Out
-                    </button>
-                  </div>
-                </div>
+                 </div>
               )}
             </div>
-          ) : (
-            /* Not logged in — Sign In button */
-            <Link
-              href="/auth/signin"
-              className={`group flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold tracking-tight transition-all duration-300 active:scale-95 hover:-translate-y-0.5 ${
-                isScrolled
-                  ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md hover:shadow-lg"
-                  : "bg-white/15 backdrop-blur-sm border border-white/30 text-black dark:text-white hover:bg-white/25 hover:border-white/50 shadow-sm"
-              }`}
-            >
-              <span className="material-icons-round text-base leading-none">
-                person_outline
-              </span>
-              Sign In
-            </Link>
-          )}
+            
+            <div className="p-6 bg-slate-50 dark:bg-slate-900/50 mt-auto">
+                <Link
+                  href="/dashboard/seller/listings/new"
+                  className="flex items-center justify-center w-full px-6 py-4 rounded-2xl bg-primary text-white font-bold tracking-wide shadow-lg shadow-primary/20"
+                >
+                  Add Property
+                </Link>
+            </div>
+          </div>
         </div>
+      )}
+    </>
+  );
+};
+
+const DesktopNavItem = ({ item, isActive, isScrolled }: { item: { label: string; href: string; icon: React.ElementType }; isActive: boolean; isScrolled: boolean }) => {
+  const iconRef = useRef<any>(null);
+  
+  return (
+    <Link
+      href={item.href}
+      onMouseEnter={() => iconRef.current?.startAnimation?.()}
+      onMouseLeave={() => iconRef.current?.stopAnimation?.()}
+      className={`relative px-4 py-2 rounded-full text-sm font-bold tracking-wide transition-all duration-300 group overflow-hidden flex items-center gap-2 ${
+        isActive
+          ? "text-primary dark:text-primary"
+          : isScrolled ? "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white" : "text-slate-700 dark:text-white hover:text-black dark:hover:text-slate-200"
+      }`}
+    >
+      {isActive && (
+        <span className="absolute inset-0 bg-primary/10 dark:bg-primary/20 rounded-full -z-10 animate-in fade-in zoom-in duration-300" />
+      )}
+      <item.icon
+        ref={iconRef}
+        size={18}
+        className={`transition-all duration-300 ease-out ${
+          isActive ? "text-primary scale-110" : "opacity-70 group-hover:opacity-100 group-hover:text-primary group-hover:scale-110"
+        }`}
+      />
+      {item.label}
+    </Link>
+  );
+};
+
+const MobileNavItem = ({ item, isActive, onClick }: { item: { label: string; href: string; icon: React.ElementType }; isActive: boolean; onClick: () => void }) => {
+  const iconRef = useRef<any>(null);
+  
+  return (
+    <Link
+      href={item.href}
+      onClick={onClick}
+      onMouseEnter={() => iconRef.current?.startAnimation?.()}
+      onMouseLeave={() => iconRef.current?.stopAnimation?.()}
+      className={`flex items-center gap-4 px-4 py-3 rounded-2xl text-base font-bold transition-colors group ${
+        isActive
+          ? "bg-primary/10 text-primary dark:bg-primary/20"
+          : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-900 hover:text-primary"
+      }`}
+    >
+      <div className="relative flex items-center justify-center">
+        <item.icon 
+          ref={iconRef}
+          size={22}
+          className={`transition-all duration-300 ease-out ${
+            isActive ? "text-primary scale-110" : "group-hover:text-primary"
+          }`} 
+        />
       </div>
-    </nav>
+      {item.label}
+    </Link>
   );
 };
 
 export default Navbar;
+
