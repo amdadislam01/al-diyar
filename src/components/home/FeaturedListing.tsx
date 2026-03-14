@@ -29,7 +29,7 @@ const FeaturedListing = () => {
     return (
       <section className="py-32 bg-white dark:bg-slate-950">
         <div className="max-w-10/12 mx-auto px-4 sm:px-6 lg:px-8">
-           <div className="w-full aspect-[21/9] bg-slate-100 dark:bg-slate-800 rounded-[3rem] animate-pulse" />
+          <div className="w-full aspect-[21/9] bg-slate-100 dark:bg-slate-800 rounded-[3rem] animate-pulse" />
         </div>
       </section>
     );
@@ -113,10 +113,10 @@ const FeaturedListing = () => {
           <div className="lg:w-2/5 mt-12 lg:mt-0">
             <div className="space-y-10">
               <div className="relative">
-                <span className="text-8xl font-serif text-slate-100 dark:text-slate-900 absolute -top-10 -left-6 -z-10 italic">
+                <span className="text-8xl font-black text-slate-100 dark:text-slate-900 absolute -top-10 -left-6 -z-10 italic">
                   "
                 </span>
-                <div className="text-3xl md:text-4xl font-serif text-slate-900 dark:text-white leading-[1.3]">
+                <div className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white leading-[1.3]">
                   Extraordinary{" "}
                   <span className="text-accent">
                     performance!
