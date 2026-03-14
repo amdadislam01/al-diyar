@@ -1,5 +1,3 @@
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
 import Hero from "@/components/home/Hero";
 import BrandMarquee from "@/components/home/BrandMarquee";
 import TrustSection from "@/components/home/TrustSection";
