@@ -64,7 +64,7 @@ export default function ListingPage() {
         {/* Header Section */}
         <div className="mb-12">
           <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-4 tracking-tight"
-              style={{ fontFamily: "'PPRightGrotesk', 'Plus Jakarta Sans', sans-serif" }}>
+            style={{ fontFamily: "'PPRightGrotesk', 'Plus Jakarta Sans', sans-serif" }}>
             Explore Properties
           </h1>
           <p className="text-slate-500 dark:text-slate-400 text-lg max-w-2xl font-medium leading-relaxed">
