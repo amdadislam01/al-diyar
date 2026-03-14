@@ -315,7 +315,7 @@ const Hero = () => {
             className="text-[clamp(3rem,6vw,6rem)] md:text-[clamp(2.8rem,6vw,6rem)] text-slate-900 dark:text-white leading-[0.8] absolute top-16 md:-top-6 left-0 w-full text-center transition-colors duration-300"
             style={{
               fontFamily:
-                "'PPRightGrotesk', 'Plus Jakarta Sans', 'Inter', sans-serif",
+                "'PPRightGrotesk', system-ui, sans-serif",
               fontWeight: 900,
             }}
           >
@@ -424,10 +424,6 @@ const Hero = () => {
         </div>
       </div>
 
-      {/* Google fonts */}
-      <style jsx global>{`
-        @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=Inter:wght@400;600;700;800&display=swap");
-      `}</style>
     </header>
   );
 };
