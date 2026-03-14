@@ -8,7 +8,7 @@ import { useSession, signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { 
   Menu, X, 
-  ChevronDown, LayoutDashboard, UserCircle, LogOut 
+  ChevronDown, LayoutDashboard, UserCircle, LogOut, Mail
 } from "lucide-react";
 import { HomeIcon } from "@/components/ui/home";
 import { BlocksIcon } from "@/components/ui/blocks";
@@ -33,9 +33,11 @@ function getDashboardLabel(role?: string) {
 // ─── Role → center nav items ──────────────────────────────────────────────────
 const navItemsMap = [
   { label: "Home", href: "/", icon: HomeIcon },
+  { label: "About", href: "/about", icon: FileTextIcon },
   { label: "Property", href: "/property", icon: BlocksIcon },
   { label: "Agents", href: "/agents", icon: UsersIcon },
-  { label: "Blog", href: "/blog", icon: FileTextIcon }
+  { label: "Blog", href: "/blog", icon: FileTextIcon },
+  { label: "Contact", href: "/contact", icon: Mail }
 ];
 
 const Navbar = () => {
