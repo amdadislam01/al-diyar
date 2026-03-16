@@ -4,7 +4,7 @@ import Listing from "@/models/Listing";
 
 export async function GET(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         await dbConnect();
@@ -12,6 +12,7 @@ export async function GET(
 
         const listing = await Listing.findById(id)
             .populate("listedBy", "name email phone")
+            .populate("assignedAgent", "name email phone image")
             .lean();
 
         if (!listing) {

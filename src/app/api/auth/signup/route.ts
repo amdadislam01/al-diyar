@@ -25,6 +25,7 @@ interface UserData {
     country: string;
     postOffice?: string;
     postCode?: string;
+    image?: string;
 }
 
 
@@ -58,6 +59,7 @@ export async function POST(request: NextRequest) {
             country,
             postOffice,
             postCode,
+            image,
         } = body;
 
         if (!name || !email || !phone || !password || !role || !country) {
@@ -129,6 +131,7 @@ export async function POST(request: NextRequest) {
             // agents and sellers require admin approval; users are auto-approved
             approvalStatus: (role === 'agent' || role === 'seller') ? 'pending' : 'approved',
             emailVerified: false,
+            image: image || undefined,
         };
 
         if (role === 'agent' || role === 'seller') {
@@ -149,7 +152,7 @@ export async function POST(request: NextRequest) {
             }
         }
 
-        console.log('📝 Constructing userData for role:', role);
+        console.log('📝 Constructing userData for Create:', JSON.stringify(userData, null, 2));
         const user = await User.create(userData);
         console.log('✅ User created in DB with fields:', {
             id: user._id,
