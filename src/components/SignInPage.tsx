@@ -146,8 +146,8 @@ export default function SignInPage() {
                   },
                 })}
                 className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-transparent transition-all duration-300 ${errors.email
-                    ? "border-danger-300 dark:border-danger-500"
-                    : "border-surface-tonal-300 dark:border-slate-700"
+                  ? "border-danger-300 dark:border-danger-500"
+                  : "border-surface-tonal-300 dark:border-slate-700"
                   }`}
                 placeholder="you@example.com"
               />
@@ -177,8 +177,8 @@ export default function SignInPage() {
                   },
                 })}
                 className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-transparent transition-all duration-300 ${errors.password
-                    ? "border-danger-300 dark:border-danger-500"
-                    : "border-surface-tonal-300 dark:border-slate-700"
+                  ? "border-danger-300 dark:border-danger-500"
+                  : "border-surface-tonal-300 dark:border-slate-700"
                   }`}
                 placeholder="Enter your password"
               />

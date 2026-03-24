@@ -32,6 +32,56 @@ export default function SignUpPage() {
   const [showOTP, setShowOTP] = useState(false);
   const [userEmail, setUserEmail] = useState("");
   const [apiError, setApiError] = useState("");
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const uploadToCloudinary = async (file: File) => {
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+    const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+
+    if (!cloudName || !uploadPreset) {
+      throw new Error("Cloudinary configuration is missing.");
+    }
+
+    const data = new FormData();
+    data.append("upload_preset", uploadPreset);
+    data.append("file", file);
+
+    const response = await fetch(
+      `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+      {
+        method: "POST",
+        body: data,
+      },
+    );
+
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.error?.message || "Upload failed");
+    }
+    return result.secure_url as string;
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      alert("Please upload an image file.");
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      const url = await uploadToCloudinary(file);
+      setImageUrl(url);
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message || "Upload failed");
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   // Location data state
   const [countries, setCountries] = useState<any[]>([]);
@@ -69,14 +119,20 @@ export default function SignUpPage() {
 
     try {
       // Prepare final data
-      const selectedCountry = countries.find(c => c.name === data.country);
+      const selectedCountry = countries.find((c) => c.name === data.country);
       const dialCode = selectedCountry?.dial_code || "";
 
       // Prepend dial code to phone if not already present
       let finalPhone = data.phone.trim();
-      if (dialCode && !finalPhone.startsWith("+") && !finalPhone.startsWith(dialCode.replace("+", ""))) {
+      if (
+        dialCode &&
+        !finalPhone.startsWith("+") &&
+        !finalPhone.startsWith(dialCode.replace("+", ""))
+      ) {
         // Remove leading zero if present when prepending dial code
-        const phoneWithoutLeadingZero = finalPhone.startsWith("0") ? finalPhone.substring(1) : finalPhone;
+        const phoneWithoutLeadingZero = finalPhone.startsWith("0")
+          ? finalPhone.substring(1)
+          : finalPhone;
         finalPhone = dialCode + phoneWithoutLeadingZero;
       }
 
@@ -89,6 +145,7 @@ export default function SignUpPage() {
           ...data,
           phone: finalPhone,
           role,
+          image: imageUrl || undefined,
         }),
       });
 
@@ -174,30 +231,33 @@ export default function SignUpPage() {
               <button
                 type="button"
                 onClick={() => setrole("user")}
-                className={`py-3 px-4 rounded-xl font-medium transition-all duration-300 cursor-pointer ${role === "user"
-                  ? "bg-primary dark:bg-blue-600 text-white shadow-glow dark:shadow-premium"
-                  : "bg-surface-tonal-100 dark:bg-slate-800 text-text-main dark:text-slate-200 hover:bg-surface-tonal-200 dark:hover:bg-slate-700"
-                  }`}
+                className={`py-3 px-4 rounded-xl font-medium transition-all duration-300 cursor-pointer ${
+                  role === "user"
+                    ? "bg-primary dark:bg-blue-600 text-white shadow-glow dark:shadow-premium"
+                    : "bg-surface-tonal-100 dark:bg-slate-800 text-text-main dark:text-slate-200 hover:bg-surface-tonal-200 dark:hover:bg-slate-700"
+                }`}
               >
                 User
               </button>
               <button
                 type="button"
                 onClick={() => setrole("seller")}
-                className={`py-3 px-4 rounded-xl font-medium transition-all duration-300 cursor-pointer ${role === "seller"
-                  ? "bg-primary dark:bg-blue-600 text-white shadow-glow dark:shadow-premium"
-                  : "bg-surface-tonal-100 dark:bg-slate-800 text-text-main dark:text-slate-200 hover:bg-surface-tonal-200 dark:hover:bg-slate-700"
-                  }`}
+                className={`py-3 px-4 rounded-xl font-medium transition-all duration-300 cursor-pointer ${
+                  role === "seller"
+                    ? "bg-primary dark:bg-blue-600 text-white shadow-glow dark:shadow-premium"
+                    : "bg-surface-tonal-100 dark:bg-slate-800 text-text-main dark:text-slate-200 hover:bg-surface-tonal-200 dark:hover:bg-slate-700"
+                }`}
               >
                 Seller
               </button>
               <button
                 type="button"
                 onClick={() => setrole("agent")}
-                className={`py-3 px-4 rounded-xl font-medium transition-all duration-300 cursor-pointer ${role === "agent"
-                  ? "bg-primary dark:bg-blue-600 text-white shadow-glow dark:shadow-premium"
-                  : "bg-surface-tonal-100 dark:bg-slate-800 text-text-main dark:text-slate-200 hover:bg-surface-tonal-200 dark:hover:bg-slate-700"
-                  }`}
+                className={`py-3 px-4 rounded-xl font-medium transition-all duration-300 cursor-pointer ${
+                  role === "agent"
+                    ? "bg-primary dark:bg-blue-600 text-white shadow-glow dark:shadow-premium"
+                    : "bg-surface-tonal-100 dark:bg-slate-800 text-text-main dark:text-slate-200 hover:bg-surface-tonal-200 dark:hover:bg-slate-700"
+                }`}
               >
                 Agent
               </button>
@@ -206,6 +266,49 @@ export default function SignUpPage() {
 
           {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            {/* Profile Picture Upload */}
+            <div className="flex flex-col items-center mb-6">
+              <label className="block text-sm font-medium text-text-main dark:text-slate-200 mb-2">
+                Profile Picture
+              </label>
+              <div className="relative w-24 h-24 rounded-full border-2 border-dashed border-slate-300 dark:border-slate-700 flex items-center justify-center bg-slate-50 dark:bg-slate-800 overflow-hidden group">
+                {imageUrl ? (
+                  <>
+                    <img
+                      src={imageUrl}
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setImageUrl(null)}
+                      className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <span className="material-icons-round text-xs">
+                        close
+                      </span>
+                    </button>
+                  </>
+                ) : (
+                  <div className="flex flex-col items-center">
+                    {isUploading ? (
+                      <div className="w-6 h-6 border-2 border-sky-500 border-t-transparent rounded-full animate-spin"></div>
+                    ) : (
+                      <span className="material-icons-round text-slate-400 text-2xl">
+                        add_a_photo
+                      </span>
+                    )}
+                  </div>
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                  disabled={isUploading}
+                />
+              </div>
+            </div>
             {/* Personal Information */}
             <div>
               <h3 className="text-lg font-semibold text-text-main dark:text-white mb-4">
@@ -230,10 +333,11 @@ export default function SignUpPage() {
                         message: "Name must be at least 2 characters",
                       },
                     })}
-                    className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.name
-                      ? "border-danger-300"
-                      : "border-surface-tonal-300 dark:border-slate-700"
-                      }`}
+                    className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${
+                      errors.name
+                        ? "border-danger-300"
+                        : "border-surface-tonal-300 dark:border-slate-700"
+                    }`}
                     placeholder="Enter your full name"
                   />
                   {errors.name && (
@@ -261,51 +365,16 @@ export default function SignUpPage() {
                         message: "Invalid email address",
                       },
                     })}
-                    className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.email
-                      ? "border-danger-300"
-                      : "border-surface-tonal-300 dark:border-slate-700"
-                      }`}
+                    className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${
+                      errors.email
+                        ? "border-danger-300"
+                        : "border-surface-tonal-300 dark:border-slate-700"
+                    }`}
                     placeholder="you@example.com"
                   />
                   {errors.email && (
                     <p className="mt-1 text-sm text-red-500">
                       {errors.email.message}
-                    </p>
-                  )}
-                </div>
-
-                {/* Phone Number */}
-                <div className="lg:col-span-2">
-                  <label
-                    htmlFor="phone"
-                    className="block text-sm font-medium text-text-main dark:text-slate-200 mb-2"
-                  >
-                    Phone Number *
-                  </label>
-                  <div className="relative">
-                    {/* Dial Code Prefix */}
-                    {watch("country") && countries.find(c => c.name === watch("country"))?.dial_code && (
-                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted font-medium pr-2 border-r border-slate-200 dark:border-slate-700 pointer-events-none">
-                        {countries.find(c => c.name === watch("country")).dial_code}
-                      </div>
-                    )}
-                    <input
-                      type="tel"
-                      id="phone"
-                      {...register("phone", {
-                        required: "Phone number is required",
-                      })}
-                      style={{ paddingLeft: watch("country") && countries.find(c => c.name === watch("country"))?.dial_code ? `${(countries.find(c => c.name === watch("country")).dial_code.length * 9) + 30}px` : undefined }}
-                      className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.phone
-                        ? "border-danger-300"
-                        : "border-surface-tonal-300 dark:border-slate-700"
-                        }`}
-                      placeholder="1XXXXXXXXX"
-                    />
-                  </div>
-                  {errors.phone && (
-                    <p className="mt-1 text-sm text-red-500">
-                      {errors.phone.message}
                     </p>
                   )}
                 </div>
@@ -323,10 +392,11 @@ export default function SignUpPage() {
                     {...register("country", {
                       required: "Country is required",
                     })}
-                    className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.country
-                      ? "border-danger-300"
-                      : "border-surface-tonal-300 dark:border-slate-700"
-                      }`}
+                    className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${
+                      errors.country
+                        ? "border-danger-300"
+                        : "border-surface-tonal-300 dark:border-slate-700"
+                    }`}
                   >
                     <option value="">Select Country</option>
                     {countries.map((c, idx) => (
@@ -338,6 +408,55 @@ export default function SignUpPage() {
                   {errors.country && (
                     <p className="mt-1 text-sm text-red-500">
                       {errors.country.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Phone Number */}
+                <div className="lg:col-span-2">
+                  <label
+                    htmlFor="phone"
+                    className="block text-sm font-medium text-text-main dark:text-slate-200 mb-2"
+                  >
+                    Phone Number *
+                  </label>
+                  <div className="relative">
+                    {/* Dial Code Prefix */}
+                    {watch("country") &&
+                      countries.find((c) => c.name === watch("country"))
+                        ?.dial_code && (
+                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted font-medium pr-2 border-r border-slate-200 dark:border-slate-700 pointer-events-none">
+                          {
+                            countries.find((c) => c.name === watch("country"))
+                              .dial_code
+                          }
+                        </div>
+                      )}
+                    <input
+                      type="tel"
+                      id="phone"
+                      {...register("phone", {
+                        required: "Phone number is required",
+                      })}
+                      style={{
+                        paddingLeft:
+                          watch("country") &&
+                          countries.find((c) => c.name === watch("country"))
+                            ?.dial_code
+                            ? `${countries.find((c) => c.name === watch("country")).dial_code.length * 9 + 30}px`
+                            : undefined,
+                      }}
+                      className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${
+                        errors.phone
+                          ? "border-danger-300"
+                          : "border-surface-tonal-300 dark:border-slate-700"
+                      }`}
+                      placeholder="1XXXXXXXXX"
+                    />
+                  </div>
+                  {errors.phone && (
+                    <p className="mt-1 text-sm text-red-500">
+                      {errors.phone.message}
                     </p>
                   )}
                 </div>
@@ -369,13 +488,15 @@ export default function SignUpPage() {
                           required: "Company name is required for agents",
                           minLength: {
                             value: 2,
-                            message: "Company name must be at least 2 characters",
+                            message:
+                              "Company name must be at least 2 characters",
                           },
                         })}
-                        className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.companyName
-                          ? "border-danger-300"
-                          : "border-surface-tonal-300 dark:border-slate-700"
-                          }`}
+                        className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${
+                          errors.companyName
+                            ? "border-danger-300"
+                            : "border-surface-tonal-300 dark:border-slate-700"
+                        }`}
                         placeholder="Your company or agency name"
                       />
                       {errors.companyName && (
@@ -401,10 +522,11 @@ export default function SignUpPage() {
                         {...register("licenseNumber", {
                           required: "License number is required for agents",
                         })}
-                        className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.licenseNumber
-                          ? "border-danger-300"
-                          : "border-surface-tonal-300 dark:border-slate-700"
-                          }`}
+                        className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${
+                          errors.licenseNumber
+                            ? "border-danger-300"
+                            : "border-surface-tonal-300 dark:border-slate-700"
+                        }`}
                         placeholder="Real estate license number"
                       />
                       {errors.licenseNumber && (
@@ -433,10 +555,11 @@ export default function SignUpPage() {
                           message: "Invalid NID format (10-17 digits)",
                         },
                       })}
-                      className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.nid
-                        ? "border-danger-300"
-                        : "border-surface-tonal-300 dark:border-slate-700"
-                        }`}
+                      className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${
+                        errors.nid
+                          ? "border-danger-300"
+                          : "border-surface-tonal-300 dark:border-slate-700"
+                      }`}
                       placeholder="Enter your 10, 13, or 17 digit NID number"
                     />
                     {errors.nid && (
@@ -445,7 +568,6 @@ export default function SignUpPage() {
                       </p>
                     )}
                   </div>
-
 
                   {/* Address (Both Agent and Seller) */}
                   <div className="lg:col-span-2">
@@ -461,11 +583,16 @@ export default function SignUpPage() {
                       {...register("businessAddress", {
                         required: "Address is required",
                       })}
-                      className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.businessAddress
-                        ? "border-danger-300"
-                        : "border-surface-tonal-300 dark:border-slate-700"
-                        }`}
-                      placeholder={role === "agent" ? "Office or business location" : "Your current address or shop location"}
+                      className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${
+                        errors.businessAddress
+                          ? "border-danger-300"
+                          : "border-surface-tonal-300 dark:border-slate-700"
+                      }`}
+                      placeholder={
+                        role === "agent"
+                          ? "Office or business location"
+                          : "Your current address or shop location"
+                      }
                     />
                     {errors.businessAddress && (
                       <p className="mt-1 text-sm text-red-500">
@@ -493,10 +620,11 @@ export default function SignUpPage() {
                               "Please enter a valid URL (http:// or https://)",
                           },
                         })}
-                        className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.website
-                          ? "border-danger-300"
-                          : "border-surface-tonal-300 dark:border-slate-700"
-                          }`}
+                        className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${
+                          errors.website
+                            ? "border-danger-300"
+                            : "border-surface-tonal-300 dark:border-slate-700"
+                        }`}
                         placeholder="https://yourwebsite.com"
                       />
                       {errors.website && (
@@ -512,7 +640,6 @@ export default function SignUpPage() {
 
             {/* Security Section (At the end for everyone) */}
             <div className="pt-6 border-t border-surface-tonal-300">
-
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {/* Password */}
                 <div>
@@ -537,10 +664,11 @@ export default function SignUpPage() {
                           "Password must contain uppercase, lowercase, and number",
                       },
                     })}
-                    className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.password
-                      ? "border-danger-300"
-                      : "border-surface-tonal-300 dark:border-slate-700"
-                      }`}
+                    className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${
+                      errors.password
+                        ? "border-danger-300"
+                        : "border-surface-tonal-300 dark:border-slate-700"
+                    }`}
                     placeholder="Create a strong password"
                   />
                   {errors.password && (
@@ -566,10 +694,11 @@ export default function SignUpPage() {
                       validate: (value) =>
                         value === password || "Passwords do not match",
                     })}
-                    className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${errors.confirmPassword
-                      ? "border-danger-300"
-                      : "border-surface-tonal-300 dark:border-slate-700"
-                      }`}
+                    className={`w-full px-4 py-3 bg-surface-tonal-100 dark:bg-slate-800 border rounded-xl text-text-main dark:text-white placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ${
+                      errors.confirmPassword
+                        ? "border-danger-300"
+                        : "border-surface-tonal-300 dark:border-slate-700"
+                    }`}
                     placeholder="Confirm your password"
                   />
                   {errors.confirmPassword && (
@@ -684,7 +813,11 @@ export default function SignUpPage() {
                   onClick={() => handleSocialLogin("GitHub")}
                   className="w-full py-3 px-4 bg-surface-tonal-100 dark:bg-slate-800 text-text-main dark:text-white font-medium rounded-xl border border-surface-tonal-300 dark:border-slate-700 hover:bg-surface-tonal-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-300 flex items-center justify-center gap-3 cursor-pointer"
                 >
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    className="w-5 h-5"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path
                       fillRule="evenodd"
                       d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"

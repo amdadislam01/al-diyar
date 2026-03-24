@@ -20,7 +20,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
     return (
         <div className="flex flex-col min-h-screen bg-white dark:bg-slate-950 transition-colors duration-500">
-            <Navbar />
+
 
             <main className="grow pt-32 pb-20">
                 <article className="max-w-4xl mx-auto px-6">
@@ -121,8 +121,6 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                     </footer>
                 </article>
             </main>
-
-            <Footer />
         </div>
     );
 }

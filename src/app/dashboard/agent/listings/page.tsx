@@ -34,8 +34,8 @@ export default function AgentListingsPage() {
         <div className="p-6 space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-text-main">My Listings</h1>
-                    <p className="text-sm text-text-muted mt-1">Properties you manage as an agent</p>
+                    <h1 className="text-2xl font-bold text-text-main">My Managed Listings</h1>
+                    <p className="text-sm text-text-muted mt-1">Properties you created or have been assigned and approved</p>
                 </div>
                 <Link href="/dashboard/agent/listings/new"
                     className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl transition-colors">

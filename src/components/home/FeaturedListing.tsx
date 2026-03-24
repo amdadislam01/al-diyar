@@ -1,11 +1,55 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { IListing } from "@/models/Listing";
+
 const FeaturedListing = () => {
+  const [listing, setListing] = useState<IListing | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFeatured = async () => {
+      try {
+        const response = await fetch("/api/listings?limit=1");
+        const data = await response.json();
+        if (data.listings && data.listings.length > 0) {
+          setListing(data.listings[0]);
+        }
+      } catch (error) {
+        console.error("Error fetching featured listing:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchFeatured();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="py-32 bg-white dark:bg-slate-950">
+        <div className="max-w-10/12 mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="w-full aspect-[21/9] bg-slate-100 dark:bg-slate-800 rounded-[3rem] animate-pulse" />
+        </div>
+      </section>
+    );
+  }
+
+  if (!listing) return null;
+
+  const formattedPrice = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(listing.price);
+
   return (
     <section className="py-32 bg-white dark:bg-slate-950 transition-colors overflow-hidden relative">
       {/* Decorative Background Elements */}
       <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-primary/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2"></div>
       <div className="absolute bottom-0 left-0 w-1/4 h-1/4 bg-accent/5 blur-[100px] rounded-full translate-y-1/2 -translate-x-1/4"></div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-10/12 mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light text-xs font-bold uppercase tracking-widest mb-4">
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
@@ -27,8 +71,8 @@ const FeaturedListing = () => {
 
             <div className="aspect-video rounded-[3rem] overflow-hidden shadow-2xl border-4 border-white dark:border-slate-900 relative">
               <img
-                src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=2071&auto=format&fit=crop"
-                alt="Featured Property"
+                src={listing.images[0] || "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=2071&auto=format&fit=crop"}
+                alt={listing.title}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               />
               <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
@@ -42,10 +86,10 @@ const FeaturedListing = () => {
                 </div>
                 <div>
                   <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
-                    Prop-ID: AD-992
+                    Prop-ID: AD-{listing._id?.toString().slice(-4).toUpperCase()}
                   </div>
-                  <div className="text-xl font-black text-slate-900 dark:text-white">
-                    The Grand Villa
+                  <div className="text-xl font-black text-slate-900 dark:text-white line-clamp-1">
+                    {listing.title}
                   </div>
                 </div>
               </div>
@@ -53,11 +97,11 @@ const FeaturedListing = () => {
                 <span className="material-icons-round text-sm text-accent">
                   location_on
                 </span>
-                Palm Jumeirah, Dubai
+                {listing.location.address}
               </div>
               <div className="flex justify-between items-center pt-6 border-t border-slate-100 dark:border-slate-800">
                 <div className="text-2xl font-black text-primary dark:text-primary-light">
-                  $4,250,000
+                  {formattedPrice}
                 </div>
                 <button className="p-2 rounded-full bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-red-500 transition-colors">
                   <span className="material-icons-round">favorite_border</span>
@@ -69,10 +113,10 @@ const FeaturedListing = () => {
           <div className="lg:w-2/5 mt-12 lg:mt-0">
             <div className="space-y-10">
               <div className="relative">
-                <span className="text-8xl font-serif text-slate-100 dark:text-slate-900 absolute -top-10 -left-6 -z-10 italic">
+                <span className="text-8xl font-black text-slate-100 dark:text-slate-900 absolute -top-10 -left-6 -z-10 italic">
                   "
                 </span>
-                <div className="text-3xl md:text-4xl font-serif text-slate-900 dark:text-white leading-[1.3]">
+                <div className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white leading-[1.3]">
                   Extraordinary{" "}
                   <span className="text-accent">
                     performance!
@@ -85,7 +129,7 @@ const FeaturedListing = () => {
                 <div className="relative">
                   <div className="w-14 h-14 rounded-2xl overflow-hidden border-2 border-white dark:border-slate-800 shadow-lg">
                     <img
-                      src="https://i.pravatar.cc/150?u=jack"
+                      src={`https://ui-avatars.com/api/?name=${encodeURIComponent(listing.agentName || "Agent")}&background=0ea5e9&color=fff`}
                       alt="User"
                       className="w-full h-full object-cover"
                     />
@@ -94,10 +138,10 @@ const FeaturedListing = () => {
                 </div>
                 <div>
                   <div className="font-bold text-slate-900 dark:text-white text-lg">
-                    Michael Jordon
+                    {listing.agentName || "Exclusive Agent"}
                   </div>
                   <div className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">
-                    Executive Home Owner
+                    Property Representative
                   </div>
                 </div>
               </div>
@@ -105,32 +149,32 @@ const FeaturedListing = () => {
               <div className="grid grid-cols-2 gap-8 py-10 border-y border-slate-100 dark:border-slate-900">
                 <div>
                   <div className="text-3xl font-black text-slate-900 dark:text-white mb-1">
-                    1500+
+                    {listing.size}+
                   </div>
                   <div className="text-[10px] text-slate-400 font-black uppercase tracking-widest">
-                    Managed Properties
+                    Sqft Total
                   </div>
                 </div>
                 <div>
                   <div className="text-3xl font-black text-slate-900 dark:text-white mb-1">
-                    1.9M+
+                    {listing.bedrooms}
                   </div>
                   <div className="text-[10px] text-slate-400 font-black uppercase tracking-widest">
-                    Trusting Clients
+                    Luxury Bedrooms
                   </div>
                 </div>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <button className="flex-1 bg-primary hover:bg-primary-dark text-white px-8 py-4 rounded-2xl font-bold text-sm tracking-wide transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-2 group">
+                <Link href={`/property/${listing._id}`} className="flex-1 bg-primary hover:bg-primary-dark text-white px-8 py-4 rounded-2xl font-bold text-sm tracking-wide transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-2 group">
                   Book a Private Tour
                   <span className="material-icons-round text-sm group-hover:translate-x-1 transition-transform">
                     calendar_month
                   </span>
-                </button>
-                <button className="flex-1 bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-100 dark:border-slate-800 px-8 py-4 rounded-2xl font-bold text-sm tracking-wide hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
+                </Link>
+                <Link href={`/property/${listing._id}`} className="flex-1 bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-100 dark:border-slate-800 px-8 py-4 rounded-2xl font-bold text-sm tracking-wide hover:bg-slate-50 dark:hover:bg-slate-800 transition-all text-center">
                   View full details
-                </button>
+                </Link>
               </div>
             </div>
           </div>

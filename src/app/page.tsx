@@ -1,5 +1,3 @@
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
 import Hero from "@/components/home/Hero";
 import BrandMarquee from "@/components/home/BrandMarquee";
 import TrustSection from "@/components/home/TrustSection";
@@ -13,7 +11,6 @@ import FooterCTA from "@/components/home/FooterCTA";
 export default function Home() {
   return (
     <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-slate-950 transition-colors duration-500">
-      <Navbar />
       <main className="grow">
         <Hero />
         <PopularCities />
@@ -25,7 +22,6 @@ export default function Home() {
         <TopAgents />
         <FooterCTA />
       </main>
-      <Footer />
     </div>
   );
 }

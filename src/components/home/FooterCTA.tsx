@@ -1,7 +1,7 @@
 const FooterCTA = () => {
   return (
     <section className="relative py-24 bg-white dark:bg-slate-950 transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-10/12 mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative rounded-[3rem] overflow-hidden bg-slate-900 dark:bg-slate-900 border border-slate-800 dark:border-slate-800/50 p-12 md:p-20 text-center shadow-2xl">
           {/* Background Image - Palm trees as in the image */}
           <div className="absolute inset-0 opacity-40">
