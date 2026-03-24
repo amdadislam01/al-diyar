@@ -3,14 +3,19 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { IListing } from "@/models/Listing";
+import { toast } from "react-hot-toast";
+import { useSession } from "next-auth/react";
 
 export default function PropertyDetailPage() {
   const { id } = useParams();
+  const router = useRouter();
+  const { data: session } = useSession();
   const [listing, setListing] = useState<IListing | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
+  const [sendingMsg, setSendingMsg] = useState(false);
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -399,9 +404,46 @@ export default function PropertyDetailPage() {
                   </a>
                 </div>
 
-                <button className="w-full py-4 sm:py-5 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black uppercase tracking-widest text-xs sm:text-sm hover:bg-slate-800 dark:hover:bg-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-2">
+                <button 
+                  onClick={async () => {
+                    if (!session) {
+                      toast.error("Please login to message the agent");
+                      router.push("/auth/signin");
+                      return;
+                    }
+
+                    // Use assignedAgent or listedBy from the listing
+                    const agentId = listing.assignedAgent || listing.listedBy;
+                    
+                    if (!agentId) {
+                      toast.error("Agent information not found");
+                      return;
+                    }
+
+                    setSendingMsg(true);
+                    try {
+                      const res = await fetch("/api/messages/start", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ recipientId: agentId }),
+                      });
+                      const data = await res.json();
+                      if (data.conversationId) {
+                        router.push(`/dashboard/messages?chat=${data.conversationId}`);
+                      } else {
+                        toast.error(data.error || "Failed to start conversation");
+                      }
+                    } catch (error) {
+                      toast.error("Something went wrong");
+                    } finally {
+                      setSendingMsg(false);
+                    }
+                  }}
+                  disabled={sendingMsg}
+                  className="w-full py-4 sm:py-5 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black uppercase tracking-widest text-xs sm:text-sm hover:bg-slate-800 dark:hover:bg-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-2"
+                >
                   <span className="material-icons-round text-base">send</span>
-                  Inquire Now
+                  {sendingMsg ? "Starting Chat..." : "Message Agent"}
                 </button>
               </div>
 
