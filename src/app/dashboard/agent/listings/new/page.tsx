@@ -8,7 +8,7 @@ import dynamic from "next/dynamic";
 
 const LocationPickerMap = dynamic(() => import("@/components/dashboard/LocationPickerMap"), {
     ssr: false,
-    loading: () => <div className="h-[450px] w-full bg-slate-100 dark:bg-slate-800 rounded-xl animate-pulse flex items-center justify-center border border-slate-200 dark:border-slate-700 text-slate-500">Loading Map...</div>,
+    loading: () => <div className="h-[400px] w-full bg-slate-100 dark:bg-slate-800 rounded-xl animate-pulse flex items-center justify-center border border-slate-200 dark:border-slate-700 text-slate-500">Loading Map...</div>,
 });
 
 const CATEGORIES = ["Apartment", "Villa", "Land", "Office", "Shop", "House", "Duplex", "Penthouse", "Townhouse", "Condo"];
@@ -21,25 +21,22 @@ const CONSTRUCTION_OPTIONS = ["Fiber Cement", "Stucco", "Frame", "Lap Siding", "
 const COMMUNITY_OPTIONS = ["Park", "Urban Farm", "Dog Park", "Public Art", "Paddle Courts", "Playground", "Community Center", "Jogging Trail"];
 
 interface FormData {
-    /* Basic Info */
     title: string;
     description: string;
     price: string;
     type: "Sale" | "Rent";
     category: string;
-    /* Location */
     address: string;
     neighborhood: string;
+    country: string;
     lat: string;
     lng: string;
-    status: "Active" | "Pending" | "Sold";
+    status: "Active" | "Pending" | "Sold" | "Inactive";
     listedDate: string;
-    /* Price & Mortgage */
     pricePerSqft: string;
     estimatedMortgage: string;
     hoaFees: string;
     hoaFrequency: string;
-    /* Interior */
     size: string;
     bedrooms: string;
     bathrooms: string;
@@ -51,44 +48,40 @@ interface FormData {
     cooling: string[];
     heating: string[];
     utilities: string[];
-    /* Building & Exterior */
     yearBuilt: string;
     builder: string;
     constructionMaterials: string[];
     roofType: string;
     garageParking: string;
     specialFeatures: string;
-    /* Community */
     nearbySchoolsHospitals: string;
     shoppingTransport: string;
     communityFacilities: string[];
     futureAmenities: string;
-    /* Legal */
     mlsNumber: string;
     approval: string;
     ownershipType: string;
-    /* Contact */
     agentName: string;
     dreNumber: string;
     phone: string;
     email: string;
-    /* Seller Info */
+    /* Seller Info Unique to Agent Listing on behalf */
     sellerName: string;
     sellerEmail: string;
     sellerPhone: string;
-    country: string;
-    /* Existing */
     images: (string | File)[];
     amenities: string[];
 }
 
 export default function AgentNewListingPage() {
     const router = useRouter();
-    const { data: session, status } = useSession();
+    const { data: session } = useSession();
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
+
+    const [countries, setCountries] = useState<{ name: string; code: string }[]>([]);
 
     const [form, setForm] = useState<FormData>({
         title: "",
@@ -98,6 +91,7 @@ export default function AgentNewListingPage() {
         category: "Apartment",
         address: "",
         neighborhood: "",
+        country: "",
         lat: "",
         lng: "",
         status: "Active",
@@ -137,10 +131,16 @@ export default function AgentNewListingPage() {
         sellerName: "",
         sellerEmail: "",
         sellerPhone: "",
-        country: "Bangladesh",
         images: [],
         amenities: [],
     });
+
+    useEffect(() => {
+        fetch("/data/country.json")
+            .then((res) => res.json())
+            .then((data) => setCountries(data))
+            .catch((err) => console.error("Failed to load countries", err));
+    }, []);
 
     useEffect(() => {
         if (session?.user) {
@@ -153,7 +153,8 @@ export default function AgentNewListingPage() {
     }, [session?.user]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+        const { name, value } = e.target;
+        setForm((prev) => ({ ...prev, [name]: value }));
         setError("");
     };
 
@@ -194,7 +195,6 @@ export default function AgentNewListingPage() {
         setError("");
 
         try {
-            // Upload new files to Cloudinary if any
             const uploadPromises = form.images.map(async (item) => {
                 if (typeof item === "string") return item;
                 return await uploadToCloudinary(item);
@@ -204,65 +204,27 @@ export default function AgentNewListingPage() {
             const imageUrls = await Promise.all(uploadPromises);
             setUploading(false);
 
-            const roomsArr = form.rooms
-                .split(",")
-                .map((s) => s.trim())
-                .filter(Boolean);
-            const specialFeaturesArr = form.specialFeatures
-                .split(",")
-                .map((s) => s.trim())
-                .filter(Boolean);
+            const roomsArr = form.rooms.split(",").map((s) => s.trim()).filter(Boolean);
+            const specialFeaturesArr = form.specialFeatures.split(",").map((s) => s.trim()).filter(Boolean);
 
             const payload = {
-                title: form.title,
-                description: form.description,
+                ...form,
                 price: Number(form.price),
-                type: form.type,
-                category: form.category,
+                lat: Number(form.lat),
+                lng: Number(form.lng),
                 location: { address: form.address, lat: Number(form.lat), lng: Number(form.lng) },
                 images: imageUrls,
-                amenities: form.amenities,
-                /* New fields */
-                neighborhood: form.neighborhood || undefined,
-                status: form.status,
-                listedDate: form.listedDate || undefined,
                 pricePerSqft: form.pricePerSqft ? Number(form.pricePerSqft) : undefined,
                 estimatedMortgage: form.estimatedMortgage ? Number(form.estimatedMortgage) : undefined,
                 hoaFees: form.hoaFees ? Number(form.hoaFees) : undefined,
-                hoaFrequency: form.hoaFrequency || undefined,
                 size: form.size ? Number(form.size) : undefined,
                 bedrooms: form.bedrooms ? Number(form.bedrooms) : undefined,
                 bathrooms: form.bathrooms ? Number(form.bathrooms) : undefined,
                 fullBaths: form.fullBaths ? Number(form.fullBaths) : undefined,
                 partialBaths: form.partialBaths ? Number(form.partialBaths) : undefined,
-                rooms: roomsArr.length ? roomsArr : undefined,
-                flooring: form.flooring.length ? form.flooring : undefined,
-                kitchen: form.kitchen || undefined,
-                cooling: form.cooling.length ? form.cooling : undefined,
-                heating: form.heating.length ? form.heating : undefined,
-                utilities: form.utilities.length ? form.utilities : undefined,
                 yearBuilt: form.yearBuilt ? Number(form.yearBuilt) : undefined,
-                builder: form.builder || undefined,
-                constructionMaterials: form.constructionMaterials.length ? form.constructionMaterials : undefined,
-                roofType: form.roofType || undefined,
-                garageParking: form.garageParking || undefined,
+                rooms: roomsArr.length ? roomsArr : undefined,
                 specialFeatures: specialFeaturesArr.length ? specialFeaturesArr : undefined,
-                nearbySchoolsHospitals: form.nearbySchoolsHospitals || undefined,
-                shoppingTransport: form.shoppingTransport || undefined,
-                communityFacilities: form.communityFacilities.length ? form.communityFacilities : undefined,
-                futureAmenities: form.futureAmenities || undefined,
-                mlsNumber: form.mlsNumber || undefined,
-                approval: form.approval || undefined,
-                ownershipType: form.ownershipType || undefined,
-                agentName: form.agentName || undefined,
-                dreNumber: form.dreNumber || undefined,
-                phone: form.phone || undefined,
-                email: form.email || undefined,
-                /* Seller Info */
-                sellerName: form.sellerName || undefined,
-                sellerEmail: form.sellerEmail || undefined,
-                sellerPhone: form.sellerPhone || undefined,
-                country: form.country,
             };
 
             const res = await fetch("/api/agent/listings", {
@@ -272,7 +234,7 @@ export default function AgentNewListingPage() {
             });
             const data = await res.json();
             if (res.ok) {
-                setSuccess("Listing published successfully!");
+                setSuccess("Listing created successfully!");
                 setTimeout(() => router.push("/dashboard/agent/listings"), 1200);
             } else {
                 setError(data.message || "Something went wrong");
@@ -311,7 +273,7 @@ export default function AgentNewListingPage() {
     );
 
     return (
-        <div className="p-6 max-w-3xl mx-auto">
+        <div className="p-6 mx-auto">
             <div className="mb-8">
                 <button onClick={() => router.back()} className="flex items-center gap-1 text-sm text-text-muted hover:text-emerald-600 mb-4 transition-colors">
                     <span className="material-icons-outlined text-base">arrow_back</span>
@@ -335,21 +297,14 @@ export default function AgentNewListingPage() {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
-                {/* ───── 1. Location & Basic Info ───── */}
                 <section className={sectionClass}>
                     <h2 className={sectionHeadingClass}>
                         <span className="material-icons-outlined text-emerald-500 text-lg">location_on</span>
                         Location & Basic Info
                     </h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-text-muted mb-1.5">Property Title *</label>
-                            <input name="title" value={form.title} onChange={handleChange} required placeholder="e.g. Modern Townhouse" className={inputClass} />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-text-muted mb-1.5">Country *</label>
-                            <input name="country" value={form.country} onChange={handleChange} required placeholder="e.g. Bangladesh" className={inputClass} />
-                        </div>
+                    <div>
+                        <label className="block text-sm font-medium text-text-muted mb-1.5">Property Title *</label>
+                        <input name="title" value={form.title} onChange={handleChange} required placeholder="e.g. Modern Townhouse" className={inputClass} />
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-text-muted mb-1.5">Description *</label>
@@ -359,17 +314,18 @@ export default function AgentNewListingPage() {
                         <label className="block text-sm font-medium text-text-muted mb-1.5">Address</label>
                         <input name="address" value={form.address} onChange={handleChange} placeholder="Street, City, Zip" className={inputClass} />
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label className="block text-sm font-medium text-text-muted mb-1.5">Neighborhood</label>
+                        <input name="neighborhood" value={form.neighborhood} onChange={handleChange} placeholder="e.g. Downtown" className={inputClass} />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-text-muted mb-1.5">Neighborhood</label>
-                            <input name="neighborhood" value={form.neighborhood} onChange={handleChange} placeholder="e.g. Downtown" className={inputClass} />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-text-muted mb-1.5">Status</label>
-                            <select name="status" value={form.status} onChange={handleChange} className={inputClass}>
-                                <option value="Active">Active</option>
-                                <option value="Pending">Pending</option>
-                                <option value="Sold">Sold</option>
+                            <label className="block text-sm font-medium text-text-muted mb-1.5">Property Country *</label>
+                            <select name="country" value={form.country} onChange={handleChange} required className={inputClass}>
+                                <option value="">Select Country</option>
+                                {countries.map((c) => (
+                                    <option key={c.code} value={c.name}>{c.name}</option>
+                                ))}
                             </select>
                         </div>
                         <div>
@@ -393,254 +349,139 @@ export default function AgentNewListingPage() {
                                 ))}
                             </select>
                         </div>
+                        <div>
+                            <label className="block text-sm font-medium text-text-muted mb-1.5">Status</label>
+                            <select name="status" value={form.status} onChange={handleChange} className={inputClass}>
+                                <option value="Active">Active</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Inactive">Inactive</option>
+                                <option value="Sold">Sold</option>
+                            </select>
+                        </div>
                     </div>
                     <div className="mt-4 mb-6">
                         <label className="block text-sm font-medium text-text-muted mb-2">Location on Map *</label>
-                        <p className="text-xs text-text-muted mb-3 italic">Search for an address or click anywhere on the map to pick coordinates.</p>
                         <LocationPickerMap lat={Number(form.lat) || 0} lng={Number(form.lng) || 0} onChange={(lat, lng) => setForm((prev) => ({ ...prev, lat: lat.toString(), lng: lng.toString() }))} onAddressChange={(addr) => setForm((prev) => ({ ...prev, address: addr }))} />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-text-muted mb-1.5">Latitude *</label>
-                            <input name="lat" type="number" step="any" value={form.lat} onChange={handleChange} required placeholder="e.g. 23.7945" className={inputClass} />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-text-muted mb-1.5">Longitude *</label>
-                            <input name="lng" type="number" step="any" value={form.lng} onChange={handleChange} required placeholder="e.g. 90.4066" className={inputClass} />
-                        </div>
+                        <input name="lat" type="number" step="any" value={form.lat} onChange={handleChange} required placeholder="Latitude" className={inputClass} />
+                        <input name="lng" type="number" step="any" value={form.lng} onChange={handleChange} required placeholder="Longitude" className={inputClass} />
                     </div>
                 </section>
 
-                {/* ───── 2. Price & Mortgage ───── */}
                 <section className={sectionClass}>
                     <h2 className={sectionHeadingClass}>
                         <span className="material-icons-outlined text-emerald-500 text-lg">payments</span>
                         Price & Mortgage
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-text-muted mb-1.5">List Price ($) *</label>
-                            <input name="price" type="number" value={form.price} onChange={handleChange} required min={0} placeholder="e.g. 679999" className={inputClass} />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-text-muted mb-1.5">Price per Sqft ($)</label>
-                            <input name="pricePerSqft" type="number" value={form.pricePerSqft} onChange={handleChange} placeholder="e.g. 357" className={inputClass} />
-                        </div>
+                        <input name="price" type="number" value={form.price} onChange={handleChange} required placeholder="List Price ($)" className={inputClass} />
+                        <input name="pricePerSqft" type="number" value={form.pricePerSqft} onChange={handleChange} placeholder="Price per Sqft ($)" className={inputClass} />
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-text-muted mb-1.5">Est. Mortgage ($/mo)</label>
-                            <input name="estimatedMortgage" type="number" value={form.estimatedMortgage} onChange={handleChange} placeholder="e.g. 4078" className={inputClass} />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-text-muted mb-1.5">HOA Fees ($)</label>
-                            <input name="hoaFees" type="number" value={form.hoaFees} onChange={handleChange} placeholder="e.g. 165" className={inputClass} />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-text-muted mb-1.5">HOA Frequency</label>
-                            <select name="hoaFrequency" value={form.hoaFrequency} onChange={handleChange} className={inputClass}>
-                                <option value="Monthly">Monthly</option>
-                                <option value="Quarterly">Quarterly</option>
-                                <option value="Annually">Annually</option>
-                            </select>
-                        </div>
+                        <input name="estimatedMortgage" type="number" value={form.estimatedMortgage} onChange={handleChange} placeholder="Est. Mortgage ($/mo)" className={inputClass} />
+                        <input name="hoaFees" type="number" value={form.hoaFees} onChange={handleChange} placeholder="HOA Fees ($)" className={inputClass} />
+                        <select name="hoaFrequency" value={form.hoaFrequency} onChange={handleChange} className={inputClass}>
+                            <option value="Monthly">Monthly</option>
+                            <option value="Quarterly">Quarterly</option>
+                            <option value="Annually">Annually</option>
+                        </select>
                     </div>
                 </section>
 
-                {/* ───── 3. Interior Details ───── */}
                 <section className={sectionClass}>
                     <h2 className={sectionHeadingClass}>
                         <span className="material-icons-outlined text-emerald-500 text-lg">weekend</span>
                         Interior Details
                     </h2>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-text-muted mb-1.5">Size (sqft)</label>
-                            <input name="size" type="number" value={form.size} onChange={handleChange} placeholder="e.g. 1905" className={inputClass} />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-text-muted mb-1.5">Bedrooms</label>
-                            <input name="bedrooms" type="number" value={form.bedrooms} onChange={handleChange} placeholder="e.g. 2" className={inputClass} />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-text-muted mb-1.5">Full Baths</label>
-                            <input name="fullBaths" type="number" value={form.fullBaths} onChange={handleChange} placeholder="e.g. 2" className={inputClass} />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-text-muted mb-1.5">Partial Baths</label>
-                            <input name="partialBaths" type="number" value={form.partialBaths} onChange={handleChange} placeholder="e.g. 1" className={inputClass} />
-                        </div>
+                        <input name="size" type="number" value={form.size} onChange={handleChange} placeholder="Size (sqft)" className={inputClass} />
+                        <input name="bedrooms" type="number" value={form.bedrooms} onChange={handleChange} placeholder="Bedrooms" className={inputClass} />
+                        <input name="fullBaths" type="number" value={form.fullBaths} onChange={handleChange} placeholder="Full Baths" className={inputClass} />
+                        <input name="partialBaths" type="number" value={form.partialBaths} onChange={handleChange} placeholder="Partial Baths" className={inputClass} />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-text-muted mb-1.5">Total Bathrooms</label>
-                            <input name="bathrooms" type="number" value={form.bathrooms} onChange={handleChange} placeholder="e.g. 3" className={inputClass} />
-                        </div>
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-text-muted mb-1.5">Rooms (comma-separated)</label>
-                        <input name="rooms" value={form.rooms} onChange={handleChange} placeholder="Master Bedroom, Master Bathroom, Dining Room, Kitchen" className={inputClass} />
-                    </div>
+                    <input name="bathrooms" type="number" value={form.bathrooms} onChange={handleChange} placeholder="Total Bathrooms" className={inputClass} />
+                    <input name="rooms" value={form.rooms} onChange={handleChange} placeholder="Rooms (comma-separated)" className={inputClass} />
                     <TagToggle items={FLOORING_OPTIONS} field="flooring" label="Flooring" />
-                    <div>
-                        <label className="block text-sm font-medium text-text-muted mb-1.5">Kitchen Details</label>
-                        <input name="kitchen" value={form.kitchen} onChange={handleChange} placeholder="Stainless steel appliances, Quartz countertops, Large island" className={inputClass} />
-                    </div>
+                    <input name="kitchen" value={form.kitchen} onChange={handleChange} placeholder="Kitchen Details" className={inputClass} />
                     <TagToggle items={COOLING_OPTIONS} field="cooling" label="Cooling" />
                     <TagToggle items={HEATING_OPTIONS} field="heating" label="Heating" />
                     <TagToggle items={UTILITY_OPTIONS} field="utilities" label="Utilities" />
                 </section>
 
-                {/* ───── 4. Building & Exterior ───── */}
                 <section className={sectionClass}>
                     <h2 className={sectionHeadingClass}>
                         <span className="material-icons-outlined text-emerald-500 text-lg">apartment</span>
                         Building & Exterior
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-text-muted mb-1.5">Year Built</label>
-                            <input name="yearBuilt" type="number" value={form.yearBuilt} onChange={handleChange} placeholder="e.g. 2017" className={inputClass} />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-text-muted mb-1.5">Builder / Developer</label>
-                            <input name="builder" value={form.builder} onChange={handleChange} placeholder="e.g. Fulcrum Property" className={inputClass} />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-text-muted mb-1.5">Roof Type</label>
-                            <input name="roofType" value={form.roofType} onChange={handleChange} placeholder="e.g. Flat" className={inputClass} />
-                        </div>
+                        <input name="yearBuilt" type="number" value={form.yearBuilt} onChange={handleChange} placeholder="Year Built" className={inputClass} />
+                        <input name="builder" value={form.builder} onChange={handleChange} placeholder="Builder / Developer" className={inputClass} />
+                        <input name="roofType" value={form.roofType} onChange={handleChange} placeholder="Roof Type" className={inputClass} />
                     </div>
-                    <TagToggle items={CONSTRUCTION_OPTIONS} field="constructionMaterials" label="Construction Materials" />
-                    <div>
-                        <label className="block text-sm font-medium text-text-muted mb-1.5">Garage / Parking</label>
-                        <input name="garageParking" value={form.garageParking} onChange={handleChange} placeholder="2 Car Garage, Attached, Side by Side, Rear Access" className={inputClass} />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-text-muted mb-1.5">Special Features (comma-separated)</label>
-                        <input name="specialFeatures" value={form.specialFeatures} onChange={handleChange} placeholder="Indoor/Outdoor Patio, Oversized Window Seat, Fire Pit, Courtyard" className={inputClass} />
-                    </div>
+                    <TagToggle items={CONSTRUCTION_OPTIONS} field="constructionMaterials" label="Construction" />
+                    <input name="garageParking" value={form.garageParking} onChange={handleChange} placeholder="Garage / Parking" className={inputClass} />
+                    <input name="specialFeatures" value={form.specialFeatures} onChange={handleChange} placeholder="Special Features (comma-separated)" className={inputClass} />
                 </section>
 
-                {/* ───── 5. Community & Amenities ───── */}
                 <section className={sectionClass}>
                     <h2 className={sectionHeadingClass}>
                         <span className="material-icons-outlined text-emerald-500 text-lg">park</span>
                         Community & Amenities
                     </h2>
-                    <div>
-                        <label className="block text-sm font-medium text-text-muted mb-1.5">Nearby Schools / Hospitals</label>
-                        <input name="nearbySchoolsHospitals" value={form.nearbySchoolsHospitals} onChange={handleChange} placeholder="Names of nearby schools & hospitals" className={inputClass} />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-text-muted mb-1.5">Shopping & Transport</label>
-                        <input name="shoppingTransport" value={form.shoppingTransport} onChange={handleChange} placeholder="Walkable to cafes, restaurants, public transport" className={inputClass} />
-                    </div>
+                    <input name="nearbySchoolsHospitals" value={form.nearbySchoolsHospitals} onChange={handleChange} placeholder="Nearby Schools / Hospitals" className={inputClass} />
+                    <input name="shoppingTransport" value={form.shoppingTransport} onChange={handleChange} placeholder="Shopping & Transport" className={inputClass} />
                     <TagToggle items={COMMUNITY_OPTIONS} field="communityFacilities" label="Community Facilities" />
-                    <div>
-                        <label className="block text-sm font-medium text-text-muted mb-1.5">Future Amenities</label>
-                        <input name="futureAmenities" value={form.futureAmenities} onChange={handleChange} placeholder="Gym, Pool (membership required)" className={inputClass} />
-                    </div>
+                    <input name="futureAmenities" value={form.futureAmenities} onChange={handleChange} placeholder="Future Amenities" className={inputClass} />
                 </section>
 
-                {/* ───── 6. Legal & Documentation ───── */}
                 <section className={sectionClass}>
                     <h2 className={sectionHeadingClass}>
                         <span className="material-icons-outlined text-emerald-500 text-lg">description</span>
                         Legal & Documentation
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-text-muted mb-1.5">MLS Number</label>
-                            <input name="mlsNumber" value={form.mlsNumber} onChange={handleChange} placeholder="e.g. 226018120" className={inputClass} />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-text-muted mb-1.5">Approval</label>
-                            <input name="approval" value={form.approval} onChange={handleChange} placeholder="Standard Conditions" className={inputClass} />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-text-muted mb-1.5">Ownership Type</label>
-                            <input name="ownershipType" value={form.ownershipType} onChange={handleChange} placeholder="Single Family Residence" className={inputClass} />
-                        </div>
+                        <input name="mlsNumber" value={form.mlsNumber} onChange={handleChange} placeholder="MLS Number" className={inputClass} />
+                        <input name="approval" value={form.approval} onChange={handleChange} placeholder="Approval" className={inputClass} />
+                        <input name="ownershipType" value={form.ownershipType} onChange={handleChange} placeholder="Ownership Type" className={inputClass} />
                     </div>
                 </section>
 
-                {/* ───── 7. Contact (Agent Only) ───── */}
                 <section className={sectionClass}>
                     <h2 className={sectionHeadingClass}>
                         <span className="material-icons-outlined text-emerald-500 text-lg">contact_phone</span>
-                        Agent Contact (Public)
+                        Contact info (Public)
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-text-muted mb-1.5">Agent Name</label>
-                            <input name="agentName" value={form.agentName} onChange={handleChange} placeholder="e.g. Mollie Nelson" className={inputClass} />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-text-muted mb-1.5">DRE Number</label>
-                            <input name="dreNumber" value={form.dreNumber} onChange={handleChange} placeholder="e.g. #01816885" className={inputClass} />
-                        </div>
+                        <input name="agentName" value={form.agentName} onChange={handleChange} placeholder="Agent Name" className={inputClass} />
+                        <input name="dreNumber" value={form.dreNumber} onChange={handleChange} placeholder="DRE Number" className={inputClass} />
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-text-muted mb-1.5">Phone</label>
-                            <input name="phone" value={form.phone} onChange={handleChange} placeholder="e.g. (916) 718-4377" className={inputClass} />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-text-muted mb-1.5">Email</label>
-                            <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="agent@example.com" className={inputClass} />
-                        </div>
+                        <input name="phone" value={form.phone} onChange={handleChange} placeholder="Phone" className={inputClass} />
+                        <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="Email" className={inputClass} />
                     </div>
                 </section>
 
-                {/* ───── 8. Seller Info (For Agent's Reference) ───── */}
                 <section className={sectionClass}>
                     <h2 className={sectionHeadingClass}>
                         <span className="material-icons-outlined text-emerald-500 text-lg">person</span>
                         Seller Info (For Internal Use)
                     </h2>
-                    <div>
-                        <label className="block text-sm font-medium text-text-muted mb-1.5">Seller Name</label>
-                        <input name="sellerName" value={form.sellerName} onChange={handleChange} placeholder="Full name of the property owner" className={inputClass} />
-                    </div>
+                    <input name="sellerName" value={form.sellerName} onChange={handleChange} placeholder="Seller Name" className={inputClass} />
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-text-muted mb-1.5">Seller Email</label>
-                            <input name="sellerEmail" type="email" value={form.sellerEmail} onChange={handleChange} placeholder="seller@example.com" className={inputClass} />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-text-muted mb-1.5">Seller Phone</label>
-                            <input name="sellerPhone" value={form.sellerPhone} onChange={handleChange} placeholder="e.g. +880123456789" className={inputClass} />
-                        </div>
+                        <input name="sellerEmail" type="email" value={form.sellerEmail} onChange={handleChange} placeholder="Seller Email" className={inputClass} />
+                        <input name="sellerPhone" value={form.sellerPhone} onChange={handleChange} placeholder="Seller Phone" className={inputClass} />
                     </div>
                 </section>
 
-                {/* ───── 8. Images ───── */}
-                <section className="bg-surface dark:bg-surface-dark border border-slate-200 dark:border-slate-700 rounded-3xl p-8 space-y-6 shadow-sm hover:shadow-md transition-shadow duration-300">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-5">
-                        <div>
-                            <h2 className="text-lg font-bold text-text-main flex items-center gap-2.5">
-                                <div className="p-2 bg-emerald-500/10 rounded-xl">
-                                    <span className="material-icons-outlined text-emerald-500 text-xl block">photo_library</span>
-                                </div>
-                                Property Gallery
-                                <span className="text-danger ml-0.5">*</span>
-                            </h2>
-                            <p className="text-xs text-text-muted mt-1.5 ml-0.5">Upload at least one high-quality image of your property. You can upload up to 20 images.</p>
-                        </div>
-                        <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 dark:bg-slate-800/50 rounded-full border border-slate-200 dark:border-slate-700/50">
-                            <span className={`w-2 h-2 rounded-full ${form.images.length > 0 ? "bg-success animate-pulse" : "bg-slate-300"}`} />
-                            <span className="text-xs font-bold text-text-main">
-                                {form.images.length} / 20 <span className="text-text-muted font-medium ml-1">Images</span>
-                            </span>
-                        </div>
-                    </div>
-                    <div className="bg-slate-50/30 dark:bg-slate-800/10 rounded-2xl p-1">
-                        <ImageUpload value={form.images} onChange={(items) => setForm((prev) => ({ ...prev, images: items }))} onRemove={(item) => setForm((prev) => ({ ...prev, images: prev.images.filter((img) => img !== item) }))} maxImages={20} />
-                    </div>
+                <section className="bg-surface dark:bg-surface-dark border border-slate-200 dark:border-slate-700 rounded-3xl p-8 space-y-6 shadow-sm">
+                    <h2 className="text-lg font-bold text-text-main flex items-center gap-2.5">
+                        <span className="material-icons-outlined text-emerald-500 text-xl block">photo_library</span>
+                        Property Gallery *
+                    </h2>
+                    <ImageUpload value={form.images} onChange={(items) => setForm((prev) => ({ ...prev, images: items }))} onRemove={(item) => setForm((prev) => ({ ...prev, images: prev.images.filter((img) => img !== item) }))} maxImages={20} />
                 </section>
 
-                {/* ───── 9. Amenities ───── */}
                 <section className={sectionClass}>
                     <h2 className={sectionHeadingClass}>
                         <span className="material-icons-outlined text-emerald-500 text-lg">star</span> Property Amenities
@@ -648,22 +489,10 @@ export default function AgentNewListingPage() {
                     <TagToggle items={AMENITIES_LIST} field="amenities" />
                 </section>
 
-                {/* ───── Actions ───── */}
                 <div className="flex gap-4 justify-end pb-2">
-                    <button type="button" onClick={() => router.back()} className="px-6 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-text-muted text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                        Cancel
-                    </button>
+                    <button type="button" onClick={() => router.back()} className="px-6 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-text-muted text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Cancel</button>
                     <button type="submit" disabled={loading} className="px-8 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-60 flex items-center gap-2 shadow-md">
-                        {loading ? (
-                            <>
-                                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                {uploading ? "Uploading Images..." : "Publishing..."}
-                            </>
-                        ) : (
-                            <>
-                                <span className="material-icons-outlined text-base">publish</span>Publish Listing
-                            </>
-                        )}
+                        {loading ? "Publishing..." : "Publish Listing"}
                     </button>
                 </div>
             </form>
