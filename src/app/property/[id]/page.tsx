@@ -368,83 +368,107 @@ export default function PropertyDetailPage() {
 
               {/* Agent Contact Card */}
               <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-6 sm:p-8 border border-slate-100 dark:border-slate-800 shadow-2xl shadow-slate-200/50 dark:shadow-none">
-                <div className="flex flex-col items-center mb-8">
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-slate-50 dark:border-slate-800 overflow-hidden mb-4 shadow-lg">
-                    <img 
-                      src={`https://ui-avatars.com/api/?name=${encodeURIComponent(listing.agentName || "Agent")}&background=0ea5e9&color=fff&size=200`}
-                      alt={listing.agentName}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight leading-none mb-1 text-center">
-                    {listing.agentName || "Property Agent"}
-                  </h3>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Exclusive Representative</p>
-                  {listing.dreNumber && <p className="text-[8px] font-bold text-slate-300 mt-1 uppercase tracking-widest">DRE: {listing.dreNumber}</p>}
-                </div>
+                {(() => {
+                  const agent = (listing.assignedAgent as any) || (listing.listedBy as any);
+                  const isAgent = (listing.assignedAgent as any)?.role === 'agent';
+                  
+                  return (
+                    <>
+                      <div className="flex flex-col items-center mb-8">
+                        <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-slate-50 dark:border-slate-800 overflow-hidden mb-4 shadow-lg bg-sky-50 dark:bg-slate-800 flex items-center justify-center">
+                          {agent?.image ? (
+                            <img 
+                              src={agent.image}
+                              alt={agent.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <span className="material-icons-round text-5xl text-sky-500">person</span>
+                          )}
+                        </div>
+                        <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight leading-none mb-1 text-center">
+                          {agent?.name || listing.agentName || "Property Owner"}
+                        </h3>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                          {isAgent ? "Exclusive Representative" : "Property Owner"}
+                        </p>
+                        {agent?.licenseNumber && <p className="text-[8px] font-bold text-slate-300 mt-1 uppercase tracking-widest">DRE: {agent.licenseNumber}</p>}
+                      </div>
 
-                <div className="space-y-4 mb-8">
-                  <a href={`tel:${listing.phone}`} className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-all group">
-                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white dark:bg-slate-700 flex items-center justify-center text-sky-500 group-hover:scale-110 transition-transform shadow-sm">
-                        <span className="material-icons-round text-base sm:text-lg">call</span>
-                    </div>
-                    <div className="flex flex-col min-w-0">
-                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Phone Number</span>
-                        <span className="text-[11px] sm:text-sm font-black text-slate-900 dark:text-white tracking-widest truncate">{listing.phone || "Not available"}</span>
-                    </div>
-                  </a>
-                  <a href={`mailto:${listing.email}`} className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-all group">
-                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white dark:bg-slate-700 flex items-center justify-center text-sky-500 group-hover:scale-110 transition-transform shadow-sm">
-                        <span className="material-icons-round text-base sm:text-lg">mail</span>
-                    </div>
-                    <div className="flex flex-col min-w-0">
-                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Email Address</span>
-                        <span className="text-[11px] sm:text-sm font-black text-slate-900 dark:text-white truncate">{listing.email || "Not available"}</span>
-                    </div>
-                  </a>
-                </div>
+                      <div className="space-y-4 mb-8">
+                        <a href={`tel:${agent?.phone || listing.phone}`} className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-all group">
+                          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white dark:bg-slate-700 flex items-center justify-center text-sky-500 group-hover:scale-110 transition-transform shadow-sm">
+                              <span className="material-icons-round text-base sm:text-lg">call</span>
+                          </div>
+                          <div className="flex flex-col min-w-0">
+                              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Phone Number</span>
+                              <span className="text-[11px] sm:text-sm font-black text-slate-900 dark:text-white tracking-widest truncate">{agent?.phone || listing.phone || "Not available"}</span>
+                          </div>
+                        </a>
+                        <a href={`mailto:${agent?.email || listing.email}`} className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-all group">
+                          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white dark:bg-slate-700 flex items-center justify-center text-sky-500 group-hover:scale-110 transition-transform shadow-sm">
+                              <span className="material-icons-round text-base sm:text-lg">mail</span>
+                          </div>
+                          <div className="flex flex-col min-w-0">
+                              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Email Address</span>
+                              <span className="text-[11px] sm:text-sm font-black text-slate-900 dark:text-white truncate">{agent?.email || listing.email || "Not available"}</span>
+                          </div>
+                        </a>
+                        {agent?.companyName && (
+                          <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl bg-slate-50 dark:bg-slate-800">
+                            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white dark:bg-slate-700 flex items-center justify-center text-sky-500 shadow-sm">
+                                <span className="material-icons-round text-base sm:text-lg">business</span>
+                            </div>
+                            <div className="flex flex-col min-w-0">
+                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Company</span>
+                                <span className="text-[11px] sm:text-sm font-black text-slate-900 dark:text-white truncate">{agent.companyName}</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
 
-                <button 
-                  onClick={async () => {
-                    if (!session) {
-                      toast.error("Please login to message the agent");
-                      router.push("/auth/signin");
-                      return;
-                    }
+                      <button 
+                        onClick={async () => {
+                          if (!session) {
+                            toast.error("Please login to message the contact");
+                            router.push("/auth/signin");
+                            return;
+                          }
 
-                    // Use assignedAgent or listedBy from the listing
-                    const agentId = listing.assignedAgent || listing.listedBy;
-                    
-                    if (!agentId) {
-                      toast.error("Agent information not found");
-                      return;
-                    }
+                          // If the logged in user is the contact themselves, redirect to dashboard
+                          if (session.user.id === agent?._id?.toString()) {
+                            toast.error("You cannot message yourself");
+                            return;
+                          }
 
-                    setSendingMsg(true);
-                    try {
-                      const res = await fetch("/api/messages/start", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ recipientId: agentId }),
-                      });
-                      const data = await res.json();
-                      if (data.conversationId) {
-                        router.push(`/dashboard/messages?chat=${data.conversationId}`);
-                      } else {
-                        toast.error(data.error || "Failed to start conversation");
-                      }
-                    } catch (error) {
-                      toast.error("Something went wrong");
-                    } finally {
-                      setSendingMsg(false);
-                    }
-                  }}
-                  disabled={sendingMsg}
-                  className="w-full py-4 sm:py-5 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black uppercase tracking-widest text-xs sm:text-sm hover:bg-slate-800 dark:hover:bg-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-2"
-                >
-                  <span className="material-icons-round text-base">send</span>
-                  {sendingMsg ? "Starting Chat..." : "Message Agent"}
-                </button>
+                          setSendingMsg(true);
+                          try {
+                            const res = await fetch("/api/messages/start", {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ recipientId: agent?._id }),
+                            });
+                            const data = await res.json();
+                            if (data.conversationId) {
+                              router.push(`/dashboard/messages?chat=${data.conversationId}`);
+                            } else {
+                              toast.error(data.error || "Failed to start conversation");
+                            }
+                          } catch (error) {
+                            toast.error("Something went wrong");
+                          } finally {
+                            setSendingMsg(false);
+                          }
+                        }}
+                        disabled={sendingMsg}
+                        className="w-full py-4 sm:py-5 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black uppercase tracking-widest text-xs sm:text-sm hover:bg-slate-800 dark:hover:bg-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-2"
+                      >
+                        <span className="material-icons-round text-base">send</span>
+                        {sendingMsg ? "Starting Chat..." : `Message ${isAgent ? "Agent" : "Owner"}`}
+                      </button>
+                    </>
+                  );
+                })()}
               </div>
 
               {/* Location Map Placeholder */}
