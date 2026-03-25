@@ -16,16 +16,40 @@ interface Listing {
     location: { address?: string; lat: number; lng: number };
     images: string[];
     createdAt: string;
-    listedBy: string | { _id: string; name: string };
+    listedBy: { _id: string; name: string; image?: string };
 }
 
 export default function AgentListingsPage() {
     const { data: session } = useSession();
+    const router = require("next/navigation").useRouter();
     const [listings, setListings] = useState<Listing[]>([]);
     const [loading, setLoading] = useState(true);
     const [statusFilter, setStatusFilter] = useState<string>("all");
     const [deleting, setDeleting] = useState<string | null>(null);
+    const [sendingMsg, setSendingMsg] = useState<string | null>(null);
     const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
+
+    const handleMessageSeller = async (sellerId: string) => {
+        if (!session) return;
+        setSendingMsg(sellerId);
+        try {
+            const res = await fetch("/api/messages/start", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ recipientId: sellerId }),
+            });
+            const data = await res.json();
+            if (data.conversationId) {
+                router.push(`/dashboard/messages?chat=${data.conversationId}`);
+            } else {
+                showToast(data.error || "Failed to start chat", "error");
+            }
+        } catch {
+            showToast("Something went wrong", "error");
+        } finally {
+            setSendingMsg(null);
+        }
+    };
 
     const showToast = (msg: string, type: "success" | "error") => {
         setToast({ msg, type });
@@ -246,32 +270,47 @@ export default function AgentListingsPage() {
                                 </div>
 
                                 {/* Actions */}
-                                <div className="flex items-center justify-between px-4 pb-4 gap-2">
-                                    <button
-                                        onClick={() => handleToggleStatus(listing)}
-                                        className={`flex-1 text-[10px] font-bold uppercase px-3 py-2 rounded-lg border transition-colors
-                                            ${listing.status === "Active"
-                                                ? "border-amber-500 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/10"
-                                                : "border-green-600 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/10"
-                                            }`}
-                                    >
-                                        {listing.status === "Active" ? "Deactivate" : "Activate"}
-                                    </button>
-                                    <Link
-                                        href={`/dashboard/agent/listings/${listing._id}/edit`}
-                                        className="flex-1 text-[10px] font-bold uppercase px-3 py-2 rounded-lg border border-emerald-600 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 text-center transition-colors"
-                                    >
-                                        Edit
-                                    </Link>
-                                    {isListedByMe && (
+                                <div className="flex flex-col gap-2 p-4 pt-0">
+                                    <div className="flex items-center justify-between gap-2">
                                         <button
-                                            onClick={() => handleDelete(listing._id)}
-                                            disabled={deleting === listing._id}
-                                            className="flex-1 text-[10px] font-bold uppercase px-3 py-2 rounded-lg border border-red-500 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors disabled:opacity-50"
+                                            onClick={() => handleToggleStatus(listing)}
+                                            className={`flex-1 text-[10px] font-bold uppercase px-3 py-2 rounded-lg border transition-colors
+                                                ${listing.status === "Active"
+                                                    ? "border-amber-500 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/10"
+                                                    : "border-green-600 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/10"
+                                                }`}
                                         >
-                                            {deleting === listing._id ? "..." : "Delete"}
+                                            {listing.status === "Active" ? "Deactivate" : "Activate"}
                                         </button>
-                                    )}
+                                        <Link
+                                            href={`/dashboard/agent/listings/${listing._id}/edit`}
+                                            className="flex-1 text-[10px] font-bold uppercase px-3 py-2 rounded-lg border border-emerald-600 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 text-center transition-colors"
+                                        >
+                                            Edit
+                                        </Link>
+                                    </div>
+                                    
+                                    <div className="flex items-center justify-between gap-2">
+                                        {!isListedByMe && (
+                                            <button
+                                                onClick={() => handleMessageSeller(listing.listedBy._id)}
+                                                disabled={sendingMsg === listing.listedBy._id}
+                                                className="flex-[2] text-[10px] font-bold uppercase px-3 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-all flex items-center justify-center gap-2"
+                                            >
+                                                <span className="material-icons-round text-sm">{sendingMsg === listing.listedBy._id ? "pending" : "message"}</span>
+                                                {sendingMsg === listing.listedBy._id ? "Connecting..." : "Message Seller"}
+                                            </button>
+                                        )}
+                                        {isListedByMe && (
+                                            <button
+                                                onClick={() => handleDelete(listing._id)}
+                                                disabled={deleting === listing._id}
+                                                className="flex-1 text-[10px] font-bold uppercase px-3 py-2 rounded-lg border border-red-500 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors disabled:opacity-50"
+                                            >
+                                                {deleting === listing._id ? "..." : "Delete"}
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         );
