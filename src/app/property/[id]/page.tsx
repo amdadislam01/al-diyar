@@ -3,37 +3,19 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { IListing } from "@/models/Listing";
-import dynamic from "next/dynamic";
-
-const PropertyMap = dynamic(() => import("@/components/property/PropertyMap"), {
-  ssr: false,
-  loading: () => <div className="h-full w-full bg-slate-100 dark:bg-slate-800 animate-pulse flex items-center justify-center text-slate-500 text-xs">Loading Map...</div>,
-});
-
-interface PopulatedListing extends Omit<
-  IListing,
-  "assignedAgent" | "listedBy"
-> {
-  assignedAgent?: {
-    name: string;
-    email: string;
-    phone?: string;
-    image?: string;
-  };
-  listedBy?: {
-    name: string;
-    email: string;
-    phone?: string;
-  };
-}
+import { toast } from "react-hot-toast";
+import { useSession } from "next-auth/react";
 
 export default function PropertyDetailPage() {
   const { id } = useParams();
-  const [listing, setListing] = useState<PopulatedListing | null>(null);
+  const router = useRouter();
+  const { data: session } = useSession();
+  const [listing, setListing] = useState<IListing | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
+  const [sendingMsg, setSendingMsg] = useState(false);
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -531,138 +513,107 @@ export default function PropertyDetailPage() {
             <div className="space-y-8 lg:sticky lg:top-28">
               {/* Agent Contact Card */}
               <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-6 sm:p-8 border border-slate-100 dark:border-slate-800 shadow-2xl shadow-slate-200/50 dark:shadow-none">
-                <div className="flex flex-col items-center mb-8">
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-slate-50 dark:border-slate-800 overflow-hidden mb-4 shadow-lg">
-                    <img
-                      src={
-                        listing.assignedAgent?.image ||
-                        `https://ui-avatars.com/api/?name=${encodeURIComponent(listing.assignedAgent?.name || listing.agentName || "Agent")}&background=0ea5e9&color=fff&size=200`
-                      }
-                      alt={listing.assignedAgent?.name || listing.agentName}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight leading-none mb-1 text-center">
-                    {listing.assignedAgent?.name ||
-                      listing.agentName ||
-                      "Property Agent"}
-                  </h3>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                    Exclusive Representative
-                  </p>
-                  {listing.dreNumber && (
-                    <p className="text-[8px] font-bold text-slate-300 mt-1 uppercase tracking-widest">
-                      DRE: {listing.dreNumber}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-4 mb-8">
-                  {(listing.assignedAgent?.phone || listing.phone) && (
-                    <a
-                      href={`tel:${listing.assignedAgent?.phone || listing.phone}`}
-                      className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-all group"
-                    >
-                      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white dark:bg-slate-700 flex items-center justify-center text-sky-500 group-hover:scale-110 transition-transform shadow-sm">
-                        <span className="material-icons-round text-base sm:text-lg">
-                          call
-                        </span>
+                {(() => {
+                  const agent = (listing.assignedAgent as any) || (listing.listedBy as any);
+                  const isAgent = (listing.assignedAgent as any)?.role === 'agent';
+                  
+                  return (
+                    <>
+                      <div className="flex flex-col items-center mb-8">
+                        <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-slate-50 dark:border-slate-800 overflow-hidden mb-4 shadow-lg bg-sky-50 dark:bg-slate-800 flex items-center justify-center">
+                          {agent?.image ? (
+                            <img 
+                              src={agent.image}
+                              alt={agent.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <span className="material-icons-round text-5xl text-sky-500">person</span>
+                          )}
+                        </div>
+                        <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight leading-none mb-1 text-center">
+                          {agent?.name || listing.agentName || "Property Owner"}
+                        </h3>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                          {isAgent ? "Exclusive Representative" : "Property Owner"}
+                        </p>
+                        {agent?.licenseNumber && <p className="text-[8px] font-bold text-slate-300 mt-1 uppercase tracking-widest">DRE: {agent.licenseNumber}</p>}
                       </div>
-                      <div className="flex flex-col min-w-0">
-                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">
-                          Phone Number
-                        </span>
-                        <span className="text-[11px] sm:text-sm font-black text-slate-900 dark:text-white tracking-widest truncate">
-                          {listing.assignedAgent?.phone || listing.phone}
-                        </span>
-                      </div>
-                    </a>
-                  )}
-                  {(listing.assignedAgent?.email || listing.email) && (
-                    <a
-                      href={`mailto:${listing.assignedAgent?.email || listing.email}`}
-                      className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-all group"
-                    >
-                      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white dark:bg-slate-700 flex items-center justify-center text-sky-500 group-hover:scale-110 transition-transform shadow-sm">
-                        <span className="material-icons-round text-base sm:text-lg">
-                          mail
-                        </span>
-                      </div>
-                      <div className="flex flex-col min-w-0">
-                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">
-                          Email Address
-                        </span>
-                        <span className="text-[11px] sm:text-sm font-black text-slate-900 dark:text-white truncate">
-                          {listing.assignedAgent?.email || listing.email}
-                        </span>
-                      </div>
-                    </a>
-                  )}
-                </div>
 
-                <button className="w-full py-4 sm:py-5 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black uppercase tracking-widest text-xs sm:text-sm hover:bg-slate-800 dark:hover:bg-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-2 mb-6">
-                  <span className="material-icons-round text-base">send</span>
-                  Inquire Now
-                </button>
+                      <div className="space-y-4 mb-8">
+                        <a href={`tel:${agent?.phone || listing.phone}`} className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-all group">
+                          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white dark:bg-slate-700 flex items-center justify-center text-sky-500 group-hover:scale-110 transition-transform shadow-sm">
+                              <span className="material-icons-round text-base sm:text-lg">call</span>
+                          </div>
+                          <div className="flex flex-col min-w-0">
+                              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Phone Number</span>
+                              <span className="text-[11px] sm:text-sm font-black text-slate-900 dark:text-white tracking-widest truncate">{agent?.phone || listing.phone || "Not available"}</span>
+                          </div>
+                        </a>
+                        <a href={`mailto:${agent?.email || listing.email}`} className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-all group">
+                          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white dark:bg-slate-700 flex items-center justify-center text-sky-500 group-hover:scale-110 transition-transform shadow-sm">
+                              <span className="material-icons-round text-base sm:text-lg">mail</span>
+                          </div>
+                          <div className="flex flex-col min-w-0">
+                              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Email Address</span>
+                              <span className="text-[11px] sm:text-sm font-black text-slate-900 dark:text-white truncate">{agent?.email || listing.email || "Not available"}</span>
+                          </div>
+                        </a>
+                        {agent?.companyName && (
+                          <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl bg-slate-50 dark:bg-slate-800">
+                            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white dark:bg-slate-700 flex items-center justify-center text-sky-500 shadow-sm">
+                                <span className="material-icons-round text-base sm:text-lg">business</span>
+                            </div>
+                            <div className="flex flex-col min-w-0">
+                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Company</span>
+                                <span className="text-[11px] sm:text-sm font-black text-slate-900 dark:text-white truncate">{agent.companyName}</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
 
-                {/* Seller Info Section */}
-                {(listing.listedBy?.name || listing.sellerName) && (
-                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800 text-center">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                      Listed By
-                    </p>
-                    <p className="text-sm font-black text-slate-900 dark:text-white mt-1">
-                      {listing.listedBy?.name || listing.sellerName}
-                    </p>
-                  </div>
-                )}
-              </div>
+                      <button 
+                        onClick={async () => {
+                          if (!session) {
+                            toast.error("Please login to message the contact");
+                            router.push("/auth/signin");
+                            return;
+                          }
 
-              {/* Financials Summary */}
-              <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden relative">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-sky-500/5 blur-3xl rounded-full translate-x-16 -translate-y-16" />
-                <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest mb-6 pb-4 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between">
-                  Financials
-                  <span className="material-icons-round text-sky-500">
-                    payments
-                  </span>
-                </h3>
-                <div className="space-y-6">
-                  <div className="flex justify-between items-center px-4 py-3 bg-slate-50 dark:bg-slate-800/40 rounded-2xl">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                      Est. Mortgage
-                    </span>
-                    <span className="text-sm font-black text-slate-900 dark:text-white">
-                      ${listing.estimatedMortgage || 0}/mo
-                    </span>
-                  </div>
-                  {listing.hoaFees ? (
-                    <div className="flex justify-between items-center px-4 py-3 bg-slate-50 dark:bg-slate-800/40 rounded-2xl">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                        HOA Fees ({listing.hoaFrequency || "Monthly"})
-                      </span>
-                      <span className="text-sm font-black text-slate-900 dark:text-white">
-                        ${listing.hoaFees}
-                      </span>
-                    </div>
-                  ) : null}
-                  <div className="flex justify-between items-center px-4 py-3 bg-slate-50 dark:bg-slate-800/40 rounded-2xl">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                      Ownership
-                    </span>
-                    <span className="text-sm font-black text-slate-900 dark:text-white">
-                      {listing.ownershipType || "N/A"}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center px-4 py-3 bg-slate-50 dark:bg-slate-800/40 rounded-2xl">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                      MLS Number
-                    </span>
-                    <span className="text-sm font-black text-sky-500 tracking-tighter">
-                      #{listing.mlsNumber || "N/A"}
-                    </span>
-                  </div>
-                </div>
+                          // If the logged in user is the contact themselves, redirect to dashboard
+                          if (session.user.id === agent?._id?.toString()) {
+                            toast.error("You cannot message yourself");
+                            return;
+                          }
+
+                          setSendingMsg(true);
+                          try {
+                            const res = await fetch("/api/messages/start", {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ recipientId: agent?._id }),
+                            });
+                            const data = await res.json();
+                            if (data.conversationId) {
+                              router.push(`/dashboard/messages?chat=${data.conversationId}`);
+                            } else {
+                              toast.error(data.error || "Failed to start conversation");
+                            }
+                          } catch (error) {
+                            toast.error("Something went wrong");
+                          } finally {
+                            setSendingMsg(false);
+                          }
+                        }}
+                        disabled={sendingMsg}
+                        className="w-full py-4 sm:py-5 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black uppercase tracking-widest text-xs sm:text-sm hover:bg-slate-800 dark:hover:bg-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-2"
+                      >
+                        <span className="material-icons-round text-base">send</span>
+                        {sendingMsg ? "Starting Chat..." : `Message ${isAgent ? "Agent" : "Owner"}`}
+                      </button>
+                    </>
+                  );
+                })()}
               </div>
 
               {/* Location Map Placeholder */}

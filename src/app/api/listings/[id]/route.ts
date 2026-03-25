@@ -11,8 +11,8 @@ export async function GET(
         const { id } = await params;
 
         const listing = await Listing.findById(id)
-            .populate("listedBy", "name email phone")
-            .populate("assignedAgent", "name email phone image")
+            .populate("listedBy", "name email phone image companyName role")
+            .populate("assignedAgent", "name email phone image companyName role licenseNumber businessAddress website")
             .lean();
 
         if (!listing) {

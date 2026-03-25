@@ -13,7 +13,7 @@ interface Listing {
     category: string;
     status: "Active" | "Pending" | "Sold" | "Inactive";
     assignmentStatus: "pending" | "approved" | "rejected";
-    assignedAgent?: { name: string };
+    assignedAgent?: { _id: string; name: string };
     location: { address?: string; lat: number; lng: number };
     images: string[];
     createdAt: string;
@@ -21,11 +21,35 @@ interface Listing {
 
 export default function SellerListingsPage() {
     const { data: session } = useSession();
+    const router = require("next/navigation").useRouter();
     const [listings, setListings] = useState<Listing[]>([]);
     const [loading, setLoading] = useState(true);
     const [statusFilter, setStatusFilter] = useState<string>("all");
     const [deleting, setDeleting] = useState<string | null>(null);
+    const [sendingMsg, setSendingMsg] = useState<string | null>(null);
     const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
+
+    const handleMessageAgent = async (agentId: string) => {
+        if (!session) return;
+        setSendingMsg(agentId);
+        try {
+            const res = await fetch("/api/messages/start", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ recipientId: agentId }),
+            });
+            const data = await res.json();
+            if (data.conversationId) {
+                router.push(`/dashboard/messages?chat=${data.conversationId}`);
+            } else {
+                showToast(data.error || "Failed to start chat", "error");
+            }
+        } catch {
+            showToast("Something went wrong", "error");
+        } finally {
+            setSendingMsg(null);
+        }
+    };
 
     const showToast = (msg: string, type: "success" | "error") => {
         setToast({ msg, type });
@@ -261,33 +285,48 @@ export default function SellerListingsPage() {
                             </div>
 
                             {/* Actions */}
-                            <div className="flex items-center justify-between px-4 pb-4 gap-2">
-                                <button
-                                    onClick={() => handleToggleStatus(listing)}
-                                    disabled={listing.status === "Pending"}
-                                    className={`flex-1 text-xs font-medium px-3 py-2 rounded-lg border transition-colors
-                    ${listing.status === "Active"
-                                            ? "border-warning text-warning hover:bg-warning/10"
-                                            : listing.status === "Pending"
-                                                ? "border-slate-200 text-slate-400 cursor-not-allowed"
-                                                : "border-success text-success hover:bg-success/10"
-                                        }`}
-                                >
-                                    {listing.status === "Active" ? "Deactivate" : "Activate"}
-                                </button>
-                                <Link
-                                    href={`/dashboard/seller/listings/${listing._id}/edit`}
-                                    className="flex-1 text-xs font-medium px-3 py-2 rounded-lg border border-primary text-primary hover:bg-primary/10 text-center transition-colors"
-                                >
-                                    Edit
-                                </Link>
-                                <button
-                                    onClick={() => handleDelete(listing._id)}
-                                    disabled={deleting === listing._id}
-                                    className="flex-1 text-xs font-medium px-3 py-2 rounded-lg border border-danger text-danger hover:bg-danger/10 transition-colors disabled:opacity-50"
-                                >
-                                    {deleting === listing._id ? "Deleting…" : "Delete"}
-                                </button>
+                            <div className="flex flex-col gap-2 p-4 pt-0">
+                                <div className="flex items-center justify-between gap-2">
+                                    <button
+                                        onClick={() => handleToggleStatus(listing)}
+                                        disabled={listing.status === "Pending"}
+                                        className={`flex-1 text-xs font-medium px-3 py-2 rounded-lg border transition-colors
+                                            ${listing.status === "Active"
+                                                ? "border-warning text-warning hover:bg-warning/10"
+                                                : listing.status === "Pending"
+                                                    ? "border-slate-200 text-slate-400 cursor-not-allowed"
+                                                    : "border-success text-success hover:bg-success/10"
+                                            }`}
+                                    >
+                                        {listing.status === "Active" ? "Deactivate" : "Activate"}
+                                    </button>
+                                    <Link
+                                        href={`/dashboard/seller/listings/${listing._id}/edit`}
+                                        className="flex-1 text-xs font-medium px-3 py-2 rounded-lg border border-primary text-primary hover:bg-primary/10 text-center transition-colors"
+                                    >
+                                        Edit
+                                    </Link>
+                                </div>
+                                
+                                <div className="flex items-center justify-between gap-2">
+                                    {listing.assignedAgent && (
+                                        <button
+                                            onClick={() => handleMessageAgent(listing.assignedAgent!._id)}
+                                            disabled={sendingMsg === listing.assignedAgent._id}
+                                            className="flex-[2] text-xs font-bold px-3 py-2 rounded-lg bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-white transition-all flex items-center justify-center gap-2"
+                                        >
+                                            <span className="material-icons-round text-sm">{sendingMsg === listing.assignedAgent._id ? "pending" : "message"}</span>
+                                            {sendingMsg === listing.assignedAgent._id ? "Connecting..." : "Message Agent"}
+                                        </button>
+                                    )}
+                                    <button
+                                        onClick={() => handleDelete(listing._id)}
+                                        disabled={deleting === listing._id}
+                                        className="flex-1 text-xs font-medium px-3 py-2 rounded-lg border border-danger text-danger hover:bg-danger/10 transition-colors disabled:opacity-50"
+                                    >
+                                        {deleting === listing._id ? "Deleting…" : "Delete"}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     ))}

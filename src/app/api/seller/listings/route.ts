@@ -179,7 +179,12 @@ export async function GET(req: NextRequest) {
             query.status = statusFilter;
         }
 
-        const listings = await Listing.find(query).sort({ createdAt: -1 }).lean();
+        const User = (await import("@/models/User")).default;
+
+        const listings = await Listing.find(query)
+            .populate("assignedAgent", "name email phone image")
+            .sort({ createdAt: -1 })
+            .lean();
 
         return NextResponse.json({ listings }, { status: 200 });
     } catch (err: unknown) {
