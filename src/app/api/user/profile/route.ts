@@ -31,13 +31,18 @@ export async function PATCH(req: NextRequest) {
 
     try {
         await dbConnect();
-        const { name } = await req.json();
+        const { name, image } = await req.json();
 
         if (!name || name.trim().length < 2) {
             return NextResponse.json({ message: "Name must be at least 2 characters" }, { status: 400 });
         }
 
-        await User.findByIdAndUpdate(session.user.id, { name: name.trim() });
+        const updateData: any = { name: name.trim() };
+        if (image) {
+            updateData.image = image;
+        }
+
+        await User.findByIdAndUpdate(session.user.id, updateData);
         return NextResponse.json({ message: "Profile updated successfully" });
     } catch (err) {
         console.error("[PATCH /api/user/profile]", err);
