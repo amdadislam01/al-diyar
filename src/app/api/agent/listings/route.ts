@@ -42,8 +42,10 @@ export async function GET(req: NextRequest) {
             query.status = statusFilter;
         }
 
+        const User = (await import("@/models/User")).default;
+
         const listings = await Listing.find(query)
-            .populate("listedBy", "name email phone")
+            .populate("listedBy", "name email phone image")
             .sort({ createdAt: -1 })
             .lean();
 
