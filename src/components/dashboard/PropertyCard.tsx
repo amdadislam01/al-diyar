@@ -1,7 +1,11 @@
+"use client";
+
 import Image from "next/image";
 import React from "react";
+import { useSavedListings } from "@/hooks/useSavedListings";
 
 interface PropertyCardProps {
+  id: string;
   price: string;
   type: string;
   title: string;
@@ -15,6 +19,7 @@ interface PropertyCardProps {
 }
 
 const PropertyCard: React.FC<PropertyCardProps> = ({
+  id,
   price,
   type,
   title,
@@ -26,6 +31,9 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   badge,
   badgeBg = "bg-primary",
 }) => {
+  const { toggleSave, isSaved } = useSavedListings();
+  const saved = isSaved(id);
+
   return (
     <div className="bg-white dark:bg-slate-900 rounded-xl shadow-soft dark:shadow-premium border border-neutral-subtle dark:border-slate-800 overflow-hidden group hover:shadow-lg transition-all duration-300">
       <div className="relative h-48 w-full">
@@ -36,11 +44,22 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           src={imageUrl}
         />
-        <div className="absolute top-3 right-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm p-1.5 rounded-lg cursor-pointer hover:bg-white dark:hover:bg-slate-800 text-primary dark:text-blue-400 transition-colors">
+        <button 
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleSave(id);
+          }}
+          className={`absolute top-3 right-3 backdrop-blur-sm p-1.5 rounded-lg cursor-pointer transition-colors ${
+            saved 
+              ? "bg-red-500 text-white" 
+              : "bg-white/90 dark:bg-slate-900/90 hover:bg-white dark:hover:bg-slate-800 text-primary dark:text-blue-400"
+          }`}
+        >
           <span className="material-icons-outlined text-lg">
-            favorite_border
+            {saved ? "favorite" : "favorite_border"}
           </span>
-        </div>
+        </button>
         {badge && (
           <div
             className={`absolute bottom-3 left-3 ${badgeBg} text-white text-xs font-bold px-2 py-1 rounded`}
