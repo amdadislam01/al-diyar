@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, Model } from 'mongoose';
+import mongoose, { Schema, Document, Model, Types } from 'mongoose';
 
 export interface IUser extends Document {
     name: string;
@@ -22,6 +22,7 @@ export interface IUser extends Document {
     postOffice?: string;
     postCode?: string;
     image?: string;
+    savedListings: Types.ObjectId[];
     resetPasswordToken?: string;
     resetPasswordExpires?: Date;
     createdAt: Date;
@@ -149,6 +150,10 @@ const UserSchema: Schema = new Schema(
         resetPasswordExpires: {
             type: Date,
         },
+        savedListings: [{
+            type: Schema.Types.ObjectId,
+            ref: 'Listing',
+        }],
     },
     {
         timestamps: true,
@@ -174,10 +179,8 @@ UserSchema.pre('save', async function () {
 
 // Handle model recompilation in Next.js development
 if (mongoose.models.User) {
-    // If the model exists but is missing our new fields, we might need a refresh
-    // In development, this is common when editing the schema
     const existingModel = mongoose.models.User;
-    if (process.env.NODE_ENV === 'development' && !existingModel.schema.paths.nid) {
+    if (process.env.NODE_ENV === 'development' && (!existingModel.schema.paths.nid || !existingModel.schema.paths.savedListings)) {
         delete (mongoose.models as any).User;
     }
 }
