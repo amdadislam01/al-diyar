@@ -7,18 +7,27 @@ import { useParams, useRouter } from "next/navigation";
 import { IListing } from "@/models/Listing";
 import { toast } from "react-hot-toast";
 import { useSession } from "next-auth/react";
+import BookingForm from "@/components/property/BookingForm";
+
 
 export default function PropertyDetailPage() {
   const { id } = useParams();
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [listing, setListing] = useState<IListing | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
   const [sendingMsg, setSendingMsg] = useState(false);
 
   useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/auth/signin");
+    }
+  }, [status, router]);
+
+  useEffect(() => {
     const fetchListing = async () => {
+
       try {
         const response = await fetch(`/api/listings/${id}`);
         const data = await response.json();
@@ -32,7 +41,7 @@ export default function PropertyDetailPage() {
     if (id) fetchListing();
   }, [id]);
 
-  if (loading) {
+  if (loading || status === "loading") {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
         <div className="w-12 h-12 border-4 border-sky-500 border-t-transparent rounded-full animate-spin"></div>
@@ -615,6 +624,13 @@ export default function PropertyDetailPage() {
                   );
                 })()}
               </div>
+
+              {/* Booking Form Integration */}
+              <BookingForm 
+                listingId={listing._id.toString()} 
+                listingTitle={listing.title} 
+              />
+
 
               {/* Location Map Placeholder */}
               <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-6 sm:p-8 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none">

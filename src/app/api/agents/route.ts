@@ -6,13 +6,32 @@ export async function GET(req: NextRequest) {
     try {
         const { searchParams } = new URL(req.url);
         const country = searchParams.get("country");
+        const limit = searchParams.get("limit");
+        const sort = searchParams.get("sort");
 
         await dbConnect();
 
+        // Construct query
         const query: any = {
             role: "agent",
             approvalStatus: "approved"
         };
+
+        if (country) {
+            query.country = { $regex: new RegExp(`^${country}$`, "i") };
+        }
+
+        let agentsQuery = User.find(query).select("name email companyName country image");
+
+        if (sort === "new") {
+            agentsQuery = agentsQuery.sort({ createdAt: -1 });
+        }
+
+        if (limit) {
+            agentsQuery = agentsQuery.limit(parseInt(limit));
+        }
+
+        const agents = await agentsQuery.lean();
 
         if (country) {
             query.country = { $regex: new RegExp(`^${country}$`, "i") };

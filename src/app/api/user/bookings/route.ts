@@ -6,7 +6,9 @@ import Booking from '@/models/Booking';
 import Listing from '@/models/Listing';
 import mongoose from 'mongoose';
 
-async function getUserSession(req?: NextRequest) {
+// ─── Helper ───────────────────────────────────────────────────────────────────
+
+async function getUserSession() {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
         return { session: null, error: NextResponse.json({ message: 'Unauthorized' }, { status: 401 }) };
@@ -14,40 +16,8 @@ async function getUserSession(req?: NextRequest) {
     return { session, error: null };
 }
 
-// ─── GET /api/user/bookings ───────────────────────────────────────────────────
-// Returns all bookings made by the logged-in user (as buyer).
-
-export async function GET(req: NextRequest) {
-    const { session, error } = await getUserSession();
-    if (error) return error;
-
-    try {
-        await dbConnect();
-
-        const { searchParams } = new URL(req.url);
-        const statusFilter = searchParams.get('status');
-
-        const query: Record<string, unknown> = { buyer: session!.user.id };
-        if (statusFilter && ['Pending', 'Confirmed', 'Cancelled'].includes(statusFilter)) {
-            query.status = statusFilter;
-        }
-
-        const bookings = await Booking.find(query)
-            .populate('listing', 'title type category price location images status')
-            .populate('seller', 'name email')
-            .sort({ createdAt: -1 })
-            .lean();
-
-        return NextResponse.json({ bookings }, { status: 200 });
-    } catch (err: unknown) {
-        console.error('[GET /api/user/bookings]', err);
-        return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
-    }
-}
-
 // ─── POST /api/user/bookings ──────────────────────────────────────────────────
-// Create a new visit booking for a listing.
-// Body: { listingId, visitDate, message? }
+// Create a new visit request for a property.
 
 export async function POST(req: NextRequest) {
     const { session, error } = await getUserSession();
@@ -60,87 +30,63 @@ export async function POST(req: NextRequest) {
         const { listingId, visitDate, message } = body;
 
         if (!listingId || !visitDate) {
-            return NextResponse.json({ message: 'listingId and visitDate are required' }, { status: 400 });
+            return NextResponse.json({ message: 'Listing ID and visit date are required' }, { status: 400 });
         }
 
         if (!mongoose.Types.ObjectId.isValid(listingId)) {
             return NextResponse.json({ message: 'Invalid listingId' }, { status: 400 });
         }
 
+        // Fetch the listing to get the seller/agent ID
         const listing = await Listing.findById(listingId);
         if (!listing) {
             return NextResponse.json({ message: 'Listing not found' }, { status: 404 });
         }
-        if (listing.status !== 'Active') {
-            return NextResponse.json({ message: 'This listing is not available for booking' }, { status: 400 });
+
+        const sellerId = listing.listedBy || (listing as any).assignedAgent;
+        if (!sellerId) {
+            return NextResponse.json({ message: 'Seller not found for this listing' }, { status: 400 });
         }
 
-        // Prevent duplicate pending bookings for the same listing
-        const existing = await Booking.findOne({
+        const newBooking = new Booking({
             listing: listingId,
             buyer: session!.user.id,
-            status: 'Pending',
-        });
-        if (existing) {
-            return NextResponse.json({ message: 'You already have a pending booking for this listing' }, { status: 409 });
-        }
-
-        const booking = await Booking.create({
-            listing: listingId,
-            buyer: session!.user.id,
-            seller: listing.listedBy,
+            seller: sellerId,
             visitDate: new Date(visitDate),
-            message: message || '',
+            message,
+            status: 'Pending'
         });
 
-        const populated = await Booking.findById(booking._id)
-            .populate('listing', 'title type category price location')
-            .populate('seller', 'name email')
-            .lean();
+        await newBooking.save();
 
-        return NextResponse.json({ message: 'Booking created successfully', booking: populated }, { status: 201 });
+        return NextResponse.json({ message: 'Visit requested successfully', booking: newBooking }, { status: 201 });
     } catch (err: unknown) {
         console.error('[POST /api/user/bookings]', err);
-        return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+        const message = err instanceof Error ? err.message : 'Internal server error';
+        return NextResponse.json({ message }, { status: 500 });
     }
 }
 
-// ─── DELETE /api/user/bookings ────────────────────────────────────────────────
-// Cancel a booking the user made.
-// Body: { bookingId }
+// ─── GET /api/user/bookings ───────────────────────────────────────────────────
+// Fetch all visit requests created by the logged-in user.
 
-export async function DELETE(req: NextRequest) {
+export async function GET() {
     const { session, error } = await getUserSession();
     if (error) return error;
 
     try {
         await dbConnect();
 
-        const body = await req.json();
-        const { bookingId } = body;
+        const bookings = await Booking.find({ buyer: session!.user.id })
+            .populate('listing', 'title type category price location images status')
+            .populate('seller', 'name email phone image')
+            .sort({ createdAt: -1 })
+            .lean();
 
-        if (!bookingId || !mongoose.Types.ObjectId.isValid(bookingId)) {
-            return NextResponse.json({ message: 'Valid bookingId is required' }, { status: 400 });
-        }
-
-        const booking = await Booking.findById(bookingId);
-        if (!booking) {
-            return NextResponse.json({ message: 'Booking not found' }, { status: 404 });
-        }
-
-        if (booking.buyer.toString() !== session!.user.id) {
-            return NextResponse.json({ message: 'Forbidden: This is not your booking' }, { status: 403 });
-        }
-
-        if (booking.status === 'Confirmed') {
-            return NextResponse.json({ message: 'Cannot cancel a confirmed booking' }, { status: 400 });
-        }
-
-        await Booking.findByIdAndDelete(bookingId);
-
-        return NextResponse.json({ message: 'Booking cancelled successfully' }, { status: 200 });
+        return NextResponse.json({ bookings }, { status: 200 });
     } catch (err: unknown) {
-        console.error('[DELETE /api/user/bookings]', err);
-        return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+        console.error('[GET /api/user/bookings]', err);
+        const message = err instanceof Error ? err.message : 'Internal server error';
+        return NextResponse.json({ message }, { status: 500 });
     }
 }
