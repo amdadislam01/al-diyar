@@ -15,7 +15,7 @@ const contactDetails = [
   {
     icon: Mail,
     title: "Email Us",
-    detail: "hello@aldiyar.com",
+    detail: "aldiyarmarketplace@gmail.com",
     subDetail: "Expect a response within 24h",
     color: "bg-emerald-500",
   },
@@ -46,7 +46,7 @@ const ContactPage = () => {
               Let's Start a <span className="text-gradient">Conversation.</span>
             </h1>
             <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto font-medium leading-relaxed">
-              Have a question about a property, or want to join our team of elite agents? 
+              Have a question about a property, or want to join our team of elite agents?
               Reach out and our specialists will be in touch shortly.
             </p>
           </motion.div>
