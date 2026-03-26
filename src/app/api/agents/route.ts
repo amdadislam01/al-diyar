@@ -33,6 +33,14 @@ export async function GET(req: NextRequest) {
 
         const agents = await agentsQuery.lean();
 
+        if (country) {
+            query.country = { $regex: new RegExp(`^${country}$`, "i") };
+        }
+
+        // Find approved agents
+        const agents = await User.find(query)
+        .select("name email companyName country image phone")
+        .lean();
         return NextResponse.json({ agents }, { status: 200 });
     } catch (err: unknown) {
         console.error("[GET /api/agents]", err);
