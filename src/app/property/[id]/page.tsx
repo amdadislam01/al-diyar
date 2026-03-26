@@ -8,6 +8,7 @@ import { IListing } from "@/models/Listing";
 import { toast } from "react-hot-toast";
 import { useSession } from "next-auth/react";
 import BookingForm from "@/components/property/BookingForm";
+import PropertyMap from "@/components/property/PropertyMap";
 
 
 export default function PropertyDetailPage() {
