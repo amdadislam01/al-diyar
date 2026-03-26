@@ -6,21 +6,32 @@ export async function GET(req: NextRequest) {
     try {
         const { searchParams } = new URL(req.url);
         const country = searchParams.get("country");
-
-        if (!country) {
-            return NextResponse.json({ message: "Country parameter is required" }, { status: 400 });
-        }
+        const limit = searchParams.get("limit");
+        const sort = searchParams.get("sort");
 
         await dbConnect();
 
-        // Find approved agents in the specified country (case-insensitive)
-        const agents = await User.find({
+        // Construct query
+        const query: any = {
             role: "agent",
-            approvalStatus: "approved",
-            country: { $regex: new RegExp(`^${country}$`, "i") }
-        })
-        .select("name email companyName country image")
-        .lean();
+            approvalStatus: "approved"
+        };
+
+        if (country) {
+            query.country = { $regex: new RegExp(`^${country}$`, "i") };
+        }
+
+        let agentsQuery = User.find(query).select("name email companyName country image");
+
+        if (sort === "new") {
+            agentsQuery = agentsQuery.sort({ createdAt: -1 });
+        }
+
+        if (limit) {
+            agentsQuery = agentsQuery.limit(parseInt(limit));
+        }
+
+        const agents = await agentsQuery.lean();
 
         return NextResponse.json({ agents }, { status: 200 });
     } catch (err: unknown) {
