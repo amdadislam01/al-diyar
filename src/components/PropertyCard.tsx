@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useSavedListings } from "@/hooks/useSavedListings";
 
 interface PropertyProps {
   id: string;
@@ -23,6 +26,9 @@ const PropertyCard = ({
   image,
   type,
 }: PropertyProps) => {
+  const { toggleSave, isSaved } = useSavedListings();
+  const saved = isSaved(id);
+
   return (
     <Link 
       href={`/property/${id}`}
@@ -44,9 +50,20 @@ const PropertyCard = ({
         </div>
 
         {/* Favorite Button */}
-        <button className="absolute top-5 right-5 w-10 h-10 bg-white/20 backdrop-blur-md border border-white/30 rounded-full flex items-center justify-center text-white hover:text-accent hover:bg-white transition-all shadow-xl group/fav">
+        <button 
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleSave(id);
+          }}
+          className={`absolute top-5 right-5 w-10 h-10 backdrop-blur-md border border-white/30 rounded-full flex items-center justify-center transition-all shadow-xl group/fav ${
+            saved 
+              ? "bg-red-500 text-white border-red-500" 
+              : "bg-white/20 text-white hover:text-accent hover:bg-white"
+          }`}
+        >
           <span className="material-icons-round text-xl group-hover/fav:scale-110 transition-transform">
-            favorite_border
+            {saved ? "favorite" : "favorite_border"}
           </span>
         </button>
 

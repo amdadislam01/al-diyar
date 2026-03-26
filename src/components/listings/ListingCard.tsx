@@ -3,12 +3,16 @@
 import Link from "next/link";
 import Image from "next/image";
 import { IListing } from "@/models/Listing";
+import { useSavedListings } from "@/hooks/useSavedListings";
 
 interface ListingCardProps {
   listing: IListing;
 }
 
 const ListingCard = ({ listing }: ListingCardProps) => {
+  const { toggleSave, isSaved } = useSavedListings();
+  const saved = isSaved(listing._id as any);
+
   const formattedPrice = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
@@ -36,9 +40,22 @@ const ListingCard = ({ listing }: ListingCardProps) => {
           </span>
         </div>
 
-        {/* Favorite Icon (Placeholder) */}
-        <button className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-white hover:text-red-500 transition-all duration-300">
-          <span className="material-icons-round text-lg">favorite_border</span>
+        {/* Favorite Icon */}
+        <button 
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleSave(listing._id as any);
+          }}
+          className={`absolute top-4 right-4 z-10 w-9 h-9 rounded-full backdrop-blur-md border border-white/30 flex items-center justify-center transition-all duration-300 ${
+            saved 
+              ? "bg-red-500 text-white border-red-500" 
+              : "bg-white/20 text-white hover:bg-white hover:text-red-500"
+          }`}
+        >
+          <span className="material-icons-round text-lg">
+            {saved ? "favorite" : "favorite_border"}
+          </span>
         </button>
       </div>
 

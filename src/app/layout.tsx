@@ -4,6 +4,7 @@ import "./globals.css";
 import AuthProvider from "@/components/AuthProvider";
 import { ThemeProvider } from "@/components/theme-provider";
 import ConditionalLayout from "@/components/layout/ConditionalLayout";
+import { Toaster } from "react-hot-toast";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -50,7 +51,7 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider
+         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
@@ -59,7 +60,7 @@ export default function RootLayout({
           <AuthProvider>
             <ConditionalLayout>
               {children}
-
+               <Toaster position="top-right" />
             </ConditionalLayout>
           </AuthProvider>
         </ThemeProvider>

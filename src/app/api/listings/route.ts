@@ -64,9 +64,15 @@ export async function GET(req: NextRequest) {
             }
         }
 
-        const listings = await Listing.find(query)
-            .sort({ createdAt: -1 })
-            .lean();
+        const limit = searchParams.get("limit");
+
+        let queryBuilder = Listing.find(query).sort({ createdAt: -1 });
+
+        if (limit) {
+            queryBuilder = queryBuilder.limit(Number(limit));
+        }
+
+        const listings = await queryBuilder.lean();
 
         return NextResponse.json({ listings }, { status: 200 });
     } catch (err: unknown) {

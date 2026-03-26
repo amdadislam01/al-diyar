@@ -12,7 +12,7 @@ const FeaturedProperties = () => {
   useEffect(() => {
     const fetchPopularProperties = async () => {
       try {
-        const response = await fetch("/api/listings?limit=3");
+        const response = await fetch("/api/listings?limit=6");
         const data = await response.json();
         setProperties(data.listings || []);
       } catch (error) {
@@ -44,7 +44,7 @@ const FeaturedProperties = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {loading ? (
-            Array(3).fill(0).map((_, i) => (
+            Array(6).fill(0).map((_, i) => (
               <div key={i} className="aspect-[4/5] bg-slate-100 dark:bg-slate-800 rounded-[2.5rem] animate-pulse" />
             ))
           ) : properties.length > 0 ? (
@@ -68,6 +68,26 @@ const FeaturedProperties = () => {
             </div>
           )}
         </div>
+
+        {/* See More Button */}
+        {!loading && properties.length >= 6 && (
+          <div className="mt-16 flex justify-center">
+            <Link 
+              href="/property" 
+              className="group relative flex items-center gap-3 px-10 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-2xl hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl"
+            >
+              <span>See More Properties</span>
+              <svg 
+                className="w-5 h-5 group-hover:translate-x-1 transition-transform" 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </Link>
+          </div>
+        )}
 
         {/* Pagination Dots */}
         <div className="mt-16 flex items-center justify-center gap-3">

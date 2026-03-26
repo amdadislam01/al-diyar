@@ -188,7 +188,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         }
 
         // Validate status if being changed manually (Sellers can only set to Inactive, or Pending if they want to re-submit)
-        if (updates.status) {
+        if (updates.status && updates.status !== listing.status) {
             if (!["Inactive", "Pending"].includes(updates.status as string)) {
                 return NextResponse.json({ message: "Sellers can only set status to Inactive or Pending" }, { status: 400 });
             }
