@@ -61,7 +61,11 @@ function BookingsContent() {
                 body: JSON.stringify({ bookingId }),
             });
             if (res.ok) {
-                setBookings((prev) => prev.filter((b) => b._id !== bookingId));
+                setBookings((prev) => 
+                    activeTab === "Pending" 
+                    ? prev.filter((b) => b._id !== bookingId)
+                    : prev.map(b => b._id === bookingId ? { ...b, status: "Cancelled" } : b)
+                );
             } else {
                 const d = await res.json();
                 alert(d.message ?? "Failed to cancel booking");
@@ -79,7 +83,7 @@ function BookingsContent() {
     ];
 
     return (
-        <div className="p-6 lg:p-10 max-w-5xl mx-auto space-y-6">
+        <div className="p-6 lg:p-10 mx-auto space-y-6">
             {/* Header */}
             <div>
                 <h1 className="text-2xl font-bold text-slate-800 dark:text-white">My Bookings</h1>
