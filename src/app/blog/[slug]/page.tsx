@@ -23,7 +23,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
 
             <main className="grow pt-32 pb-20">
-                <article className="max-w-4xl mx-auto px-6">
+                <article className="max-w-10/12 mx-auto px-6">
                     {/* Breadcrumb */}
                     <div className="flex items-center gap-2 text-xs font-medium text-slate-400 uppercase tracking-widest mb-8">
                         <Link href="/blog" className="hover:text-primary transition-colors">Blog</Link>

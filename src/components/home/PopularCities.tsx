@@ -88,7 +88,7 @@ const PopularCities = () => {
               <div key={i} className="h-[450px] rounded-[3rem] bg-slate-100 dark:bg-slate-800 animate-pulse border border-slate-200 dark:border-slate-700" />
             ))
           ) : (
-            displayLocations.map((location) => (
+            displayLocations.slice(0, 4).map((location) => (
               <Link
                 key={location.name}
                 href={`/property?country=${location.country}`}

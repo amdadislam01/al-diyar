@@ -4,7 +4,13 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { CheckCircle2, Target, Users, Landmark, Github, Linkedin, Twitter } from "lucide-react";
+import { CheckCircle2, Target, Users, Landmark, Github, Linkedin } from "lucide-react";
+
+const XIcon = ({ size = 18 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+  </svg>
+);
 
 const stats = [
   { label: "Properties Sold", value: "2,500+" },
@@ -42,7 +48,7 @@ const team = [
   {
     name: "Obaidullah Miazi",
     role: "Front-end Developer",
-    image: "https://i.ibb.co.com/sJNMmw9S/obaidul.jpg",
+    image: "https://i.ibb.co.com/jYt4FNb/my-pic.jpg",
     bio: "Focused on creating visually stunning and intuitive interfaces for modern platforms.",
     social: { github: "https://github.com/obaidullah-miazi-dev ", linkedin: "https://www.linkedin.com/in/obaidullah-miazi/", twitter: "https://twitter.com/Obaidullah_dev" }
   },
@@ -60,7 +66,7 @@ const AboutPage = () => {
     <div className="bg-white dark:bg-slate-950 transition-colors duration-500 overflow-hidden">
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+        <div className="max-w-10/12 mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -89,7 +95,7 @@ const AboutPage = () => {
 
       {/* Stats Section */}
       <section className="py-20 border-y border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-10/12 mx-auto">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-12">
             {stats.map((stat, index) => (
               <motion.div
@@ -114,7 +120,7 @@ const AboutPage = () => {
 
       {/* Story Section */}
       <section className="py-24 md:py-32">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-10/12 mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
@@ -197,7 +203,7 @@ const AboutPage = () => {
             />
          </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="max-w-10/12 mx-auto relative z-10">
           <div className="text-center mb-20">
             <h2 className="text-4xl md:text-5xl font-black mb-6 tracking-tighter">Our Core Foundations.</h2>
             <p className="text-slate-400 max-w-2xl mx-auto text-lg">
@@ -256,7 +262,7 @@ const AboutPage = () => {
                 viewport={{ once: true }}
                 className="group"
               >
-                <div className="relative aspect-[4/5] rounded-[3rem] overflow-hidden mb-8 shadow-premium ring-1 ring-slate-100 dark:ring-slate-800 transition-all duration-500 group-hover:shadow-2xl group-hover:-translate-y-2">
+                <div className="relative aspect-4/5 rounded-[3rem] overflow-hidden mb-8 shadow-premium ring-1 ring-slate-100 dark:ring-slate-800 transition-all duration-500 group-hover:shadow-2xl group-hover:-translate-y-2">
                   <Image
                     src={member.image}
                     alt={member.name}
@@ -264,7 +270,7 @@ const AboutPage = () => {
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
                   />
                   {/* Overlay on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-10">
+                  <div className="absolute inset-0 bg-linear-to-t from-slate-900/90 via-slate-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-10">
                     <div className="flex gap-4">
                       <Link
                         href={member.social.github}
@@ -282,7 +288,7 @@ const AboutPage = () => {
                         href={member.social.twitter}
                         className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-slate-900 transition-all"
                       >
-                        <Twitter size={18} />
+                        <XIcon size={16} />
                       </Link>
                     </div>
                   </div>

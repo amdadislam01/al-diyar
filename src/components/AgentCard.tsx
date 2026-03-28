@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 interface AgentProps {
   name: string;
   specialty: string;
@@ -6,11 +8,13 @@ interface AgentProps {
 
 const AgentCard = ({ name, image }: AgentProps) => {
   return (
-    <div className="group bg-white dark:bg-slate-900 rounded-4xl overflow-hidden shadow-card dark:shadow-premium hover:shadow-xl transition-all duration-500 border border-slate-100 dark:border-slate-800">
+    <div className="group bg-white dark:bg-slate-900 rounded-4xl overflow-hidden shadow-card dark:shadow-premium hover:shadow-xl transition-all duration-500 border border-slate-100 h-full dark:border-slate-800">
       <div className="aspect-4/5 overflow-hidden">
-        <img
+        <Image
           src={image}
           alt={name}
+          width={1000}
+          height={1000}
           className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
         />
       </div>
@@ -18,7 +22,7 @@ const AgentCard = ({ name, image }: AgentProps) => {
       <div className="p-6">
         <div className="flex justify-between items-end">
           <div>
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1">
+            <h3 className="text-xl line-clamp-1 font-bold text-slate-900 dark:text-white mb-1">
               {name}
             </h3>
             <p className="text-slate-400 dark:text-slate-500 text-xs font-semibold">
