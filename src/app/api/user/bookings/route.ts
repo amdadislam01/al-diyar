@@ -70,14 +70,22 @@ export async function POST(req: NextRequest) {
 // ─── GET /api/user/bookings ───────────────────────────────────────────────────
 // Fetch all visit requests created by the logged-in user.
 
-export async function GET() {
+export async function GET(req: NextRequest) {
     const { session, error } = await getUserSession();
     if (error) return error;
 
     try {
         await dbConnect();
 
-        const bookings = await Booking.find({ buyer: session!.user.id })
+        const url = new URL(req.url);
+        const statusParam = url.searchParams.get('status');
+
+        const query: any = { buyer: session!.user.id };
+        if (statusParam && statusParam !== 'all') {
+            query.status = statusParam;
+        }
+
+        const bookings = await Booking.find(query)
             .populate('listing', 'title type category price location images status')
             .populate('seller', 'name email phone image')
             .sort({ createdAt: -1 })
@@ -86,6 +94,39 @@ export async function GET() {
         return NextResponse.json({ bookings }, { status: 200 });
     } catch (err: unknown) {
         console.error('[GET /api/user/bookings]', err);
+        const message = err instanceof Error ? err.message : 'Internal server error';
+        return NextResponse.json({ message }, { status: 500 });
+    }
+}
+
+// ─── DELETE /api/user/bookings ────────────────────────────────────────────────
+// Cancel a visit request.
+
+export async function DELETE(req: NextRequest) {
+    const { session, error } = await getUserSession();
+    if (error) return error;
+
+    try {
+        await dbConnect();
+        
+        const body = await req.json();
+        const { bookingId } = body;
+
+        if (!bookingId) {
+            return NextResponse.json({ message: 'Booking ID is required' }, { status: 400 });
+        }
+
+        const booking = await Booking.findOne({ _id: bookingId, buyer: session!.user.id });
+        if (!booking) {
+            return NextResponse.json({ message: 'Booking not found or unauthorized' }, { status: 404 });
+        }
+
+        booking.status = 'Cancelled';
+        await booking.save();
+
+        return NextResponse.json({ message: 'Booking cancelled successfully' }, { status: 200 });
+    } catch (err: unknown) {
+        console.error('[DELETE /api/user/bookings]', err);
         const message = err instanceof Error ? err.message : 'Internal server error';
         return NextResponse.json({ message }, { status: 500 });
     }
