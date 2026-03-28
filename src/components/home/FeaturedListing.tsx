@@ -29,7 +29,7 @@ const FeaturedListing = () => {
     return (
       <section className="py-32 bg-white dark:bg-slate-950">
         <div className="max-w-10/12 mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="w-full aspect-[21/9] bg-slate-100 dark:bg-slate-800 rounded-[3rem] animate-pulse" />
+          <div className="w-full aspect-21/9 bg-slate-100 dark:bg-slate-800 rounded-[3rem] animate-pulse" />
         </div>
       </section>
     );
