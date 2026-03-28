@@ -52,7 +52,7 @@ export default function BookingForm({ listingId, listingTitle }: BookingFormProp
         setVisitDate("");
         setMessage("");
         // Optionally redirect to dashboard
-        router.push("/dashboard/user/bookings");
+        router.push("/dashboard/bookings");
       } else {
         toast.error(data.message || "Failed to schedule visit");
       }
