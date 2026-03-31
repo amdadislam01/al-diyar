@@ -17,11 +17,11 @@ export async function GET() {
 
         const [totalBookings, pendingBookings, confirmedBookings, upcomingVisits] = await Promise.all([
             Booking.countDocuments({ buyer: userId }),
-            Booking.countDocuments({ buyer: userId, status: 'Pending' }),
+            Booking.countDocuments({ buyer: userId, status: { $in: ['PendingAgent', 'PendingSeller'] } }),
             Booking.countDocuments({ buyer: userId, status: 'Confirmed' }),
             Booking.countDocuments({
                 buyer: userId,
-                status: { $in: ['Pending', 'Confirmed'] },
+                status: { $in: ['PendingAgent', 'PendingSeller', 'Confirmed'] },
                 visitDate: { $gte: new Date() },
             }),
         ]);
