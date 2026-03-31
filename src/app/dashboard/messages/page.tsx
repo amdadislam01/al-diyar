@@ -162,7 +162,7 @@ export default function MessagesPage() {
     }, [conversations, searchTerm, session]);
 
     return (
-        <div className="flex h-[calc(100vh-120px)] max-w-7xl mx-auto overflow-hidden bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-200/50 dark:border-slate-800/50">
+        <div className="flex min-h-screen mx-auto overflow-hidden bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-200/50 dark:border-slate-800/50">
             {/* Conversations Sidebar */}
             <aside className={`w-full md:w-96 flex-shrink-0 border-r border-slate-200/50 dark:border-slate-800/50 flex flex-col ${selectedChat ? 'hidden md:flex' : 'flex'}`}>
                 <div className="p-6 space-y-4">

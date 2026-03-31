@@ -73,7 +73,7 @@ export default function VisitsPage() {
         : bookings.filter(b => b.status === statusFilter);
 
     return (
-        <div className="p-6 space-y-8 max-w-6xl mx-auto">
+        <div className="p-6 space-y-8 mx-auto">
             {/* Toast */}
             {toast && (
                 <div className={`fixed top-5 right-5 z-50 flex items-center gap-2 px-5 py-3 rounded-xl shadow-lg text-white text-sm font-medium animate-reveal ${toast.type === "success" ? "bg-emerald-500" : "bg-rose-500"}`}>

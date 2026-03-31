@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import AgentCard from "@/components/AgentCard";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 interface Agent {
   _id: string;
@@ -37,7 +38,7 @@ const AgentsPage = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-500 pt-32 pb-24">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-10/12 mx-auto px-0.5">
         <div className="text-center mb-16">
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
@@ -58,13 +59,13 @@ const AgentsPage = () => {
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} className="bg-white dark:bg-slate-900 rounded-4xl h-[400px] animate-pulse" />
             ))}
           </div>
         ) : agents.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
             {agents.map((agent, index) => (
               <motion.div
                 key={agent._id}
@@ -72,11 +73,13 @@ const AgentsPage = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <AgentCard 
-                  name={agent.name} 
-                  image={agent.image || "/images/placeholder-agent.png"} 
-                  specialty={agent.companyName || "Real Estate Expert"} 
-                />
+                <Link href={`/agents/${agent._id}`} className="block h-full">
+                  <AgentCard 
+                    name={agent.name} 
+                    image={agent.image || "/images/placeholder-agent.png"} 
+                    specialty={agent.companyName || "Real Estate Expert"} 
+                  />
+                </Link>
               </motion.div>
             ))}
           </div>
