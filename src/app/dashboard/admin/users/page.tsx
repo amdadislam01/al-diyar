@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import Swal from "sweetalert2";
+import { toast } from "react-hot-toast";
 
 interface UserEntry {
     _id: string;
@@ -83,7 +85,17 @@ export default function AdminUsersPage() {
     };
 
     const handleRoleChange = async (userId: string, newRole: string) => {
-        if (!window.confirm(`Change this user's role to "${newRole}"?`)) return;
+        const { isConfirmed } = await Swal.fire({
+            title: "Change User Role?",
+            text: `Are you sure you want to change this user's role to "${newRole}"?`,
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "Yes, change it!",
+            confirmButtonColor: "#0ea5e9",
+        });
+
+        if (!isConfirmed) return;
+
         setRoleChanging(userId);
         try {
             const res = await fetch("/api/admin/approve-user", {
@@ -91,7 +103,10 @@ export default function AdminUsersPage() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ userId, role: newRole }),
             });
-            if (res.ok) fetchUsers();
+            if (res.ok) {
+                toast.success("User role updated successfully");
+                fetchUsers();
+            }
         } catch { /* ignore */ } finally { setRoleChanging(null); }
     };
 

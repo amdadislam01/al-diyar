@@ -3,6 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import Image from "next/image";
+import { toast } from "react-hot-toast";
 
 export default function ProfilePage() {
     const { data: session, update } = useSession();
@@ -12,7 +13,6 @@ export default function ProfilePage() {
     const [imageUrl, setImageUrl] = useState<string | null>(user?.image ?? null);
     const [isUploading, setIsUploading] = useState(false);
     const [saving, setSaving] = useState(false);
-    const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
     const uploadToCloudinary = async (file: File) => {
         const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
@@ -46,7 +46,7 @@ export default function ProfilePage() {
         if (!file) return;
 
         if (!file.type.startsWith("image/")) {
-            alert("Please upload an image file.");
+            toast.error("Please upload an image file.");
             return;
         }
 
@@ -54,9 +54,10 @@ export default function ProfilePage() {
             setIsUploading(true);
             const url = await uploadToCloudinary(file);
             setImageUrl(url);
+            toast.success("Image uploaded!");
         } catch (err: any) {
             console.error(err);
-            alert(err.message || "Upload failed");
+            toast.error(err.message || "Upload failed");
         } finally {
             setIsUploading(false);
         }
@@ -65,7 +66,6 @@ export default function ProfilePage() {
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
         setSaving(true);
-        setMessage(null);
         try {
             const res = await fetch("/api/user/profile", {
                 method: "PATCH",
@@ -81,10 +81,10 @@ export default function ProfilePage() {
                         image: imageUrl,
                     },
                 });
-                setMessage({ type: "success", text: "Profile updated successfully!" });
+                toast.success("Profile updated successfully!");
             } else {
                 const d = await res.json();
-                setMessage({ type: "error", text: d.message ?? "Update failed" });
+                toast.error(d.message ?? "Update failed");
             }
         } finally {
             setSaving(false);
@@ -155,18 +155,6 @@ export default function ProfilePage() {
                         />
                         <p className="text-[11px] text-slate-400 mt-1">Email cannot be changed</p>
                     </div>
-
-                    {message && (
-                        <div className={`flex items-center gap-2 p-3 rounded-xl text-sm ${message.type === "success"
-                                ? "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400"
-                                : "bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400"
-                            }`}>
-                            <span className="material-icons-outlined text-base">
-                                {message.type === "success" ? "check_circle" : "error"}
-                            </span>
-                            {message.text}
-                        </div>
-                    )}
 
                     <button
                         type="submit"
