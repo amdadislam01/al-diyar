@@ -197,7 +197,7 @@ ListingSchema.index({ listedBy: 1, status: 1 });
 ListingSchema.index({ assignedAgent: 1, assignmentStatus: 1, createdAt: -1 });
 ListingSchema.index({ country: 1, status: 1 });
 
-// Delete cached model to prevent hot-reload array issues in Next.js development
+// Delete cached model to prevent hot-reload enum issues in Next.js development
 if (mongoose.models.Listing) {
     delete mongoose.models.Listing;
 }
