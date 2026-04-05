@@ -28,9 +28,22 @@ export function ThemeToggle() {
       <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 animate-pulse"></div>
     );
 
+  const toggleTheme = () => {
+    const newTheme = theme === "dark" ? "light" : "dark";
+    
+    // Use View Transitions API if supported for a smooth fade
+    if (document.startViewTransition) {
+      document.startViewTransition(() => {
+        setTheme(newTheme);
+      });
+    } else {
+      setTheme(newTheme);
+    }
+  };
+
   return (
     <button
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      onClick={toggleTheme}
       className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
         isDashboard
           ? "text-slate-800 dark:text-slate-200"

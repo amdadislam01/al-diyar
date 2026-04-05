@@ -115,7 +115,7 @@ export default function BlogListingPage() {
                             >
                                 {[1, 2, 3, 4, 5, 6].map((i) => (
                                     <div key={i} className="space-y-6 animate-pulse">
-                                        <div className="aspect-[16/10] bg-slate-100 dark:bg-slate-900 rounded-[2.5rem]" />
+                                        <div className="aspect-16/10 bg-slate-100 dark:bg-slate-900 rounded-[2.5rem]" />
                                         <div className="space-y-3">
                                             <div className="h-4 w-1/4 bg-slate-100 dark:bg-slate-900 rounded-full" />
                                             <div className="h-8 w-full bg-slate-100 dark:bg-slate-900 rounded-2xl" />
@@ -161,7 +161,7 @@ export default function BlogListingPage() {
                                             className="group block space-y-6"
                                         >
                                             {/* Image Container */}
-                                            <div className="relative aspect-[16/10] overflow-hidden rounded-[3rem] shadow-premium bg-slate-100 dark:bg-slate-900">
+                                            <div className="relative aspect-16/10 overflow-hidden rounded-[3rem] shadow-premium bg-slate-100 dark:bg-slate-900">
                                                 <Image
                                                     src={blog.coverImage || "/aldiyarlogo.png"}
                                                     alt={blog.title}
@@ -169,7 +169,7 @@ export default function BlogListingPage() {
                                                     className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                                                 />
                                                 <div className="absolute top-6 left-6">
-                                                    <span className="bg-white/90 dark:bg-black/70 backdrop-blur-xl px-4 py-1.5 rounded-full text-[10px] font-black text-primary uppercase tracking-[0.2em] shadow-lg">
+                                                    <span className="bg-white/90 dark:bg-black/70 backdrop-blur-xl px-4 py-1.5 rounded-full text-[10px] font-black text-primary uppercase tracking-[0.2em] shadow-lg dark:text-white">
                                                         {blog.category}
                                                     </span>
                                                 </div>
@@ -188,7 +188,7 @@ export default function BlogListingPage() {
                                                     </div>
                                                 </div>
                                                 
-                                                <h3 className="text-2xl font-black text-slate-900 dark:text-white group-hover:text-primary transition-colors leading-tight line-clamp-2">
+                                                <h3 className="text-2xl font-black text-slate-900 dark:text-white group-hover:text-primary transition-colors leading-tight line-clamp-2 dark:group-hover:text-white">
                                                     {blog.title}
                                                 </h3>
                                                 

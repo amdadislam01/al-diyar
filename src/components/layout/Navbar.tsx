@@ -33,10 +33,10 @@ function getDashboardLabel(role?: string) {
 // ─── Role → center nav items ──────────────────────────────────────────────────
 const navItemsMap = [
   { label: "Home", href: "/", icon: HomeIcon },
-  { label: "About", href: "/about", icon: FileTextIcon },
   { label: "Property", href: "/property", icon: BlocksIcon },
   { label: "Agents", href: "/agents", icon: UsersIcon },
   { label: "Blog", href: "/blog", icon: FileTextIcon },
+  { label: "About", href: "/about", icon: FileTextIcon },
   { label: "Contact", href: "/contact", icon: Mail }
 ];
 

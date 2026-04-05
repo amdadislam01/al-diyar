@@ -45,7 +45,7 @@ const FeaturedProperties = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {loading ? (
             Array(6).fill(0).map((_, i) => (
-              <div key={i} className="aspect-[4/5] bg-slate-100 dark:bg-slate-800 rounded-[2.5rem] animate-pulse" />
+              <div key={i} className="aspect-4/5 bg-slate-100 dark:bg-slate-800 rounded-[2.5rem] animate-pulse" />
             ))
           ) : properties.length > 0 ? (
             properties.map((property) => (

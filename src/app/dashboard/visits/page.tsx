@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 
-type BookingStatus = "Pending" | "Confirmed" | "Cancelled";
+type BookingStatus = "PendingAgent" | "PendingSeller" | "Confirmed" | "Completed" | "Cancelled" | "Expired";
 
 interface Booking {
     _id: string;
@@ -30,9 +30,12 @@ interface Booking {
 }
 
 const STATUS_CONFIG: Record<BookingStatus, { label: string; color: string; icon: string }> = {
-    Pending: { label: "Pending", color: "text-amber-600 bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-900/30", icon: "schedule" },
+    PendingAgent: { label: "Waiting Agent", color: "text-amber-600 bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-900/30", icon: "schedule" },
+    PendingSeller: { label: "Waiting Seller", color: "text-indigo-600 bg-indigo-50 border-indigo-200 dark:bg-indigo-900/20 dark:border-indigo-900/30", icon: "forward" },
     Confirmed: { label: "Confirmed", color: "text-emerald-600 bg-emerald-50 border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-900/30", icon: "check_circle" },
+    Completed: { label: "Completed", color: "text-blue-600 bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-900/30", icon: "task_alt" },
     Cancelled: { label: "Cancelled", color: "text-rose-600 bg-rose-50 border-rose-200 dark:bg-rose-900/20 dark:border-rose-900/30", icon: "cancel" },
+    Expired: { label: "Expired", color: "text-slate-500 bg-slate-50 border-slate-200 dark:bg-slate-900/20 dark:border-slate-900/30", icon: "history" },
 };
 
 export default function VisitsPage() {
@@ -73,7 +76,7 @@ export default function VisitsPage() {
         : bookings.filter(b => b.status === statusFilter);
 
     return (
-        <div className="p-6 space-y-8 max-w-6xl mx-auto">
+        <div className="p-6 space-y-8 mx-auto">
             {/* Toast */}
             {toast && (
                 <div className={`fixed top-5 right-5 z-50 flex items-center gap-2 px-5 py-3 rounded-xl shadow-lg text-white text-sm font-medium animate-reveal ${toast.type === "success" ? "bg-emerald-500" : "bg-rose-500"}`}>
@@ -101,17 +104,24 @@ export default function VisitsPage() {
 
             {/* Filters */}
             <div className="flex gap-2 flex-wrap bg-slate-100/50 dark:bg-slate-800/50 p-1.5 rounded-2xl w-fit border border-slate-200 dark:border-slate-700">
-                {["all", "Pending", "Confirmed", "Cancelled"].map((f) => (
+                {[
+                    { id: "all", label: "All Requests" },
+                    { id: "PendingAgent", label: "Waiting Agent" },
+                    { id: "PendingSeller", label: "Waiting Seller" },
+                    { id: "Confirmed", label: "Confirmed" },
+                    { id: "Completed", label: "Completed" },
+                    { id: "Cancelled", label: "Cancelled" },
+                ].map((f) => (
                     <button
-                        key={f}
-                        onClick={() => setStatusFilter(f)}
+                        key={f.id}
+                        onClick={() => setStatusFilter(f.id)}
                         className={`px-5 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all
-                        ${statusFilter === f
+                        ${statusFilter === f.id
                                 ? "bg-white dark:bg-slate-700 text-sky-500 shadow-sm"
                                 : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
                             }`}
                     >
-                        {f === "all" ? "All Requests" : f}
+                        {f.label}
                     </button>
                 ))}
             </div>

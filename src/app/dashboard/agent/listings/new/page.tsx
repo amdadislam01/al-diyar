@@ -304,7 +304,7 @@ export default function AgentNewListingPage() {
                     </h2>
                     <div>
                         <label className="block text-sm font-medium text-text-muted mb-1.5">Property Title *</label>
-                        <input name="title" value={form.title} onChange={handleChange} required placeholder="e.g. Modern Townhouse" className={inputClass} />
+                        <input name="title" value={form.title} onChange={handleChange} required placeholder="your property title" className={inputClass} />
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-text-muted mb-1.5">Description *</label>

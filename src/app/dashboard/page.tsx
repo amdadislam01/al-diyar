@@ -222,10 +222,12 @@ function RecentBookings() {
               const listing = b.listing as any;
               const statusColor =
                 b.status === "Confirmed"
-                  ? "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400"
+                  ? "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400"
                   : b.status === "Cancelled"
-                    ? "bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400"
-                    : "bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400";
+                    ? "bg-rose-50 dark:bg-rose-900/20 text-rose-500 dark:text-rose-400"
+                    : b.status === "Completed"
+                      ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
+                      : "bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400";
 
               return (
                 <div key={b._id} className="flex items-center gap-3 sm:gap-4 px-4 sm:px-5 py-3 sm:py-4">

@@ -162,7 +162,7 @@ export default function BlogFormPage() {
                             value={formData.title}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                             className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent"
-                            placeholder="e.g. 5 Tips for Buying Your First Home"
+                            placeholder="your blog title"
                         />
                     </div>
                     <div className="space-y-2">
@@ -173,7 +173,7 @@ export default function BlogFormPage() {
                             value={formData.slug}
                             onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                             className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent"
-                            placeholder="e.g. tips-buying-first-home"
+                            placeholder="your blog slug"
                         />
                     </div>
                 </div>
