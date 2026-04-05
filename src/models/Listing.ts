@@ -72,6 +72,7 @@ export interface IListing extends Document {
     sellerName?: string;
     sellerEmail?: string;
     sellerPhone?: string;
+    views: number;
 }
 
 const ListingSchema: Schema = new Schema(
@@ -186,6 +187,7 @@ const ListingSchema: Schema = new Schema(
         sellerName: { type: String, trim: true },
         sellerEmail: { type: String, trim: true },
         sellerPhone: { type: String, trim: true },
+        views: { type: Number, default: 0 },
     },
     {
         timestamps: true,
