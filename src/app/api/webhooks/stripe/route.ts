@@ -62,10 +62,3 @@ export async function POST(req: NextRequest) {
     // Tell Stripe we received the message so they don't keep sending it.
     return NextResponse.json({ received: true }, { status: 200 });
 }
-
-// Ensure the endpoint is configured for raw body handling
-export const config = {
-    api: {
-        bodyParser: false,
-    },
-};
