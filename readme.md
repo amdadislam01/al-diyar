@@ -13,7 +13,7 @@ Al-Diyar is a state-of-the-art, role-based real estate platform built with the m
 
 ### 🏘️ Real Estate Marketplace
 - **Dynamic Listings**: High-fidelity property showcases with detailed information and image galleries.
-- **Advanced Filtering**: Categorized search for specific property types and locations.
+- **Advanced Filtering**: Categorized search for specific property types and locations (Divisions, Districts, Upazilas).
 - **Saved Listings**: Users can create a personal wishlist of properties.
 
 ### 💳 Secure Payments (Stripe)
@@ -28,7 +28,7 @@ Al-Diyar is a state-of-the-art, role-based real estate platform built with the m
 ### 📊 Dynamic Dashboards & Analytics
 - **Admin Analytics**: Visualize platform growth, revenue, and user engagement.
 - **User Stats**: Track personal activity, bookings, and savings.
-- **Role-Specific UI**: Completely unique dashboard experiences for each user type.
+- **Role-Specific UI**: Dedicated dashboards for Admin, Agent, Seller, and Buyer.
 
 ### 📝 Content & Management
 - **CMS (Blog System)**: Integrated blog management for SEO-optimized articles.
@@ -44,98 +44,137 @@ Al-Diyar is a state-of-the-art, role-based real estate platform built with the m
 - **Database**: [MongoDB](https://www.mongodb.com/) with [Mongoose](https://mongoosejs.com/)
 - **Authentication**: [NextAuth.js](https://next-auth.js.org/)
 - **Payments**: [Stripe API](https://stripe.com/docs/api)
-- **Real-time**: [Socket.io](https://socket.io/)
-- **Storage**: [Cloudinary](https://cloudinary.com/) (Image management)
+- **Real-time**: [Socket.io](https://socket.io/), [Socket.io-client](https://socket.io/)
+- **Storage**: [Cloudinary](https://cloudinary.com/) (Next-Cloudinary)
 - **Email**: [Nodemailer](https://nodemailer.com/)
-- **Maps**: [React Leaflet](https://react-leaflet.js.org/)
+- **UI Components**: [Radix UI](https://www.radix-ui.com/), [Shadcn UI](https://ui.shadcn.com/), [Lucide React](https://lucide.dev/)
+- **Maps**: [Leaflet](https://leafletjs.com/), [React Leaflet](https://react-leaflet.js.org/)
 
 ---
 
-## 📁 Project Structure
+## 📁 Full Project Structure
 
 ```text
 al-diyar/
-├── public/                 # Static assets (images, icons)
-├── scripts/                # Database seeding & maintenance scripts
+├── public/                 # Static public assets
+│   ├── images/             # UI images and assets
+│   └── icons/              # Project icons
+├── scripts/                # Database and maintenance scripts
+│   ├── seed-country-agents.js
+│   └── update-country-agent-passwords.js
 ├── src/
-│   ├── app/                # Next.js App Router (Pages & API)
-│   │   ├── api/            # Server-side API Endpoints (Organized by role)
-│   │   ├── dashboard/      # Role-specific dashboard layouts & pages
-│   │   ├── properties/     # Property listing & detail pages
-│   │   └── blog/           # Article & content pages
-│   ├── components/         # Reusable React components
-│   │   ├── ui/             # Core UI building blocks (Shadcn/Radix)
-│   │   ├── forms/          # Specialized form components
-│   │   └── blocks/         # High-level section components
-│   ├── hooks/              # Custom React hooks (useSocket, useAuth, etc.)
-│   ├── lib/                # Core logic (MongoDB, Stripe, OTP, Email)
-│   ├── models/             # Mongoose Data Models
-│   └── types/              # TypeScript definitions
-├── .env.local              # Local environment variables
-├── next.config.ts          # Next.js configuration
-├── tailwind.config.ts      # Tailwind CSS configuration
-└── tsconfig.json           # TypeScript configuration
+│   ├── app/                # Next.js Application Router
+│   │   ├── (auth)/         # Authentication related pages
+│   │   │   ├── sign-in/
+│   │   │   ├── sign-up/
+│   │   │   ├── forgot-password/
+│   │   │   └── reset-password/
+│   │   ├── api/            # Backend API Endpoints
+│   │   │   ├── admin/      # Admin-only endpoints (stats, approve-user, blogs, etc.)
+│   │   │   ├── agent/      # Agent-specific workflows
+│   │   │   ├── seller/     # Seller listing management
+│   │   │   ├── user/       # User profile, bookings, saved items
+│   │   │   ├── auth/       # NextAuth route handler
+│   │   │   └── webhooks/   # External webhooks (Stripe)
+│   │   ├── dashboard/      # Role-based dashboard interfaces
+│   │   │   ├── admin/      # Admin management & analytics
+│   │   │   ├── agent/      # Agent task views
+│   │   │   ├── seller/     # Seller property management
+│   │   │   └── user/       # User personal activity
+│   │   ├── properties/     # Marketplace listing & property details
+│   │   ├── blog/           # Platform blog and articles
+│   │   ├── layout.tsx      # Root application layout
+│   │   └── page.tsx        # Homepage
+│   ├── components/         # React Component library
+│   │   ├── layout/         # Navigation, Footer, Sidebar
+│   │   ├── ui/             # Atomic UI components (Buttons, Inputs, etc.)
+│   │   ├── forms/          # Form logic and validation schemas
+│   │   ├── blocks/         # High-level section components
+│   │   ├── property/       # Property-specific components
+│   │   └── dashboard/      # Dashboard widgets and charts
+│   ├── hooks/              # Custom React hooks (useSocket, useAuth)
+│   ├── lib/                # Modular library logic
+│   │   ├── auth.ts         # Authentication configuration
+│   │   ├── mongodb.ts      # Database connection handler
+│   │   ├── stripe.ts       # Payment gateway integration
+│   │   ├── email.ts        # Nodemailer configuration
+│   │   ├── otp.ts          # Verification logic
+│   │   └── utils.ts        # General helper functions
+│   ├── models/             # Mongoose Schemas (User, Listing, Booking, etc.)
+│   ├── types/              # Global TypeScript definitions
+│   └── styles/             # Global CSS and Tailwind directives
+├── .env.local              # Local environment secrets (not in git)
+├── components.json         # Shadcn configuration
+├── next.config.ts          # Next.js settings
+├── package.json            # Dependencies and scripts
+├── postcss.config.mjs      # PostCSS settings
+├── server.js               # Custom server for Socket.io
+├── tsconfig.json           # TypeScript rules
+└── readme.md               # Project documentation
 ```
 
 ---
 
-## 🔌 API Endpoints
+## 🔌 API Endpoints Documentation
 
 ### 👤 User Endpoints
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
-| `GET` | `/api/user/profile` | Retrieve current user profile. |
-| `PUT` | `/api/user/profile` | Update user profile information. |
-| `GET` | `/api/user/bookings` | Fetch list of property bookings by user. |
-| `POST` | `/api/user/bookings/pay` | Initiate Stripe payment for a booking. |
-| `GET` | `/api/user/saved` | Get user's saved/favorited listings. |
-| `GET` | `/api/user/stats` | Retrieve user-specific activity statistics. |
+| `GET` | `/api/user/profile` | Retrieve current user profile data. |
+| `PUT` | `/api/user/profile` | Update personal account information. |
+| `GET` | `/api/user/bookings` | View all property bookings by the user. |
+| `POST` | `/api/user/bookings/pay` | Initiate Stripe Checkout for a booking. |
+| `GET` | `/api/user/saved` | Fetch the user's wishlist of properties. |
+| `POST` | `/api/user/saved` | Add or remove a property from saved list. |
+| `GET` | `/api/user/stats` | Personal dashboard statistics. |
 
 ### 🏪 Seller & Agent Endpoints
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
-| `GET/POST` | `/api/seller/listings` | List or create seller property listings. |
-| `PUT/DELETE` | `/api/seller/listings/[id]` | Update or remove a specific listing. |
-| `GET` | `/api/agent/assigned-listings` | Get properties assigned to agent for review. |
-| `POST` | `/api/agent/assigned-listings/[id]/approve` | Agent approval for a listing. |
+| `GET/POST` | `/api/seller/listings` | Retrieve or create seller properties. |
+| `PUT/DELETE` | `/api/seller/listings/[id]` | Modify/Remove a specific property. |
+| `GET` | `/api/seller/bookings` | View incoming bookings for seller properties. |
+| `GET` | `/api/agent/assigned-listings` | Get properties for agent verification. |
+| `POST` | `/api/agent/assigned-listings/[id]/approve` | Verify and approve a property. |
 
 ### 🛠️ Admin Endpoints
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
-| `GET` | `/api/admin/stats` | Platform-wide analytics data. |
-| `GET/POST` | `/api/admin/blogs` | Manage platform blog posts. |
-| `POST` | `/api/admin/approve-user` | Approve new user registrations. |
+| `GET` | `/api/admin/stats` | Global platform analytics & metrics. |
+| `GET` | `/api/admin/listings` | View all platform properties. |
+| `GET/POST` | `/api/admin/blogs` | Manage platform blog content. |
+| `POST` | `/api/admin/approve-user` | Authorize new user accounts. |
 
 ---
 
 ## 🚀 Future Roadmap
 
-- [ ] **AI Property Matcher**: Intelligent recommendations based on user behavior.
-- [ ] **360° Virtual Tours**: Integrate immersive property walkthroughs.
-- [ ] **Mobile App**: Launch dedicated Android and iOS versions using React Native.
-- [ ] **Multi-currency Support**: Global currency conversion for international users.
-- [ ] **Smart Contracts**: Blockchain-based property agreement signing.
-- [ ] **Mortgage Calculator**: Built-in financial tools for buyer planning.
+- [ ] **AI Property Insights**: Predictive analytics for property value trends.
+- [ ] **Virtual Reality Tours**: Direct browser-based 3D property walkthroughs.
+- [ ] **Multi-language Support**: Full internationalization (i18n) for global reach.
+- [ ] **Mobile App**: Cross-platform mobile experience via React Native/Expo.
+- [ ] **Mortgage Tools**: Integrated financial calculators for buyers.
+- [ ] **Smart Contracts**: Legal agreement signing integrated into the platform.
 
 ---
 
-## 💻 Installation & Setup
+## 💻 Installation & Local Development
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-username/al-diyar.git
+   git clone https://github.com/amdadislam01/al-diyar.git
    ```
 2. **Install dependencies**:
    ```bash
    npm install
    ```
-3. **Configure Environment Variables**:
-   Create a `.env.local` file and fill in required keys (MongoDB, Stripe, Cloudinary, NextAuth).
-4. **Run development server**:
+3. **Setup environment**:
+   Create a `.env.local` file based on the examples provided in the project.
+4. **Initialize development**:
    ```bash
    npm run dev
    ```
 
 ---
 
-*Built with by the Merged Conflict Team.*
+*Built with ❤️ by the Merged Conflict Team.*
