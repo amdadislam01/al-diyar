@@ -92,7 +92,6 @@ export async function sendOTPEmail(email: string, otp: string, name?: string): P
 
     try {
         await transporter.sendMail(mailOptions);
-        console.log('✅ OTP email sent successfully to:', email);
     } catch (error) {
         console.error('❌ Error sending OTP email:', error);
         throw new Error('Failed to send OTP email');
@@ -191,7 +190,6 @@ export async function sendResetPasswordEmail(email: string, token: string, name?
 
     try {
         await transporter.sendMail(mailOptions);
-        console.log('✅ Password reset email sent successfully to:', email);
     } catch (error) {
         console.error('❌ Error sending password reset email:', error);
         throw new Error('Failed to send password reset email');
@@ -201,7 +199,6 @@ export async function sendResetPasswordEmail(email: string, token: string, name?
 export async function verifyEmailConfig(): Promise<boolean> {
     try {
         await transporter.verify();
-        console.log('✅ Email configuration is valid');
         return true;
     } catch (error) {
         console.error('❌ Email configuration error:', error);

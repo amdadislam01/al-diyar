@@ -142,7 +142,6 @@ export const authOptions: NextAuthOptions = {
                     );
 
                     if (updatedUser) {
-                        console.log(`✅ ${account.provider === 'google' ? 'Google' : 'GitHub'} User Synced successfully:`, updatedUser.email);
                     }
                     return true;
                 }

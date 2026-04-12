@@ -35,7 +35,6 @@ export async function POST(request: Request) {
                 conversation = await Conversation.create({
                     participants: [userObjectId, recipientObjectId]
                 });
-                console.log(`[POST /api/messages/start] Created NEW conversation: ${conversation._id}`);
             } catch (err) {
                 console.error("Failed to create conversation:", err);
                 return NextResponse.json({ error: 'Failed to create conversation' }, { status: 500 });

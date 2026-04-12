@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useSavedListings } from "@/hooks/useSavedListings";
 
 interface PropertyProps {
@@ -36,9 +37,11 @@ const PropertyCard = ({
     >
       {/* Image Container */}
       <div className="relative aspect-4/3 overflow-hidden">
-        <img
+        <Image
           src={image}
           alt={title}
+          width={400}
+          height={300}
           className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-[1.5s] ease-out"
         />
 

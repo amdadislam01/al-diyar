@@ -41,7 +41,6 @@ interface MongooseError extends Error {
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        console.log('📡 Signup Request Body:', JSON.stringify(body, null, 2));
         const {
             name,
             email,
@@ -152,15 +151,7 @@ export async function POST(request: NextRequest) {
             }
         }
 
-        console.log('📝 Constructing userData for Create:', JSON.stringify(userData, null, 2));
         const user = await User.create(userData);
-        console.log('✅ User created in DB with fields:', {
-            id: user._id,
-            role: user.role,
-            nid: (user as any).nid,
-            country: (user as any).country,
-            businessAddress: (user as any).businessAddress
-        });
 
         const otp = generateOTP();
         await saveOTP(emailLower, otp);
