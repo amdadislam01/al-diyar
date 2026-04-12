@@ -50,7 +50,6 @@ export async function POST(req: NextRequest) {
                 status: "Sold",
             });
 
-            console.log(`✅ Great news! Payment confirmed and property marked as sold: ${bookingId}`);
         } catch (err: any) {
             // Something went wrong while saving our database. 
             // We should log this so we can fix it manually if needed.
