@@ -16,7 +16,6 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        console.log('🔑 Received reset request with token (unhashed):', token);
 
         if (password.length < 8) {
             return NextResponse.json(
@@ -33,7 +32,6 @@ export async function POST(request: NextRequest) {
             .update(token)
             .digest('hex');
 
-        console.log('📝 Generated Hash for comparison:', hashedToken);
 
         // Find user with token and valid expiration
         const user = await User.findOne({
@@ -42,12 +40,8 @@ export async function POST(request: NextRequest) {
         });
 
         if (!user) {
-            console.log('❌ No user found with this hashed token or it has expired.');
             const userWithToken = await User.findOne({ resetPasswordToken: hashedToken });
             if (userWithToken) {
-                console.log('⏰ Found user with token but it is EXPIRED. Expiry:', userWithToken.resetPasswordExpires);
-            } else {
-                console.log('🔍 Token not found in database at all.');
             }
 
             return NextResponse.json(
