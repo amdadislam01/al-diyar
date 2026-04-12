@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { IListing } from "@/models/Listing";
 
 const FeaturedListing = () => {
@@ -70,9 +71,11 @@ const FeaturedListing = () => {
             <div className="absolute -inset-4 border border-slate-100 dark:border-slate-800 rounded-[3.5rem] -z-10 transition-transform duration-500 group-hover:scale-105"></div>
 
             <div className="aspect-video rounded-[3rem] overflow-hidden shadow-2xl border-4 border-white dark:border-slate-900 relative">
-              <img
+              <Image
                 src={listing.images[0] || "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=2071&auto=format&fit=crop"}
                 alt={listing.title}
+                width={800}
+                height={450}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               />
               <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
@@ -128,9 +131,11 @@ const FeaturedListing = () => {
               <div className="flex items-center gap-5">
                 <div className="relative">
                   <div className="w-14 h-14 rounded-2xl overflow-hidden border-2 border-white dark:border-slate-800 shadow-lg">
-                    <img
+                    <Image
                       src={`https://ui-avatars.com/api/?name=${encodeURIComponent(listing.agentName || "Agent")}&background=0ea5e9&color=fff`}
                       alt="User"
+                      width={56}
+                      height={56}
                       className="w-full h-full object-cover"
                     />
                   </div>

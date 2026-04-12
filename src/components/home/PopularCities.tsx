@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface PopularLocation {
   name: string;
@@ -94,9 +95,11 @@ const PopularCities = () => {
                 href={`/property?country=${location.country}`}
                 className="group relative h-[450px] rounded-[3rem] overflow-hidden cursor-pointer shadow-premium hover:shadow-2xl transition-all duration-700 block border border-slate-100 dark:border-slate-800"
               >
-                <img
+                <Image
                   src={location.image || "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=2070&auto=format&fit=crop"}
                   alt={location.name}
+                  width={400}
+                  height={450}
                   className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                 />
                 {/* Overlay */}

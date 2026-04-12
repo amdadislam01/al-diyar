@@ -2,6 +2,7 @@
 
 import React, { useRef, useEffect } from "react";
 import gsap from "gsap";
+import Image from "next/image";
 
 const CLOUDS = [
   // Background clouds (behind building & heading)
@@ -294,28 +295,31 @@ const Hero = () => {
         {/* ─── Floating Clouds Layer ─── */}
         <div className="absolute inset-0 pointer-events-none">
           {CLOUDS.map((cloud) => (
-            <img
+            <div
               key={cloud.id}
-              src="/images/cloude.png"
-              alt=""
-              aria-hidden="true"
-              className={`floating-cloud absolute ${cloud.width} ${cloud.opacity} ${cloud.blur} ${cloud.zIndex} drop-shadow-lg select-none`}
+              className={`floating-cloud absolute ${cloud.width} aspect-video ${cloud.opacity} ${cloud.blur} ${cloud.zIndex} drop-shadow-lg select-none`}
               style={{ top: cloud.top, left: "-30vw" }}
               data-speed={cloud.speed}
               data-progress={cloud.startProgress}
               data-ydrift={cloud.yDrift}
-            />
+            >
+              <Image
+                src="/images/cloude.png"
+                alt=""
+                fill
+                className="object-contain"
+                aria-hidden="true"
+              />
+            </div>
           ))}
         </div>
 
-        {/* Headline */}
         <div className="relative z-20 w-full max-w-4xl mb-10 md:mb-14">
           <h1
             ref={headingRef}
             className="text-[clamp(3rem,6vw,6rem)] md:text-[clamp(2.8rem,6vw,6rem)] text-slate-900 dark:text-white leading-[0.8] absolute top-16 md:-top-6 left-0 w-full text-center transition-colors duration-300"
             style={{
-              fontFamily:
-                "'PPRightGrotesk', system-ui, sans-serif",
+              fontFamily: "'PPRightGrotesk', system-ui, sans-serif",
               fontWeight: 900,
             }}
           >
@@ -354,9 +358,12 @@ const Hero = () => {
             {/* <div className="relative h-auto"> */}
 
             {/* Building image – overflows the arch top */}
-            <img
+            <Image
               src="/images/building.png"
               alt="Premium Building"
+              width={800}
+              height={1000}
+              priority
               className="relative z-10 w-full h-[650px] object-contain drop-shadow-2xl top-26"
             />
             {/* </div> */}
@@ -391,9 +398,11 @@ const Hero = () => {
                   key={i}
                   className="w-12 h-12 rounded-full border-[3px] border-white dark:border-slate-800 overflow-hidden bg-slate-200 dark:bg-slate-800 shadow-lg transition-colors duration-300"
                 >
-                  <img
+                  <Image
                     src={`https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=1974&auto=format&fit=crop`}
                     alt={`Agent`}
+                    width={48}
+                    height={48}
                     className="w-full h-full object-cover"
                   />
                 </div>
