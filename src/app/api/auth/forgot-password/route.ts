@@ -49,16 +49,12 @@ export async function POST(request: NextRequest) {
         );
 
         if (!updatedUser) {
-            console.log('❌ Failed to update user with reset token');
             return NextResponse.json(
                 { error: 'Failed to process request. Please try again.' },
                 { status: 500 }
             );
         }
 
-        console.log('💾 Reset token saved for user:', email);
-        console.log('🕒 Expiry set to:', tokenExpiry);
-        console.log('📝 FULL Hashed token stored:', hashedToken);
 
         // Send the email with the UNHASHED token
         await sendResetPasswordEmail(user.email, resetToken, user.name);
