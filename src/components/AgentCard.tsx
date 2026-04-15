@@ -1,14 +1,19 @@
 import Image from "next/image";
+import Link from "next/link";
 
 interface AgentProps {
+  id: string;
   name: string;
   specialty: string;
   image: string;
 }
 
-const AgentCard = ({ name, image }: AgentProps) => {
+const AgentCard = ({ id, name, image }: AgentProps) => {
   return (
-    <div className="group bg-white dark:bg-slate-900 rounded-4xl overflow-hidden shadow-card dark:shadow-premium hover:shadow-xl transition-all duration-500 border border-slate-100 h-full dark:border-slate-800">
+    <Link 
+      href={`/agents/${id}`}
+      className="group block bg-white dark:bg-slate-900 rounded-4xl overflow-hidden shadow-card dark:shadow-premium hover:shadow-xl transition-all duration-500 border border-slate-100 h-full dark:border-slate-800"
+    >
       <div className="aspect-4/5 overflow-hidden">
         <Image
           src={image}
@@ -30,18 +35,18 @@ const AgentCard = ({ name, image }: AgentProps) => {
             </p>
           </div>
           <div className="flex gap-2">
-            <button className="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 dark:text-slate-500 hover:text-slate-900 dark:hover:text-white transition-all">
+            <div className="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 dark:text-slate-500 group-hover:text-slate-900 dark:group-hover:text-white transition-all">
               <span className="material-icons-round text-lg">public</span>
-            </button>
-            <button className="w-8 h-8 rounded-lg bg-slate-900 dark:bg-white flex items-center justify-center text-white dark:text-slate-900 shadow-lg">
+            </div>
+            <div className="w-8 h-8 rounded-lg bg-slate-900 dark:bg-white flex items-center justify-center text-white dark:text-slate-900 shadow-lg group-hover:bg-primary-light transition-colors">
               <span className="material-icons-round text-lg">
                 arrow_forward
               </span>
-            </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 
