@@ -322,12 +322,12 @@ const AboutPage = () => {
             
             <h2 className="text-4xl md:text-5xl font-black mb-8 relative z-10">Ready to find your <br /> next chapter?</h2>
             <div className="flex flex-wrap justify-center gap-4 relative z-10">
-              <button className="bg-white text-primary px-10 py-4 rounded-2xl font-black text-sm tracking-widest uppercase hover:bg-slate-100 transition-colors shadow-lg">
+              <Link href={'/property'} className="bg-white text-primary px-10 py-4 rounded-2xl font-black text-sm tracking-widest uppercase hover:bg-slate-100 transition-colors shadow-lg">
                 Explore Properties
-              </button>
-              <button className="bg-transparent border border-white/30 text-white px-10 py-4 rounded-2xl font-black text-sm tracking-widest uppercase hover:bg-white/10 transition-colors">
+              </Link>
+              <Link href={'/contact'} className="bg-transparent border border-white/30 text-white px-10 py-4 rounded-2xl font-black text-sm tracking-widest uppercase hover:bg-white hover:text-primary transition-colors cursor-pointer">
                 Contact Our Team
-              </button>
+              </Link>
             </div>
           </motion.div>
         </div>

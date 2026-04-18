@@ -70,6 +70,7 @@ const TopAgents = () => {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
                 <AgentCard
+                  id={agent._id}
                   name={agent.name}
                   image={agent.image || "/images/placeholder-agent.png"}
                   specialty={agent.companyName || "Real Estate Expert"}
