@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import AgentCard from "@/components/AgentCard";
 import { motion } from "framer-motion";
-import Link from "next/link";
 
 interface Agent {
   _id: string;
@@ -73,13 +72,12 @@ const AgentsPage = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <Link href={`/agents/${agent._id}`} className="block h-full">
-                  <AgentCard 
-                    name={agent.name} 
-                    image={agent.image || "/images/placeholder-agent.png"} 
-                    specialty={agent.companyName || "Real Estate Expert"} 
-                  />
-                </Link>
+                <AgentCard 
+                  id={agent._id}
+                  name={agent.name} 
+                  image={agent.image || "/images/placeholder-agent.png"} 
+                  specialty={agent.companyName || "Real Estate Expert"} 
+                />
               </motion.div>
             ))}
           </div>

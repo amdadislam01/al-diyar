@@ -2,190 +2,235 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Mail, Phone, MapPin, Send, Globe, MessageSquare } from "lucide-react";
+import { Mail, Phone, MapPin, Send, Instagram, Twitter, Linkedin, Facebook, Clock, ArrowUpRight } from "lucide-react";
 
-const contactDetails = [
+const channels = [
   {
     icon: Phone,
-    title: "Call Us",
-    detail: "+880 123 456 789",
-    subDetail: "Available Mon-Fri, 9am - 6pm",
-    color: "bg-blue-500",
+    title: "Direct Line",
+    value: "+880 123 456 789",
+    description: "Available Mon-Fri, 9am - 6pm",
+    color: "text-primary",
+    bg: "bg-slate-50 dark:bg-slate-900",
   },
   {
     icon: Mail,
-    title: "Email Us",
-    detail: "aldiyarmarketplace@gmail.com",
-    subDetail: "Expect a response within 24h",
-    color: "bg-emerald-500",
+    title: "Email Inquiry",
+    value: "hello@aldiyar.com",
+    description: "Response within 24 hours",
+    color: "text-primary",
+    bg: "bg-slate-50 dark:bg-slate-900",
   },
   {
     icon: MapPin,
-    title: "Visit Us",
-    detail: "Gulshan 2, Dhaka 1212",
-    subDetail: "Headquarters, Al-Diyar Tower",
-    color: "bg-amber-500",
+    title: "Headquarters",
+    value: "Gulshan 2, Dhaka 1212",
+    description: "Al-Diyar Tower, Level 14",
+    color: "text-primary",
+    bg: "bg-slate-50 dark:bg-slate-900",
   },
+];
+
+const social = [
+  { icon: Instagram, href: "#" },
+  { icon: Twitter, href: "#" },
+  { icon: Linkedin, href: "#" },
+  { icon: Facebook, href: "#" },
 ];
 
 const ContactPage = () => {
   return (
-    <div className="bg-white dark:bg-slate-950 transition-colors duration-500 pt-32 pb-24 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center mb-20">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light text-xs font-bold uppercase tracking-widest mb-6">
-              Connect with us
-            </span>
-            <h1 className="text-5xl md:text-7xl font-black text-slate-900 dark:text-white mb-6 tracking-tighter">
-              Let's Start a <span className="text-gradient">Conversation.</span>
-            </h1>
-            <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto font-medium leading-relaxed">
-              Have a question about a property, or want to join our team of elite agents?
-              Reach out and our specialists will be in touch shortly.
-            </p>
-          </motion.div>
+    <div className="bg-[#FCFCFD] dark:bg-slate-950 transition-colors duration-500 overflow-hidden font-display selection:bg-primary selection:text-white">
+      
+      {/* --- Professional Hero Section --- */}
+      <section className="relative min-h-[75vh] flex items-center pt-24">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="/images/contact/hero.png" 
+            alt="Elite Interior" 
+            className="w-full h-full object-cover"
+          />
+          {/* Refined Overlays */}
+          <div className="absolute inset-0 bg-white/70 dark:bg-slate-950/85 backdrop-blur-[2px]" />
+          <div className="absolute inset-0 bg-gradient-to-r from-white via-white/40 dark:from-slate-950 dark:via-slate-950/40 to-transparent" />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mb-24">
-          {contactDetails.map((item, index) => (
+        <div className="relative z-10 max-w-7xl mx-auto px-6 w-full">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="max-w-3xl"
+          >
+            <div className="flex items-center gap-4 text-primary font-bold text-[10px] uppercase tracking-[0.5em] mb-8">
+              <span className="w-8 h-[1px] bg-primary" />
+              Contact Al-Diyar
+            </div>
+            <h1 className="text-6xl md:text-8xl font-black text-slate-900 dark:text-white mb-8 tracking-tight leading-[0.95]">
+              Let&apos;s build your <br />
+              <span className="text-primary">legacy together.</span>
+            </h1>
+            <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400 font-medium leading-relaxed mb-10 max-w-lg">
+              Our consultants are ready to guide you through our exclusive portfolio of luxury penthouses and prime real estate.
+            </p>
+            
+            <div className="flex items-center gap-4">
+              {social.map((item, i) => (
+                <motion.a 
+                  key={i}
+                  href={item.href}
+                  whileHover={{ y: -2 }}
+                  className="w-10 h-10 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:border-primary hover:text-primary transition-colors"
+                >
+                  <item.icon size={18} />
+                </motion.a>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* --- Main Content Section --- */}
+      <div className="max-w-7xl mx-auto px-6 pb-32 relative z-20">
+        
+        {/* Contact Channels */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 -mt-20 mb-32">
+          {channels.map((channel, i) => (
             <motion.div
-              key={item.title}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="bg-slate-50 dark:bg-slate-900/50 p-10 rounded-[3rem] border border-slate-100 dark:border-slate-800 hover:shadow-premium transition-all group"
+              key={channel.title}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.1, duration: 0.5 }}
+              viewport={{ once: true }}
+              className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 group hover:border-primary/30 transition-all duration-300"
             >
-              <div className={`w-14 h-14 rounded-2xl ${item.color} flex items-center justify-center text-white mb-8 shadow-lg transition-transform group-hover:scale-110`}>
-                <item.icon size={28} />
+              <div className={`w-12 h-12 rounded-xl border border-slate-100 dark:border-slate-800 flex items-center justify-center mb-8 group-hover:bg-primary group-hover:text-white transition-all duration-300 ${channel.color}`}>
+                <channel.icon size={24} />
               </div>
-              <h3 className="text-xl font-black text-slate-900 dark:text-white mb-4 uppercase tracking-widest">{item.title}</h3>
-              <p className="text-lg font-bold text-slate-700 dark:text-slate-200 mb-1">{item.detail}</p>
-              <p className="text-sm text-slate-400 dark:text-slate-500 font-medium">{item.subDetail}</p>
+              <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-3">{channel.title}</h3>
+              <p className="text-xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">{channel.value}</p>
+              <p className="text-sm text-slate-500 font-medium">
+                {channel.description}
+              </p>
             </motion.div>
           ))}
         </div>
 
-        {/* Contact Form Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 xl:gap-32 items-start">
+          
+          {/* Left Side: Context & Branding */}
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
+            initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            className="relative h-full"
+            className="lg:sticky lg:top-32"
           >
-            <div className="bg-slate-900 rounded-[4rem] p-12 md:p-16 text-white h-full relative overflow-hidden flex flex-col justify-between">
-              {/* Decorative elements */}
-              <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2" />
-              <div className="absolute bottom-0 left-0 w-64 h-64 bg-accent/10 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/2" />
-
-              <div className="relative z-10">
-                <h2 className="text-4xl font-black mb-8 tracking-tighter">Why Reach Out?</h2>
-                <div className="space-y-10">
-                  <div className="flex gap-6">
-                    <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center shrink-0">
-                      <MessageSquare className="text-primary" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-lg mb-2">Expert Advice</h4>
-                      <p className="text-slate-400 text-sm leading-relaxed">Consult with our property experts to find the perfect home within your budget and requirements.</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-6">
-                    <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center shrink-0">
-                      <Globe className="text-emerald-400" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-lg mb-2">Global Network</h4>
-                      <p className="text-slate-400 text-sm leading-relaxed">Access an exclusive directory of off-market properties across the most prestigious neighborhoods.</p>
-                    </div>
-                  </div>
+            <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-[1.1] mb-8">
+              Expertise that <br />
+              <span className="text-primary">moves with you.</span>
+            </h2>
+            <div className="space-y-8 mb-12">
+              <p className="text-base text-slate-500 dark:text-slate-400 leading-relaxed max-w-md">
+                We provide bespoke real estate solutions for the discerning client. Our team ensures transparent communication and data-driven insights at every step of your journey.
+              </p>
+              
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0">
+                  <Clock size={20} />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Priority Inquiries</span>
+                  <span className="text-[10px] text-slate-500 font-medium">Avg Response: 45 Minutes</span>
                 </div>
               </div>
+            </div>
 
-              <div className="relative z-10 pt-16 mt-auto">
-                <div className="flex items-center gap-4 p-6 bg-white/5 rounded-3xl border border-white/10 backdrop-blur-sm">
-                  <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-primary">
-                    <img src="https://ui-avatars.com/api/?name=Agent&background=1e40af&color=fff" alt="Agent" className="w-full h-full object-cover" />
-                  </div>
-                  <div>
-                    <p className="font-bold text-sm">Need immediate help?</p>
-                    <p className="text-primary text-xs font-black uppercase tracking-widest">Chat with an expert</p>
-                  </div>
+            {/* Premium Map Preview */}
+            <div className="relative group rounded-2xl overflow-hidden aspect-video border border-slate-200 dark:border-slate-800 shadow-sm">
+              <img 
+                src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=2000" 
+                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                alt="Dhaka Map"
+              />
+              <div className="absolute inset-0 bg-slate-900/10" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-4 h-4 bg-primary rounded-full shadow-[0_0_15px_rgba(30,64,175,0.5)] border-2 border-white" />
+              </div>
+              <div className="absolute bottom-4 left-4">
+                <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-widest text-slate-900 dark:text-white border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-2">
+                  <MapPin size={10} className="text-primary" />
+                  Gulshan 2, Dhaka
                 </div>
               </div>
             </div>
           </motion.div>
 
-          {/* Form */}
+          {/* Right Side: Elevated Form */}
           <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
+            initial={{ opacity: 0, scale: 0.98 }}
+            whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
+            className="bg-white dark:bg-slate-900 p-8 md:p-12 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 relative"
           >
-            <form className="space-y-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-3">
-                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 block px-2">First Name</label>
-                  <input
-                    type="text"
-                    placeholder="John"
-                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl px-6 py-4 outline-none focus:border-primary transition-all font-bold placeholder:font-normal placeholder:opacity-50"
+            <div className="relative z-10">
+              <div className="mb-10">
+                <h3 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">Send a Message</h3>
+                <p className="text-sm text-slate-500 font-medium">Connect with our specialized consultants.</p>
+              </div>
+
+              <form className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">First Name</label>
+                    <input 
+                      type="text" 
+                      placeholder="John"
+                      className="w-full bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-4 outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all text-sm font-medium text-slate-900 dark:text-white"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Last Name</label>
+                    <input 
+                      type="text" 
+                      placeholder="Doe"
+                      className="w-full bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-4 outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all text-sm font-medium text-slate-900 dark:text-white"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
+                  <input 
+                    type="email" 
+                    placeholder="john@example.com"
+                    className="w-full bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-4 outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all text-sm font-medium text-slate-900 dark:text-white"
                   />
                 </div>
-                <div className="space-y-3">
-                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 block px-2">Last Name</label>
-                  <input
-                    type="text"
-                    placeholder="Doe"
-                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl px-6 py-4 outline-none focus:border-primary transition-all font-bold placeholder:font-normal placeholder:opacity-50"
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Message</label>
+                  <textarea 
+                    rows={4}
+                    placeholder="How can we help you?"
+                    className="w-full bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-4 outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all text-sm font-medium text-slate-900 dark:text-white resize-none"
                   />
                 </div>
-              </div>
 
-              <div className="space-y-3">
-                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 block px-2">Email Address</label>
-                <input
-                  type="email"
-                  placeholder="john@example.com"
-                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl px-6 py-4 outline-none focus:border-primary transition-all font-bold placeholder:font-normal placeholder:opacity-50"
-                />
-              </div>
+                <motion.button
+                  whileHover={{ y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit"
+                  className="w-full bg-primary text-white py-4 rounded-xl font-bold text-xs uppercase tracking-[0.2em] shadow-lg shadow-primary/10 hover:shadow-primary/20 transition-all flex items-center justify-center gap-3 group"
+                >
+                  Confirm Inquiry
+                  <ArrowUpRight size={16} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                </motion.button>
 
-              <div className="space-y-3">
-                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 block px-2">Matter of concern</label>
-                <select className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl px-6 py-4 outline-none focus:border-primary transition-all font-bold appearance-none">
-                  <option>Buying Property</option>
-                  <option>Selling Property</option>
-                  <option>Agent Partnership</option>
-                  <option>General Inquiry</option>
-                </select>
-              </div>
-
-              <div className="space-y-3">
-                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 block px-2">Message</label>
-                <textarea
-                  rows={6}
-                  placeholder="Tell us about your requirements..."
-                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl px-6 py-4 outline-none focus:border-primary transition-all font-bold placeholder:font-normal placeholder:opacity-50 resize-none"
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-6 rounded-3xl font-black text-sm uppercase tracking-[0.2em] hover:bg-primary hover:text-white transition-all shadow-xl shadow-slate-900/10 flex items-center justify-center gap-3 group"
-              >
-                Send Message
-                <Send size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-              </button>
-            </form>
+                <p className="text-center text-[10px] text-slate-400 font-medium uppercase tracking-widest">
+                  Confidential Inquiry • <span className="underline cursor-pointer">Privacy Policy</span>
+                </p>
+              </form>
+            </div>
           </motion.div>
         </div>
       </div>
